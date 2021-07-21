@@ -12,6 +12,7 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://sbrisard.github.io/Scapin.jl",
         assets = String[],
+        mathengine = MathJax3(),
     ),
     pages = ["Home" => "index.md"],
 )
