@@ -3,6 +3,22 @@ using Documenter
 
 DocMeta.setdocmeta!(Scapin, :DocTestSetup, :(using Scapin); recursive = true)
 
+mathengine = MathJax3(
+    Dict{Symbol,Any}(
+        :tex => Dict{String,Any}(
+            "macros" => Dict("reals" => "\\mathbb R"),
+            #"packages" => ["base", "ams", "autoload"],
+            "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
+            "tags" => "ams",
+        ),
+        :options => Dict(
+            "ignoreHtmlClass" => "tex2jax_ignore",
+            "processHtmlClass" => "tex2jax_process",
+        ),
+    ),
+    true,
+)
+
 makedocs(;
     modules = [Scapin],
     authors = "Sébastien Brisard <sbrisard@users.noreply.github.com> and contributors",
@@ -12,7 +28,7 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://sbrisard.github.io/Scapin.jl",
         assets = String[],
-        mathengine = MathJax3(),
+        mathengine = mathengine,
     ),
     pages = ["Home" => "index.md"],
 )

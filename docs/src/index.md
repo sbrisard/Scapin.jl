@@ -16,7 +16,7 @@ In order to use equation references, we activate Mathjax
 ```math
 \begin{equation}
 \label{eq:20210721084259}
-\int_0^{+\infty}\exp\bigl(-x^2\bigr)\mathrm{d} x=\frac{\sqrt{\pi}}2
+\int_\reals\exp\bigl(-x^2\bigr)\mathrm{d} x=\sqrt{\pi}
 \end{equation}
 ```
 
