@@ -1,0 +1,38 @@
+kill(all);
+
+print_cb(x) := block(
+  newline(),
+  print("```"),
+  if listp(x) then map(print, x) else print(x),
+  print("```"));
+
+print("# Hooke material");
+newline();
+print("The goal of this maxima script is to compute the expression of the stiffness");
+print("matrix (Mandel representation) of a Hooke material in 2 and 3 dimensions.");
+newline();
+print("**Note:** to save the output of this script as a markdown file, run the");
+print("following command");
+print_cb("with_stdout(\"hooke.md\", batchload(\"hooke.mac\"));");
+
+/* lambda_ : 2 * mu * nu / (1 - 2 * nu); */
+
+newline();
+newline();
+print("## 2d elasticity (plane strains)");
+
+I2 : transpose(matrix([1, 1, 0]));
+I4 : ident(3);
+C : factor(lambda_ * I2 . transpose(I2) + 2 * mu * I4);
+
+print_cb('C=C);
+
+newline();
+newline();
+print("## 3d elasticity");
+
+I2 : transpose(matrix([1, 1, 1, 0, 0, 0]));
+I4 : ident(6);
+C : factor(lambda_ * I2 . transpose(I2) + 2 * mu * I4);
+
+print_cb('C=C);
