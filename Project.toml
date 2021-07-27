@@ -3,6 +3,9 @@ uuid = "188fbd9f-a8f7-4e5f-b596-5bdd7575274e"
 authors = ["Sébastien Brisard <sbrisard@users.noreply.github.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
 [compat]
 julia = "1.6"
 
