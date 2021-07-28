@@ -1,7 +1,7 @@
 """
 Isotropic, linear elastic material.
 
-    Hooke{DIM}(μ::Float64, ν::Float64)
+    Hooke{T, DIM}(μ::T, ν::T)
 
 Create a new instance with shear modulus `μ` and Poisson ratio `ν`.
 
@@ -16,32 +16,32 @@ Create a new instance with shear modulus `μ` and Poisson ratio `ν`.
     stresses, the *true* Poisson ratio `ν` should be replaced with the *fictitious* ratio
     `ν̃ = ν / (1 + ν)`.
 """
-struct Hooke{DIM} <: AbstractMatrix{Float64}
+struct Hooke{T, DIM} <: AbstractMatrix{T}
     "The shear modulus."
-    μ::Float64
+    μ::T
     "The Poisson ratio."
-    ν::Float64
+    ν::T
     """
     Lamé I coefficient, such that the constitutive law reads
 
-        σ = λ⋅tr(ε) + 2⋅μ⋅ε,
+        σ = λ⋅tr(ε) + 2μ⋅ε,
 
     regardless of the dimensionality `DIM`.
     """
     λ::Float64
-    Hooke{DIM}(μ, ν) where {DIM} = new(μ, ν, 2μ * ν / (1 - 2ν))
+    Hooke{T, DIM}(μ::T, ν::T) where {T, DIM} = new(μ, ν, 2μ * ν / (1 - 2ν))
 end
 
-Base.size(::Hooke{DIM}) where {DIM} = ((DIM * (DIM + 1)) ÷ 2, (DIM * (DIM + 1)) ÷ 2)
+Base.size(::Hooke{T, DIM}) where {T, DIM} = ((DIM * (DIM + 1)) ÷ 2, (DIM * (DIM + 1)) ÷ 2)
 
-function Base.getindex(C::Hooke{DIM}, i::Int, j::Int) where {DIM}
-    value = 0.0
+function Base.getindex(C::Hooke{T, DIM}, i::Int, j::Int) where {T, DIM}
+    value = zero(T)
     (i == j) && (value += 2C.μ)
     (i <= DIM) && (j <= DIM) && (value += C.λ)
     return value
 end
 
-function Base.:*(C::Hooke{DIM}, ε::AbstractVector{Float64}) where {DIM}
+function Base.:*(C::Hooke{T, DIM}, ε::AbstractVector{T}) where {T, DIM}
     tr_ε = sum(ε[1:DIM])
     σ = 2C.μ * ε
     σ[1:DIM] .+= C.λ * tr_ε
@@ -67,5 +67,5 @@ and, for 3D elasticity
 """
 function bulk_modulus(::Hooke) end
 
-bulk_modulus(C::Hooke{2}) = C.μ / (1-2C.ν)
-bulk_modulus(C::Hooke{3}) = 2C.μ * (1+C.ν)/3 / (1-2C.ν)
+bulk_modulus(C::Hooke{T, 2}) where {T} = C.μ / (1-2C.ν)
+bulk_modulus(C::Hooke{T, 3}) where {T} = 2C.μ * (1+C.ν)/3 / (1-2C.ν)
