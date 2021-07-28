@@ -12,29 +12,12 @@ function isotropic_tensors(d)
     return I₄, J₄, K₄
 end
 
-
-function asmatrix(C)
-    (nrows, ncols) = size(C)
-    C_mat = zeros(nrows, ncols)
-    ε = zeros(Float64, ncols)
-    for j = 1:ncols
-        ε[j] = 1.0
-        C_mat[:, j] = C * ε
-        ε[j] = 0.0
+for d = 2:3
+    @testset "Hooke $(d)D" begin
+        (I₄, J₄, K₄) = isotropic_tensors(d)
+        C = Hooke{d}(1.0, 0.3)
+        C_exp = d * bulk_modulus(C) * J₄ + 2C.μ * K₄
+        C_act = convert(Array, C)
+        @test isapprox(C_act, C_exp, rtol = 1e-15)
     end
-    return C_mat
-end
-
-
-@testset "Hooke 2D" begin
-    d = 2
-    (I₄, J₄, K₄) = isotropic_tensors(d)
-    μ = 1.0
-    ν = 0.3
-    κ = μ / (1 - 2ν)
-    C_exp = d * κ * J₄ + 2μ * K₄
-    C_act = asmatrix(Hooke{d}(μ, ν))
-    @show size(C_exp)
-    @show size(C_act)
-    @assert isapprox(C_act, C_exp, rtol=1e-15)
 end
