@@ -34,6 +34,13 @@ end
 
 Base.size(::Hooke{DIM}) where {DIM} = ((DIM * (DIM + 1)) ÷ 2, (DIM * (DIM + 1)) ÷ 2)
 
+function Base.getindex(C::Hooke{DIM}, i::Int, j::Int) where {DIM}
+    value = 0.0
+    (i == j) && (value += 2C.μ)
+    (i <= DIM) && (j <= DIM) && (value += C.λ)
+    return value
+end
+
 function Base.:*(C::Hooke{DIM}, ε::AbstractVector{Float64}) where {DIM}
     tr_ε = sum(ε[1:DIM])
     σ = 2C.μ * ε
