@@ -16,7 +16,7 @@ Create a new instance with shear modulus `μ` and Poisson ratio `ν`.
     stresses, the *true* Poisson ratio `ν` should be replaced with the *fictitious* ratio
     `ν̃ = ν / (1 + ν)`.
 """
-struct Hooke{DIM}
+struct Hooke{DIM} <: AbstractMatrix{Float64}
     "The shear modulus."
     μ::Float64
     "The Poisson ratio."
@@ -32,18 +32,7 @@ struct Hooke{DIM}
     Hooke{DIM}(μ, ν) where {DIM} = new(μ, ν, 2μ * ν / (1 - 2ν))
 end
 
-"""
-
-    Base.ndims(mat::Hooke{DIM})
-
-Return the number of dimensions of the space over which the constitutive law operates.
-"""
-Base.ndims(mat::Hooke{DIM}) where {DIM} = DIM
-
-Base.size(C::Hooke{2}) = (3, 3)
-Base.size(C::Hooke{2}, d) = 3
-Base.size(C::Hooke{3}) = (6, 6)
-Base.size(C::Hooke{3}, d) = 6
+Base.size(::Hooke{DIM}) where {DIM} = ((DIM * (DIM + 1)) ÷ 2, (DIM * (DIM + 1)) ÷ 2)
 
 function Base.:*(C::Hooke{DIM}, ε::AbstractVector{Float64}) where {DIM}
     tr_ε = sum(ε[1:DIM])
@@ -51,4 +40,3 @@ function Base.:*(C::Hooke{DIM}, ε::AbstractVector{Float64}) where {DIM}
     σ[1:DIM] .+= C.λ * tr_ε
     return σ
 end
-
