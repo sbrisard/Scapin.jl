@@ -2,6 +2,6 @@ module Scapin
 
 include("hooke.jl")
 
-export Hooke
+export Hooke, bulk_modulus
 
 end

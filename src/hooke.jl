@@ -47,3 +47,25 @@ function Base.:*(C::Hooke{DIM}, ε::AbstractVector{Float64}) where {DIM}
     σ[1:DIM] .+= C.λ * tr_ε
     return σ
 end
+
+"""
+    bulk_modulus(C::Hooke)
+
+Return the bulk modulus `κ` for the specified Hooke material.
+
+For plane strain elasticity
+
+```
+κ = μ / (1 - 2ν),
+```
+
+and, for 3D elasticity
+
+```
+κ = 2/3 μ (1 + ν) / (1 - 2ν).
+```
+"""
+function bulk_modulus(::Hooke) end
+
+bulk_modulus(C::Hooke{2}) = C.μ / (1-2C.ν)
+bulk_modulus(C::Hooke{3}) = 2C.μ * (1+C.ν)/3 / (1-2C.ν)
