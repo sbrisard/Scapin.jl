@@ -43,7 +43,25 @@ window.MathJax = {
       ]
     ],
     "macros": {
-      "reals": "\\mathbb R"
+      "I": "\\mathrm i",
+      "reals": "\\mathbb R",
+      "vec": [
+        "\\symbf{#1}",
+        1
+      ],
+      "tgrad": "\\operatorname{\\symbfsf{grad}}",
+      "tuple": [
+        "\\mathsf{#1}",
+        1
+      ],
+      "cellindices": "\\mathcal P",
+      "D": "\\mathrm d",
+      "tens": [
+        "\\symbfsf{#1}",
+        1
+      ],
+      "tdiv": "\\operatorname{\\symbfsf{div}}",
+      "integers": "\\mathbb Z"
     },
     "tags": "ams"
   },
