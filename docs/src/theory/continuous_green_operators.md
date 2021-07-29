@@ -18,14 +18,15 @@ being a ``Ω``-periodic tensor field
 ```
 
 where ``\tuple{n}`` denotes a ``d``-dimensional tuple of integers (see
-chapter~\ref{cha:20204224074257}). The wave vectors ``\vec k_{\tuple{n}}`` are
-given by
+[Nomenclature](@ref)). The wave vectors ``\vec k_{\tuple{n}}`` are given by
 
 ```math
 \begin{equation}
-  \label{eq:3}
-  \vec k_{\tuple{n}}=\frac{2\pi n_1}{L_1}\vec e_1+\frac{2\pi n_2}{L_2}\vec e_2+
-  \cdots+\frac{2\pi n_d}{L_d}\vec e_d,
+  \vec k_{\tuple{n}}
+  =\frac{2\pi n_1}{L_1}\vec e_1
+  +\frac{2\pi n_2}{L_2}\vec e_2
+  +\cdots
+  +\frac{2\pi n_d}{L_d}\vec e_d,
 \end{equation}
 ```
 
@@ -33,9 +34,8 @@ and the Fourier coefficients of ``\tens T`` are defined as follows
 
 ```math
 \begin{equation}
-  \label{eq:5}
-  \mathcal F(\tens T)(\vec k)=\frac1V\int_{\vec x∈Ω}\tens T(\vec x)
-  \exp(-\I\vec k\cdot\vec x)\,\D x_1\cdots\D x_d.
+  \mathcal F(\tens T)(\vec k)
+  =\frac1V\int_{\vec x∈Ω}\tens T(\vec x)\exp(-\I\vec k\cdot\vec x)\,\D x_1\cdots\D x_d.
 \end{equation}
 ```
 
@@ -44,7 +44,6 @@ It is recalled that the Fourier coefficients of the gradient and divergence of
 
 ```math
 \begin{equation}
-  \label{eq:4}
   \mathcal F(\tgrad\tens T)(\vec k)=\mathcal F(\tens T)(\vec k)\otimes\I\vec k
   \quad\text{and}\quad
   \mathcal F(\tdiv\tens T)(\vec k)=\mathcal F(\tens T)(\vec k)\cdot\I\vec k.
