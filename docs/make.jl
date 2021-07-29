@@ -8,8 +8,15 @@ mathengine = MathJax3(
         :tex => Dict{String,Any}(
             "macros" => Dict(
                 "cellindices" => "\\mathcal P",
+                "D" => "\\mathrm d",
+                "tdiv" => "\\operatorname{\\symbfsf{div}}",
+                "tgrad" => "\\operatorname{\\symbfsf{grad}}",
+                "I" => "\\mathrm i",
+                "integers" => "\\mathbb Z",
                 "reals" => "\\mathbb R",
+                "tens" => ["\\symbfsf{#1}", 1],
                 "tuple" => ["\\mathsf{#1}", 1],
+                "vec" => ["\\symbf{#1}", 1]
             ),
             #"packages" => ["base", "ams", "autoload"],
             "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
@@ -40,7 +47,7 @@ makedocs(;
     format = format,
     pages = [
         "Home" => "index.md",
-        "Theory" => "theory/nomenclature.md",
+        "Theory" => ["theory/nomenclature.md", "theory/continuous_green_operators.md"],
         "Library" => "api.md",
     ],
 )

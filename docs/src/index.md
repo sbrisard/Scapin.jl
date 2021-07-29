@@ -11,6 +11,7 @@ Documentation for [Scapin](https://github.com/sbrisard/Scapin.jl).
 ```@contents
 Pages = [
     "theory/nomenclature.md",
+	"theory/continuous_green_operators.md",
 ]
 ```
 
