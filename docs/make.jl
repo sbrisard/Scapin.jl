@@ -6,7 +6,11 @@ DocMeta.setdocmeta!(Scapin, :DocTestSetup, :(using Scapin); recursive = true)
 mathengine = MathJax3(
     Dict{Symbol,Any}(
         :tex => Dict{String,Any}(
-            "macros" => Dict("reals" => "\\mathbb R"),
+            "macros" => Dict(
+                "cellindices" => "\\mathcal P",
+                "reals" => "\\mathbb R",
+                "tuple" => ["\\mathsf{#1}", 1],
+            ),
             #"packages" => ["base", "ams", "autoload"],
             "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
             "tags" => "ams",
@@ -34,7 +38,11 @@ makedocs(;
     repo = "https://github.com/sbrisard/Scapin.jl/blob/{commit}{path}#{line}",
     sitename = "Scapin.jl",
     format = format,
-    pages = ["Home" => "index.md"],
+    pages = [
+        "Home" => "index.md",
+        "Theory" => "theory/nomenclature.md",
+        "Library" => "api.md",
+    ],
 )
 
 deploydocs(; repo = "github.com/sbrisard/Scapin.jl", versions = nothing)

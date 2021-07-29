@@ -6,23 +6,18 @@ CurrentModule = Scapin
 
 Documentation for [Scapin](https://github.com/sbrisard/Scapin.jl).
 
-```@index
+## Theory
+
+```@contents
+Pages = [
+    "theory/nomenclature.md",
+]
 ```
 
-## Example of mathematical formula
+## API Docs
 
-In order to use equation references, we activate Mathjax
-
-```math
-\begin{equation}
-\label{eq:20210721084259}
-\int_\reals\exp\bigl(-x^2\bigr)\mathrm{d} x=\sqrt{\pi}
-\end{equation}
-```
-
-See Eq. ``\eqref{eq:20210721084259}``.
-
-
-```@autodocs
-Modules = [Scapin]
+```@contents
+Pages = [
+    "api.md"
+]
 ```
