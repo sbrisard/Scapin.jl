@@ -9,12 +9,15 @@ mathengine = MathJax3(
             "macros" => Dict(
                 "cellindices" => "\\mathcal P",
                 "D" => "\\mathrm d",
-                "tdiv" => "\\operatorname{\\symbfsf{div}}",
-                "tgrad" => "\\operatorname{\\symbfsf{grad}}",
+                "dbldot" => "\\mathbin{\\mathord{:}}",
                 "I" => "\\mathrm i",
                 "integers" => "\\mathbb Z",
                 "reals" => "\\mathbb R",
+                "strains" => "\\mathcal E",
+                "stresses" => "\\mathcal S",
+                "sym" => "\\operatorname{\\symbfsf{sym}}",
                 "tens" => ["\\symbfsf{#1}", 1],
+                "tensors" => "\\mathcal T",
                 "tuple" => ["\\mathsf{#1}", 1],
                 "vec" => ["\\symbf{#1}", 1]
             ),
