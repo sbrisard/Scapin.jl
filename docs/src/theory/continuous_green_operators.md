@@ -51,7 +51,7 @@ It is recalled that the Fourier coefficients of the gradient and divergence of
 ```
 
 When no confusion is possible, we will use the tilde to denote the Fourier
-coefficients: ``\tilde{\tens T}_n=\mathcal F(\tens T)(\vec k_n)``.
+coefficients: ``\tilde{\tens T}_\tuple{n}=\mathcal F(\tens T)(\vec k_\tuple{n})``.
 
 ## Conductivity
 
@@ -137,31 +137,31 @@ Owing to the periodic boundary conditions, we use Fourier series expansions of
     \tens\varepsilon(\vec x)\\
     \vec u(\vec x)
   \end{Bmatrix}
-  =\sum_{n\in\integers^d}
+  =\sum_{\tuple{n}\in\integers^d}
   \begin{Bmatrix}
-    \tilde{\tens\tau}_n\\
-    \tilde{\tens\sigma}_n\\
-    \tilde{\tens\varepsilon}_n\\
-    \tilde{\vec u}_n
+    \tilde{\tens\tau}_\tuple{n}\\
+    \tilde{\tens\sigma}_\tuple{n}\\
+    \tilde{\tens\varepsilon}_\tuple{n}\\
+    \tilde{\vec u}_\tuple{n}
   \end{Bmatrix}
-  \exp(\I \vec k_n\cdot\vec x).
+  \exp(\I \vec k_\tuple{n}\cdot\vec x).
 \end{equation}
 ```
 
-The Fourier modes ``\tilde{\tens\sigma}_n``, ``\tilde{\tens\varepsilon}_n`` and
-``\tilde{\vec u}_n`` solve the following equations (respectively: equilibrium,
+The Fourier modes ``\tilde{\tens\sigma}_\tuple{n}``, ``\tilde{\tens\varepsilon}_\tuple{n}`` and
+``\tilde{\vec u}_\tuple{n}`` solve the following equations (respectively: equilibrium,
 geometric compatibility, constitutive relation)
 
 ```math
 \begin{gather}
 \label{eq:20210730094655}
-\tilde{\tens\sigma}_n\cdot\vec k_n=\vec 0\\
+\tilde{\tens\sigma}_\tuple{n}\cdot\vec k_\tuple{n}=\vec 0\\
 \label{eq:20210730094504}
-\tilde{\tens\varepsilon}_n=\frac{\I}{2}\bigl(\tilde{\vec u}_n\otimes\vec k_n
-+\vec k_n\otimes\tilde{\vec u}_n\bigr)\\
+\tilde{\tens\varepsilon}_\tuple{n}=\frac{\I}{2}\bigl(\tilde{\vec u}_\tuple{n}\otimes\vec k_\tuple{n}
++\vec k_\tuple{n}\otimes\tilde{\vec u}_\tuple{n}\bigr)\\
 \label{eq:20210730094514}
-\tilde{\tens\sigma}_n=\tens C\dbldot\tilde{\tens\varepsilon}_n
-+\tilde{\tens\tau}_n.
+\tilde{\tens\sigma}_\tuple{n}=\tens C\dbldot\tilde{\tens\varepsilon}_\tuple{n}
++\tilde{\tens\tau}_\tuple{n}.
 \end{gather}
 ```
 
@@ -171,19 +171,19 @@ expression of ``\tilde{\tens\sigma}``
 
 ```math
 \begin{equation}
-  \tilde{\tens\sigma}_n
-  =\I\bigl(\tens C\cdot\vec k_n\bigr)\cdot\tilde{\vec u}_n+\tilde{\tens\tau}_n.
+  \tilde{\tens\sigma}_\tuple{n}
+  =\I\bigl(\tens C\cdot\vec k_\tuple{n}\bigr)\cdot\tilde{\vec u}_\tuple{n}+\tilde{\tens\tau}_\tuple{n}.
 \end{equation}
 ```
 
 The Cauchy stress tensor being symmetric, Eq. \eqref{eq:20210730094655} also
-reads ``\vec k_n\cdot\tilde{\tens{\sigma}}_n=\vec 0`` and
+reads ``\vec k_\tuple{n}\cdot\tilde{\tens{\sigma}}_\tuple{n}=\vec 0`` and
 
 ```math
 \begin{equation}
   \label{eq:16}
-  \tilde{\vec u}_n=\I\bigl(\vec k_n\cdot\tens C\cdot\vec k_n\bigr)^{-1}
-  \cdot\tilde{\tens\tau}_n\cdot\vec k_n
+  \tilde{\vec u}_\tuple{n}=\I\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
+  \cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}
 \end{equation}
 ```
 
@@ -193,22 +193,22 @@ field
 ```math
 \begin{equation}
 \label{eq:20210730094915}
-\tilde{\tens\varepsilon}_n=-\tfrac12\bigl[\bigl(\vec k_n\cdot\tens C\cdot
-\vec k_n\bigr)^{-1}\cdot\tilde{\tens\tau}_n\cdot\vec k_n\bigr]\otimes\vec k_n
--\tfrac12\vec k_n\otimes\bigl[\bigl(\vec k_n\cdot\tens C\cdot\vec k_n
-\bigr)^{-1}\cdot\tilde{\tens\tau}_n\cdot\vec k_n\bigr].
+\tilde{\tens\varepsilon}_\tuple{n}=-\tfrac12\bigl[\bigl(\vec k_\tuple{n}\cdot\tens C\cdot
+\vec k_\tuple{n}\bigr)^{-1}\cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}\bigr]\otimes\vec k_\tuple{n}
+-\tfrac12\vec k_\tuple{n}\otimes\bigl[\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}
+\bigr)^{-1}\cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}\bigr].
 \end{equation}
 ```
 
-The above relation defines a linear mapping between ``\tilde{\tens\tau}_n`` and
-``\tilde{\tens\varepsilon}_n``. For each Fourier mode ``n``, we therefore
-introduce the fourth-order tensor ``\tilde{\tensΓ}_n`` with major and minor
-symmetries, such that
-``\tilde{\tens\varepsilon}_n=-\tilde{\tensΓ}_n\dbldot{\tilde{\tens\tau}}_n``. From
+The above relation defines a linear mapping between
+``\tilde{\tens\tau}_\tuple{n}`` and ``\tilde{\tens\varepsilon}_\tuple{n}``. For
+each Fourier mode ``\tuple{n}``, we therefore introduce the fourth-order tensor
+``\tilde{\tens Γ}_\tuple{n}`` with major and minor symmetries, such that
+``\tilde{\tens\varepsilon}_\tuple{n}=-\tilde{\tensΓ}_\tuple{n}\dbldot{\tilde{\tens\tau}}_\tuple{n}``. From
 Eq. \eqref{eq:20210730094915}, it results that
-``\tilde{\tensΓ}_n=\hat{\tensΓ(\vec k)}`` where, for arbitrary wave-vector
-``\vec k``, ``\hat{\tensΓ}(\vec k)`` is a fourth-order tensor with major and
-minor symmetries, such that
+``\tilde{\tensΓ}_\tuple{n}=\hat{\tensΓ(\vec k_\tuple{n})}`` where, for arbitrary
+wave-vector ``\vec k``, ``\hat{\tensΓ}(\vec k)`` is a fourth-order tensor with
+major and minor symmetries, such that
 
 ```math
 \begin{equation}
@@ -237,7 +237,7 @@ coefficients. Then
 
 ```math
 \begin{equation}
-  \vec n\cdot\bigl(\tens I_2\otimes\tens I_2\bigr)\vec n=\vec n\otimes\vec n
+  \vec n\cdot\bigl(\tens I_2\otimes\tens I_2\bigr)\cdot\vec n=\vec n\otimes\vec n
 \end{equation}
 ```
 
@@ -273,8 +273,8 @@ are two orthogonal projectors (in the sense of the “``\dbldot``” product)
 ```math
 \begin{equation}
   2\mu\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}=\frac{1-2\nu}{1-\nu}\vec n
-  \otimes\vec n+2\bigl(\tens I_2-\vec n\otimes\vec n\bigr)=2\tens I_2-\frac1
-  {1-\nu}\vec n\otimes\vec n,
+  \otimes\vec n+2\bigl(\tens I_2-\vec n\otimes\vec n\bigr)=2\tens I_2
+  -\frac{\vec n\otimes\vec n}{1-\nu},
 \end{equation}
 ```
 
@@ -303,8 +303,8 @@ The components of the ``\hat{\tensΓ}`` tensor are then readily found
 
 ```math
 \begin{equation}
-  \hat{Γ}_{ijkl}(\vec k)=\frac1{4\mu}\bigl(\delta_{ik}n_jn_l+\delta_{il}n_j
-  n_k+\delta_{jk}n_in_l+\delta_{jl}n_in_k\bigr)-\frac{n_in_jn_kn_l}{2\mu\bigl(1-
+  \hat{Γ}_{ijkl}(\vec k)=\frac{\delta_{ik}n_jn_l+\delta_{il}n_jn_k
+  +\delta_{jk}n_in_l+\delta_{jl}n_in_k}{4\mu}-\frac{n_in_jn_kn_l}{2\mu\bigl(1-
     \nu\bigr)},
 \end{equation}
 ```
