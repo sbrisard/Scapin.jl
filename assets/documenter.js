@@ -43,24 +43,27 @@ window.MathJax = {
       ]
     ],
     "macros": {
-      "I": "\\mathrm i",
-      "reals": "\\mathbb R",
-      "vec": [
-        "\\symbf{#1}",
-        1
-      ],
-      "tgrad": "\\operatorname{\\symbfsf{grad}}",
+      "strains": "\\mathcal E",
       "tuple": [
         "\\mathsf{#1}",
         1
       ],
+      "dbldot": "\\mathbin{\\mathord{:}}",
+      "vec": [
+        "\\symbf{#1}",
+        1
+      ],
+      "sym": "\\operatorname{\\symbfsf{sym}}",
       "cellindices": "\\mathcal P",
       "D": "\\mathrm d",
+      "stresses": "\\mathcal S",
+      "I": "\\mathrm i",
+      "reals": "\\mathbb R",
       "tens": [
         "\\symbfsf{#1}",
         1
       ],
-      "tdiv": "\\operatorname{\\symbfsf{div}}",
+      "tensors": "\\mathcal T",
       "integers": "\\mathbb Z"
     },
     "tags": "ams"
