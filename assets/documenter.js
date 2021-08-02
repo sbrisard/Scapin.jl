@@ -54,6 +54,9 @@ window.MathJax = {
         1
       ],
       "sym": "\\operatorname{\\symbfsf{sym}}",
+      "conj": "\\operatorname{conj}",
+      "dft": "\\operatorname{DFT}",
+      "PI": "\\symup{\\pi}",
       "cellindices": "\\mathcal P",
       "D": "\\mathrm d",
       "stresses": "\\mathcal S",
@@ -64,6 +67,8 @@ window.MathJax = {
         1
       ],
       "tensors": "\\mathcal T",
+      "fftfreq": "\\operatorname{Z}",
+      "naturals": "\\mathbb N",
       "integers": "\\mathbb Z"
     },
     "tags": "ams"
