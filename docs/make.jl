@@ -19,7 +19,7 @@ mathengine = MathJax3(
                 "tens" => ["\\symbfsf{#1}", 1],
                 "tensors" => "\\mathcal T",
                 "tuple" => ["\\mathsf{#1}", 1],
-                "vec" => ["\\symbf{#1}", 1]
+                "vec" => ["\\symbf{#1}", 1],
             ),
             #"packages" => ["base", "ams", "autoload"],
             "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
@@ -50,7 +50,11 @@ makedocs(;
     format = format,
     pages = [
         "Home" => "index.md",
-        "Theory" => ["theory/nomenclature.md", "theory/continuous_green_operators.md"],
+        "Theory" => [
+            "theory/nomenclature.md",
+            "theory/continuous_green_operators.md",
+            "theory/discrete_green_operators.md",
+        ],
         "Library" => "api.md",
     ],
 )

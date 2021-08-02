@@ -12,6 +12,7 @@ Documentation for [Scapin](https://github.com/sbrisard/Scapin.jl).
 Pages = [
     "theory/nomenclature.md",
 	"theory/continuous_green_operators.md",
+	"theory/discrete_green_operators.md"
 ]
 ```
 

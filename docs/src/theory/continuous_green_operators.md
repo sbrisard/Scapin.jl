@@ -309,15 +309,9 @@ The components of the ``\hat{\tens Γ}`` tensor are then readily found
 \end{equation}
 ```
 
-```
-           δᵢₖnⱼnₗ + δᵢₗnⱼnₖ + δⱼₖnᵢnₗ + δⱼₗnᵢnₖ   nᵢnⱼnₖnₗ
-Γ̂ᵢⱼₖₗ(k⃗) = ───────────────────────────────────── + ────────
-                            4μ                     2μ(1-ν)
-```
-
 which coincide with classical expressions \parencite[see
-e.g.][]{suqu1990}. Implementation of the above equation is cumbersome; it is
-only used for testing purposes. In Scapin, only the `matvec` product is
-required: Eq. \eqref{eq:20210730095803} was implemented.
+e.g.][]{suqu1990}. Implementation of the above equation is cumbersome;
+it is only used for testing purposes. In Scapin, only the `matvec`
+product is required: Eq. \eqref{eq:20210730095803} was implemented.
 
 ## Hyperelasticity
