@@ -75,7 +75,7 @@ following property
 The above condition is actually a *necessary and sufficient* condition for the
 ``x_{\tuple{p}}`` to be real.
 
-### The `fftfreq` function
+### The ``\fftfreq`` function
 
 For ``n, N\in\naturals``, ``0\leq n<N``, we introduce ``\fftfreq(n, N)``
 
@@ -93,11 +93,12 @@ For ``n<0`` or ``n\geq N``, ``\fftfreq(n, N)`` is defined by
 ``N``-periodicity. ``\fftfreq`` is very similar to the NumPy
 [fftfreq](https://numpy.org/doc/1.18/reference/generated/numpy.fft.fftfreq.html#numpy.fft.fftfreq)
 function. We have the important result (see proof in
-Sec. \ref{sec:20202503052552} of Appendix \ref{cha:20202603052606})
+Sec. [Properties of the ``\fftfreq`` function](@ref) of the [Appendix](@ref))
 
 ```math
 \begin{equation}
   \label{eq:20202503052504}
+  \tag{Prop. Z}
   \fftfreq(N-n, N)=
   \begin{cases}
     \fftfreq(n) & \text{if }2n=N,\\

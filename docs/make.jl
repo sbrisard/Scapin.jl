@@ -59,6 +59,7 @@ makedocs(;
             "theory/nomenclature.md",
             "theory/continuous_green_operators.md",
             "theory/discrete_green_operators.md",
+            "theory/appendix.md"
         ],
         "Library" => "api.md",
     ],
