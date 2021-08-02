@@ -148,9 +148,9 @@ constitutive relation)
 \end{gather}
 ```
 
-Plugging Eq. \eqref{eq:20210730094514} into Eq. \eqref{eq:20210730094504}, and
-recalling that ``\tens C`` has the minor symmetries, we find the following
-expression of ``\tilde{\tens\sigma}``
+Plugging the third equation into the second equation, and recalling that ``\tens
+C`` has the minor symmetries, we find the following expression of
+``\tilde{\tens\sigma}``
 
 ```math
 \tilde{\tens\sigma}_\tuple{n}
@@ -158,42 +158,36 @@ expression of ``\tilde{\tens\sigma}``
 +\tilde{\tens\tau}_\tuple{n}.
 ```
 
-The Cauchy stress tensor being symmetric, Eq. \eqref{eq:20210730094655} also
+The Cauchy stress tensor being symmetric, the first of the above equations also
 reads ``\vec k_\tuple{n}\cdot\tilde{\tens{\sigma}}_\tuple{n}=\vec 0`` and
 
 ```math
-\begin{equation}
-  \label{eq:16}
-  \tilde{\vec u}_\tuple{n}
-  =\I\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
-  \cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}
-\end{equation}
+\tilde{\vec u}_\tuple{n}
+=\I\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
+\cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}
 ```
 
 which delivers the following expression for the Fourier modes of the strain
 field
 
 ```math
-\begin{equation}
-\label{eq:20210730094915}
 \tilde{\tens\varepsilon}_\tuple{n}
 =-\tfrac12\bigl[\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
 \cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}\bigr]\otimes\vec k_\tuple{n}
 -\tfrac12\vec k_\tuple{n}
 \otimes\bigl[\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
 \cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}\bigr].
-\end{equation}
 ```
 
 The above relation defines a linear mapping between
 ``\tilde{\tens\tau}_\tuple{n}`` and ``\tilde{\tens\varepsilon}_\tuple{n}``. For
 each Fourier mode ``\tuple{n}``, we therefore introduce the fourth-order tensor
 ``\tilde{\tens\Gamma}_\tuple{n}`` with major and minor symmetries, such that
-``\tilde{\tens\varepsilon}_\tuple{n}=-\tilde{\tens\Gamma}_\tuple{n}\dbldot{\tilde{\tens\tau}}_\tuple{n}``. From
-Eq. \eqref{eq:20210730094915}, it results that
-``\tilde{\tens\Gamma}_\tuple{n}=\hat{\tens\Gamma(\vec k_\tuple{n})}`` where, for
-arbitrary wave-vector ``\vec k``, ``\hat{\tens\Gamma}(\vec k)`` is a
-fourth-order tensor with major and minor symmetries, such that
+``\tilde{\tens\varepsilon}_\tuple{n}=-\tilde{\tens\Gamma}_\tuple{n}\dbldot{\tilde{\tens\tau}}_\tuple{n}``. Our
+analysis shows that ``\tilde{\tens\Gamma}_\tuple{n}=\hat{\tens\Gamma}(\vec
+k_\tuple{n})`` where, for arbitrary wave-vector ``\vec k``,
+``\hat{\tens\Gamma}(\vec k)`` is a fourth-order tensor with major and minor
+symmetries, such that
 
 ```math
 \begin{equation}
@@ -206,10 +200,10 @@ fourth-order tensor with major and minor symmetries, such that
 \end{equation}
 ```
 
-where ``\vec n=\vec k/\lVert\vec k\rVert``. Eq. \eqref{eq:20210730095035}
-defines ``\hat{\tens\Gamma}(\vec k)`` by how it operates on second-order,
-symmetric tensors. A closed-form expression of this tensor can be derived in the
-case of an isotropic material, for which
+where ``\vec n=\vec k/\lVert\vec k\rVert``. The above equation defines
+``\hat{\tens\Gamma}(\vec k)`` by how it operates on second-order, symmetric
+tensors. A closed-form expression of this tensor can be derived in the case of
+an isotropic material, for which
 
 ```math
 \tens C=\lambda\tens I_2\otimes\tens I_2+2μ\tens I_4,
@@ -236,7 +230,9 @@ then (recalling that ``\lVert\vec n\rVert=1``)
 \end{aligned}
 ```
 
-and finally
+and finally, we find
+
+### The matrix-vector product for the Green operator of isotropic, linear elasticity
 
 ```math
 \vec n\cdot\tens C\cdot\vec n
@@ -265,16 +261,15 @@ from which it results that
 -\frac{\vec n\cdot\tilde{\tens\tau}\cdot\vec n}{1-\nu}\vec n
 ```
 
-and finally
+and we finally get
+
+### The components of the Green operator of isotropic, linear elasticity
 
 ```math
-\begin{equation}
-\label{eq:20210730095803}
 2\mu\hat{\tens \Gamma}(\vec k)\dbldot\tilde{\tens \tau}
 =\bigl(\tilde{\tens \tau}\cdot\vec n\bigr)\otimes\vec n
 +\vec n\otimes\bigl(\tilde{\tens \tau}\cdot\vec n\bigr)
 -\frac{\vec n\cdot\tilde{\tens \tau}\cdot\vec n}{1-\nu}\vec n\otimes\vec n.
-\end{equation}
 ```
 
 The components of the ``\hat{\tens \Gamma}`` tensor are then readily found
@@ -286,8 +281,9 @@ The components of the ``\hat{\tens \Gamma}`` tensor are then readily found
 ```
 
 which coincide with classical expressions \parencite[see
-e.g.][]{suqu1990}. Implementation of the above equation is cumbersome;
-it is only used for testing purposes. In Scapin, only the `matvec`
-product is required: Eq. \eqref{eq:20210730095803} was implemented.
+e.g.][]{suqu1990}. Implementation of the above equation is cumbersome; it is
+only used for testing purposes. In Scapin, only the `matvec` product is
+required, and the equation derived in Sec. [The matrix-vector product for the
+Green operator of isotropic, linear elasticity](@ref) was implemented.
 
 ## Hyperelasticity
