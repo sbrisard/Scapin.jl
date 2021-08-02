@@ -11,41 +11,33 @@ to be discussed in this chapter are expanded in Fourier series. ``\tens T``
 being a ``Ω``-periodic tensor field
 
 ```math
-\begin{equation}
 \tens T(\vec x)
 =\sum_{\tuple{n}∈\integers^d}\mathcal F(\tens T)(\vec k_{\tuple{n}})
 \exp(\I\vec k_{\tuple{n}}⋅\vec x),
-\end{equation}
 ```
 
 where ``\tuple{n}`` denotes a ``d``-dimensional tuple of integers (see
 [Nomenclature](@ref)). The wave vectors ``\vec k_{\tuple{n}}`` are given by
 
 ```math
-\begin{equation}
 \vec k_{\tuple{n}}=\frac{2\pi n_1}{L_1}\vec e_1+\frac{2\pi n_2}{L_2}\vec e_2
 +\cdots+\frac{2\pi n_d}{L_d}\vec e_d,
-\end{equation}
 ```
 
 and the Fourier coefficients of ``\tens T`` are defined as follows
 
 ```math
-\begin{equation}
 \mathcal F(\tens T)(\vec k)
 =\frac1V\int_{\vec x∈Ω}\tens T(\vec x)\exp(-\I\vec k⋅\vec x)\,\D x_1\cdots\D x_d.
-\end{equation}
 ```
 
 It is recalled that the Fourier coefficients of the gradient and divergence of
 ``\tens T`` can readily be computed from the Fourier coefficients of ``\tens T``
 
 ```math
-\begin{equation}
 \mathcal F(\tens T⊗\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)⊗\I\vec k
 \quad\text{and}\quad
 \mathcal F(\tens T⋅\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)⋅\I\vec k.
-\end{equation}
 ```
 
 When no confusion is possible, we will use the tilde to denote the Fourier
@@ -62,7 +54,6 @@ the space ``\tens\stresses(Ω)`` of periodic, self-equilibrated stresses is
 defined as follows
 
 ```math
-\begin{equation}
 \tens\sigma\in\stresses(Ω)\iff\left\{
 \begin{gathered}
 \tens\sigma\in\tensors_2(Ω)\\
@@ -71,7 +62,6 @@ defined as follows
 \text{-periodic for all }i=1, 2, \ldots, d\text{ (no summation),}
 \end{gathered}
 \right.
-\end{equation}
 ```
 
 where the last condition expresses the periodicity of tractions in all
@@ -80,7 +70,6 @@ directions parallel to the sides of the unit-cell. The space
 follows
 
 ```math
-\begin{equation}
 \tens\varepsilon\in\strains(Ω)\iff\left\{
 \begin{gathered}
 \tens\varepsilon\in\tensors_2(Ω)\\
@@ -90,19 +79,16 @@ follows
 \vec u\text{ is }Ω\text{-periodic.}
 \end{gathered}
 \right.
-\end{equation}
 ```
 
 Finally, we define the spaces of stresses and strains with zero average
 
 ```math
-\begin{equation}
 \stresses_0(Ω)=\bigl\{\tens\sigma\in\stresses(Ω),
 \langle\tens\sigma\rangle=\tens0\bigr\}
 \quad\text{and}\quad
 \strains_0(Ω)=\{\tens\varepsilon\in\strains(Ω),
 \langle\tens\varepsilon\rangle=\tens0\bigr\}.
-\end{equation}
 ```
 
 We are now ready to define the periodic, fourth-order Green operator for strains
@@ -114,12 +100,10 @@ conditions. In other words, we want to find the solution to the following
 problem
 
 ```math
-\begin{equation}
 \text{Find }\tens\sigma\in\stresses_0(Ω)
 \text{ and }\tens\varepsilon\in\strains_0(Ω)
 \text{ such that }\tens\sigma=\tens C\dbldot\tens\varepsilon+\tensτ
 \text{ a.e. in }Ω.
-\end{equation}
 ```
 
 [^1]: In other words, ``\tens C`` is a constant, fourth-order tensor with major
@@ -129,27 +113,26 @@ Owing to the periodic boundary conditions, we use Fourier series expansions of
 ``\tensτ``, ``\tens\sigma``, ``\tens\varepsilon`` and ``\vec u``
 
 ```math
-\begin{equation}
-  \begin{Bmatrix}
-    \tensτ(\vec x)\\
-    \tens\sigma(\vec x)\\
-    \tens\varepsilon(\vec x)\\
-    \vec u(\vec x)
-  \end{Bmatrix}
-  =\sum_{\tuple{n}\in\integers^d}
-  \begin{Bmatrix}
-    \tilde{\tensτ}_\tuple{n}\\
-    \tilde{\tens\sigma}_\tuple{n}\\
-    \tilde{\tens\varepsilon}_\tuple{n}\\
-    \tilde{\vec u}_\tuple{n}
-  \end{Bmatrix}
-  \exp(\I \vec k_\tuple{n}⋅\vec x).
-\end{equation}
+\begin{Bmatrix}
+\tensτ(\vec x)\\
+\tens\sigma(\vec x)\\
+\tens\varepsilon(\vec x)\\
+\vec u(\vec x)
+\end{Bmatrix}
+=\sum_{\tuple{n}\in\integers^d}
+\begin{Bmatrix}
+\tilde{\tensτ}_\tuple{n}\\
+\tilde{\tens\sigma}_\tuple{n}\\
+\tilde{\tens\varepsilon}_\tuple{n}\\
+\tilde{\vec u}_\tuple{n}
+\end{Bmatrix}
+\exp(\I \vec k_\tuple{n}⋅\vec x).
 ```
 
-The Fourier modes ``\tilde{\tens\sigma}_\tuple{n}``, ``\tilde{\tens\varepsilon}_\tuple{n}`` and
-``\tilde{\vec u}_\tuple{n}`` solve the following equations (respectively: equilibrium,
-geometric compatibility, constitutive relation)
+The Fourier modes ``\tilde{\tens\sigma}_\tuple{n}``,
+``\tilde{\tens\varepsilon}_\tuple{n}`` and ``\tilde{\vec u}_\tuple{n}`` solve
+the following equations (respectively: equilibrium, geometric compatibility,
+constitutive relation)
 
 ```math
 \begin{gather}
@@ -169,10 +152,8 @@ recalling that ``\tens C`` has the minor symmetries, we find the following
 expression of ``\tilde{\tens\sigma}``
 
 ```math
-\begin{equation}
-  \tilde{\tens\sigma}_\tuple{n}
-  =\I\bigl(\tens C⋅\vec k_\tuple{n}\bigr)⋅\tilde{\vec u}_\tuple{n}+\tilde{\tensτ}_\tuple{n}.
-\end{equation}
+\tilde{\tens\sigma}_\tuple{n}
+=\I\bigl(\tens C⋅\vec k_\tuple{n}\bigr)⋅\tilde{\vec u}_\tuple{n}+\tilde{\tensτ}_\tuple{n}.
 ```
 
 The Cauchy stress tensor being symmetric, Eq. \eqref{eq:20210730094655} also
@@ -225,9 +206,7 @@ tensors. A closed-form expression of this tensor can be derived in the case of
 an isotropic material, for which
 
 ```math
-\begin{equation}
-  \tens C=λ\tens I_2⊗\tens I_2+2μ\tens I_4,
-\end{equation}
+\tens C=λ\tens I_2⊗\tens I_2+2μ\tens I_4,
 ```
 
 where ``\tens I_2`` (resp. ``\tens I_4``) is the second-order
@@ -235,34 +214,28 @@ where ``\tens I_2`` (resp. ``\tens I_4``) is the second-order
 coefficients. Then
 
 ```math
-\begin{equation}
-  \vec n⋅\bigl(\tens I_2⊗\tens I_2\bigr)⋅\vec n=\vec n⊗\vec n
-\end{equation}
+\vec n⋅\bigl(\tens I_2⊗\tens I_2\bigr)⋅\vec n=\vec n⊗\vec n
 ```
 
 then (recalling that ``\lVert\vec n\rVert=1``)
 
 ```math
-\begin{equation}
-  \begin{aligned}[b]
-    \vec n⋅\tens I_4⋅\vec n&=\tfrac12 n_i\bigl(δ_{ik}δ_{jl}+
-    δ_{il}δ_{jk}\bigr)n_l\vec e_j⊗\vec e_k=\tfrac12\bigl(n_kn_j
-    +n_in_iδ_{jk}\bigr)\vec e_j⊗\vec e_k\\
-    &=\tfrac12\bigl[\vec n⊗\vec n+\bigl(\vec n⋅\vec n\bigr)\tens I_2
-    \bigr]=\tfrac12\bigl(\vec n⊗\vec n+\tens I_2\bigr)
-    =\vec n⊗\vec n+\tfrac12\bigl(\tens I_2-\vec n⊗\vec n\bigr)
-  \end{aligned}
-\end{equation}
+\begin{aligned}[b]
+\vec n⋅\tens I_4⋅\vec n&=\tfrac12 n_i\bigl(δ_{ik}δ_{jl}+
+δ_{il}δ_{jk}\bigr)n_l\vec e_j⊗\vec e_k=\tfrac12\bigl(n_kn_j
++n_in_iδ_{jk}\bigr)\vec e_j⊗\vec e_k\\
+&=\tfrac12\bigl[\vec n⊗\vec n+\bigl(\vec n⋅\vec n\bigr)\tens I_2
+\bigr]=\tfrac12\bigl(\vec n⊗\vec n+\tens I_2\bigr)
+=\vec n⊗\vec n+\tfrac12\bigl(\tens I_2-\vec n⊗\vec n\bigr)
+\end{aligned}
 ```
 
 and finally
 
 ```math
-\begin{equation}
-  \vec n⋅\tens C⋅\vec n=\bigl(λ+2μ\bigr)\vec n⊗\vec n+μ
-  \bigl(\tens I_2-\vec n⊗\vec n\bigr)=2μ\frac{1-ν}{1-2ν}\vec n
-  ⊗\vec n+μ\bigl(\tens I_2-\vec n⊗\vec n\bigr),
-\end{equation}
+\vec n⋅\tens C⋅\vec n=\bigl(λ+2μ\bigr)\vec n⊗\vec n+μ
+\bigl(\tens I_2-\vec n⊗\vec n\bigr)=2μ\frac{1-ν}{1-2ν}\vec n
+⊗\vec n+μ\bigl(\tens I_2-\vec n⊗\vec n\bigr),
 ```
 
 where ``ν`` denotes the Poisson ratio. The above second-order tensor is easily
@@ -270,21 +243,17 @@ inverted, since ``\vec n⊗\vec n`` and ``\tens I_2-\vec n⊗\vec n``
 are two orthogonal projectors (in the sense of the “``\dbldot``” product)
 
 ```math
-\begin{equation}
-  2μ\bigl(\vec n⋅\tens C⋅\vec n\bigr)^{-1}=\frac{1-2ν}{1-ν}\vec n
-  ⊗\vec n+2\bigl(\tens I_2-\vec n⊗\vec n\bigr)=2\tens I_2
-  -\frac{\vec n⊗\vec n}{1-ν},
-\end{equation}
+2μ\bigl(\vec n⋅\tens C⋅\vec n\bigr)^{-1}=\frac{1-2ν}{1-ν}\vec n
+⊗\vec n+2\bigl(\tens I_2-\vec n⊗\vec n\bigr)=2\tens I_2
+-\frac{\vec n⊗\vec n}{1-ν},
 ```
 
 from which it results that
 
 ```math
-\begin{equation}
-  2μ\bigl(\vec n⋅\tens C⋅\vec n\bigr)^{-1}⋅\tilde{\tensτ}⋅
-  \vec n=2\tilde{\tensτ}⋅\vec n-\frac{\vec n⋅\tilde{\tensτ}⋅
-    \vec n}{1-ν}\vec n
-\end{equation}
+2μ\bigl(\vec n⋅\tens C⋅\vec n\bigr)^{-1}⋅\tilde{\tensτ}⋅
+\vec n=2\tilde{\tensτ}⋅\vec n-\frac{\vec n⋅\tilde{\tensτ}⋅
+\vec n}{1-ν}\vec n
 ```
 
 and finally
@@ -302,11 +271,9 @@ and finally
 The components of the ``\hat{\tens Γ}`` tensor are then readily found
 
 ```math
-\begin{equation}
 \hat{Γ}_{ijkl}(\vec k)
 =\frac{δ_{ik}n_jn_l+δ_{il}n_jn_k+δ_{jk}n_in_l+δ_{jl}n_in_k}{4μ}
 -\frac{n_in_jn_kn_l}{2μ\bigl(1-ν\bigr)},
-\end{equation}
 ```
 
 which coincide with classical expressions \parencite[see
