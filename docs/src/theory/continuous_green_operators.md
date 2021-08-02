@@ -8,36 +8,36 @@ operator*.
 
 Owing to the periodic setting, the fields that are involved in the various BVPs
 to be discussed in this chapter are expanded in Fourier series. ``\tens T``
-being a ``Ω``-periodic tensor field
+being a ``\Omega``-periodic tensor field
 
 ```math
 \tens T(\vec x)
 =\sum_{\tuple{n}∈\integers^d}\mathcal F(\tens T)(\vec k_{\tuple{n}})
-\exp(\I\vec k_{\tuple{n}}⋅\vec x),
+\exp(\I\vec k_{\tuple{n}}\cdot\vec x),
 ```
 
 where ``\tuple{n}`` denotes a ``d``-dimensional tuple of integers (see
 [Nomenclature](@ref)). The wave vectors ``\vec k_{\tuple{n}}`` are given by
 
 ```math
-\vec k_{\tuple{n}}=\frac{2\pi n_1}{L_1}\vec e_1+\frac{2\pi n_2}{L_2}\vec e_2
-+\cdots+\frac{2\pi n_d}{L_d}\vec e_d,
+\vec k_{\tuple{n}}=\frac{2\PI n_1}{L_1}\vec e_1+\frac{2\PI n_2}{L_2}\vec e_2
++\cdots+\frac{2\PI n_d}{L_d}\vec e_d,
 ```
 
 and the Fourier coefficients of ``\tens T`` are defined as follows
 
 ```math
-\mathcal F(\tens T)(\vec k)
-=\frac1V\int_{\vec x∈Ω}\tens T(\vec x)\exp(-\I\vec k⋅\vec x)\,\D x_1\cdots\D x_d.
+\mathcal F(\tens T)(\vec k)=\frac1V\int_{\vec x∈\Omega}
+\tens T(\vec x)\exp(-\I\vec k\cdot\vec x)\,\D x_1\cdots\D x_d.
 ```
 
 It is recalled that the Fourier coefficients of the gradient and divergence of
 ``\tens T`` can readily be computed from the Fourier coefficients of ``\tens T``
 
 ```math
-\mathcal F(\tens T⊗\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)⊗\I\vec k
+\mathcal F(\tens T\otimes\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)\otimes\I\vec k
 \quad\text{and}\quad
-\mathcal F(\tens T⋅\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)⋅\I\vec k.
+\mathcal F(\tens T\cdot\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)\cdot\I\vec k.
 ```
 
 When no confusion is possible, we will use the tilde to denote the Fourier
@@ -48,17 +48,17 @@ k_\tuple{n})``.
 
 ## Elasticity
 
-We first define a few functional spaces; ``\tensors_2(Ω)`` denotes the space of
-second-order, symmetric, tensor fields, with square-integrable components. Then,
-the space ``\tens\stresses(Ω)`` of periodic, self-equilibrated stresses is
-defined as follows
+We first define a few functional spaces; ``\tensors_2(\Omega)`` denotes the
+space of second-order, symmetric, tensor fields, with square-integrable
+components. Then, the space ``\tens\stresses(\Omega)`` of periodic,
+self-equilibrated stresses is defined as follows
 
 ```math
-\tens\sigma\in\stresses(Ω)\iff\left\{
+\tens\sigma\in\stresses(\Omega)\iff\left\{
 \begin{gathered}
-\tens\sigma\in\tensors_2(Ω)\\
-\tens\sigma⋅\nabla=\vec 0\text{ a.e in }Ω\\
-\tens\sigma⋅\vec e_i\text{ is }L_i\vec e_i
+\tens\sigma\in\tensors_2(\Omega)\\
+\tens\sigma\cdot\nabla=\vec 0\text{ a.e in }\Omega\\
+\tens\sigma\cdot\vec e_i\text{ is }L_i\vec e_i
 \text{-periodic for all }i=1, 2, \ldots, d\text{ (no summation),}
 \end{gathered}
 \right.
@@ -66,17 +66,17 @@ defined as follows
 
 where the last condition expresses the periodicity of tractions in all
 directions parallel to the sides of the unit-cell. The space
-``\tens\strains(Ω)`` of periodic, geometrically compatible strains is defined as
-follows
+``\tens\strains(\Omega)`` of periodic, geometrically compatible strains is
+defined as follows
 
 ```math
-\tens\varepsilon\in\strains(Ω)\iff\left\{
+\tens\varepsilon\in\strains(\Omega)\iff\left\{
 \begin{gathered}
-\tens\varepsilon\in\tensors_2(Ω)\\
-\tens\varepsilon=\sym\bigl(\vec u⊗\nabla\bigr)
-\text{ a.e. in }Ω\text{ for some vector field }\vec u\\
+\tens\varepsilon\in\tensors_2(\Omega)\\
+\tens\varepsilon=\sym\bigl(\vec u\otimes\nabla\bigr)
+\text{ a.e. in }\Omega\text{ for some vector field }\vec u\\
 \vec u\text{ has square-integrable components}\\
-\vec u\text{ is }Ω\text{-periodic.}
+\vec u\text{ is }\Omega\text{-periodic.}
 \end{gathered}
 \right.
 ```
@@ -84,49 +84,49 @@ follows
 Finally, we define the spaces of stresses and strains with zero average
 
 ```math
-\stresses_0(Ω)=\bigl\{\tens\sigma\in\stresses(Ω),
+\stresses_0(\Omega)=\bigl\{\tens\sigma\in\stresses(\Omega),
 \langle\tens\sigma\rangle=\tens0\bigr\}
 \quad\text{and}\quad
-\strains_0(Ω)=\{\tens\varepsilon\in\strains(Ω),
+\strains_0(\Omega)=\{\tens\varepsilon\in\strains(\Omega),
 \langle\tens\varepsilon\rangle=\tens0\bigr\}.
 ```
 
 We are now ready to define the periodic, fourth-order Green operator for strains
-``\tens Γ``. Let ``\tens C`` be the homogeneous elastic stiffness of the body
-``Ω``[^1]. Let ``\tensτ\in\tensors_2(Ω)`` be a prescribed tensor field
-(*stress-polarization*). We want to find the equilibrium state of the body
-``Ω``, subjected to the eigenstress ``\tensτ`` and periodic boundary
-conditions. In other words, we want to find the solution to the following
-problem
+``\tens\Gamma``. Let ``\tens C`` be the homogeneous elastic stiffness of the
+body ``\Omega``[^1]. Let ``\tens\tau\in\tensors_2(\Omega)`` be a prescribed
+tensor field (*stress-polarization*). We want to find the equilibrium state of
+the body ``\Omega``, subjected to the eigenstress ``\tens\tau`` and periodic
+boundary conditions. In other words, we want to find the solution to the
+following problem
 
 ```math
-\text{Find }\tens\sigma\in\stresses_0(Ω)
-\text{ and }\tens\varepsilon\in\strains_0(Ω)
-\text{ such that }\tens\sigma=\tens C\dbldot\tens\varepsilon+\tensτ
-\text{ a.e. in }Ω.
+\text{Find }\tens\sigma\in\stresses_0(\Omega)
+\text{ and }\tens\varepsilon\in\strains_0(\Omega)
+\text{ such that }\tens\sigma=\tens C\dbldot\tens\varepsilon+\tens\tau
+\text{ a.e. in }\Omega.
 ```
 
 [^1]: In other words, ``\tens C`` is a constant, fourth-order tensor with major
       and minor symmetries; furthermore, ``\tens C`` is positive definite.
 
 Owing to the periodic boundary conditions, we use Fourier series expansions of
-``\tensτ``, ``\tens\sigma``, ``\tens\varepsilon`` and ``\vec u``
+``\tens\tau``, ``\tens\sigma``, ``\tens\varepsilon`` and ``\vec u``
 
 ```math
 \begin{Bmatrix}
-\tensτ(\vec x)\\
+\tens\tau(\vec x)\\
 \tens\sigma(\vec x)\\
 \tens\varepsilon(\vec x)\\
 \vec u(\vec x)
 \end{Bmatrix}
 =\sum_{\tuple{n}\in\integers^d}
 \begin{Bmatrix}
-\tilde{\tensτ}_\tuple{n}\\
+\tilde{\tens\tau}_\tuple{n}\\
 \tilde{\tens\sigma}_\tuple{n}\\
 \tilde{\tens\varepsilon}_\tuple{n}\\
 \tilde{\vec u}_\tuple{n}
 \end{Bmatrix}
-\exp(\I \vec k_\tuple{n}⋅\vec x).
+\exp(\I \vec k_\tuple{n}\cdot\vec x).
 ```
 
 The Fourier modes ``\tilde{\tens\sigma}_\tuple{n}``,
@@ -137,13 +137,14 @@ constitutive relation)
 ```math
 \begin{gather}
 \label{eq:20210730094655}
-\tilde{\tens\sigma}_\tuple{n}⋅\vec k_\tuple{n}=\vec 0\\
+\tilde{\tens\sigma}_\tuple{n}\cdot\vec k_\tuple{n}=\vec 0\\
 \label{eq:20210730094504}
-\tilde{\tens\varepsilon}_\tuple{n}=\frac{\I}{2}\bigl(\tilde{\vec u}_\tuple{n}⊗\vec k_\tuple{n}
-+\vec k_\tuple{n}⊗\tilde{\vec u}_\tuple{n}\bigr)\\
+\tilde{\tens\varepsilon}_\tuple{n}
+=\frac{\I}{2}\bigl(\tilde{\vec u}_\tuple{n}\otimes\vec k_\tuple{n}
++\vec k_\tuple{n}\otimes\tilde{\vec u}_\tuple{n}\bigr)\\
 \label{eq:20210730094514}
 \tilde{\tens\sigma}_\tuple{n}=\tens C\dbldot\tilde{\tens\varepsilon}_\tuple{n}
-+\tilde{\tensτ}_\tuple{n}.
++\tilde{\tens\tau}_\tuple{n}.
 \end{gather}
 ```
 
@@ -153,17 +154,19 @@ expression of ``\tilde{\tens\sigma}``
 
 ```math
 \tilde{\tens\sigma}_\tuple{n}
-=\I\bigl(\tens C⋅\vec k_\tuple{n}\bigr)⋅\tilde{\vec u}_\tuple{n}+\tilde{\tensτ}_\tuple{n}.
+=\I\bigl(\tens C\cdot\vec k_\tuple{n}\bigr)\cdot\tilde{\vec u}_\tuple{n}
++\tilde{\tens\tau}_\tuple{n}.
 ```
 
 The Cauchy stress tensor being symmetric, Eq. \eqref{eq:20210730094655} also
-reads ``\vec k_\tuple{n}⋅\tilde{\tens{\sigma}}_\tuple{n}=\vec 0`` and
+reads ``\vec k_\tuple{n}\cdot\tilde{\tens{\sigma}}_\tuple{n}=\vec 0`` and
 
 ```math
 \begin{equation}
   \label{eq:16}
-  \tilde{\vec u}_\tuple{n}=\I\bigl(\vec k_\tuple{n}⋅\tens C⋅\vec k_\tuple{n}\bigr)^{-1}
-  ⋅\tilde{\tensτ}_\tuple{n}⋅\vec k_\tuple{n}
+  \tilde{\vec u}_\tuple{n}
+  =\I\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
+  \cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}
 \end{equation}
 ```
 
@@ -173,87 +176,93 @@ field
 ```math
 \begin{equation}
 \label{eq:20210730094915}
-\tilde{\tens\varepsilon}_\tuple{n}=-\tfrac12\bigl[\bigl(\vec k_\tuple{n}⋅\tens C⋅
-\vec k_\tuple{n}\bigr)^{-1}⋅\tilde{\tensτ}_\tuple{n}⋅\vec k_\tuple{n}\bigr]⊗\vec k_\tuple{n}
--\tfrac12\vec k_\tuple{n}⊗\bigl[\bigl(\vec k_\tuple{n}⋅\tens C⋅\vec k_\tuple{n}
-\bigr)^{-1}⋅\tilde{\tensτ}_\tuple{n}⋅\vec k_\tuple{n}\bigr].
+\tilde{\tens\varepsilon}_\tuple{n}
+=-\tfrac12\bigl[\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
+\cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}\bigr]\otimes\vec k_\tuple{n}
+-\tfrac12\vec k_\tuple{n}
+\otimes\bigl[\bigl(\vec k_\tuple{n}\cdot\tens C\cdot\vec k_\tuple{n}\bigr)^{-1}
+\cdot\tilde{\tens\tau}_\tuple{n}\cdot\vec k_\tuple{n}\bigr].
 \end{equation}
 ```
 
 The above relation defines a linear mapping between
-``\tilde{\tensτ}_\tuple{n}`` and ``\tilde{\tens\varepsilon}_\tuple{n}``. For
+``\tilde{\tens\tau}_\tuple{n}`` and ``\tilde{\tens\varepsilon}_\tuple{n}``. For
 each Fourier mode ``\tuple{n}``, we therefore introduce the fourth-order tensor
-``\tilde{\tens Γ}_\tuple{n}`` with major and minor symmetries, such that
-``\tilde{\tens\varepsilon}_\tuple{n}=-\tilde{\tensΓ}_\tuple{n}\dbldot{\tilde{\tensτ}}_\tuple{n}``. From
+``\tilde{\tens\Gamma}_\tuple{n}`` with major and minor symmetries, such that
+``\tilde{\tens\varepsilon}_\tuple{n}=-\tilde{\tens\Gamma}_\tuple{n}\dbldot{\tilde{\tens\tau}}_\tuple{n}``. From
 Eq. \eqref{eq:20210730094915}, it results that
-``\tilde{\tensΓ}_\tuple{n}=\hat{\tensΓ(\vec k_\tuple{n})}`` where, for arbitrary
-wave-vector ``\vec k``, ``\hat{\tensΓ}(\vec k)`` is a fourth-order tensor with
-major and minor symmetries, such that
+``\tilde{\tens\Gamma}_\tuple{n}=\hat{\tens\Gamma(\vec k_\tuple{n})}`` where, for
+arbitrary wave-vector ``\vec k``, ``\hat{\tens\Gamma}(\vec k)`` is a
+fourth-order tensor with major and minor symmetries, such that
 
 ```math
 \begin{equation}
   \label{eq:20210730095035}
-  \hat{\tensΓ}(\vec k)\dbldot\tilde{\tensτ}=\tfrac12\bigl[\bigl(\vec n
-  ⋅\tens C⋅\vec n\bigr)^{-1}⋅\tilde{\tensτ}⋅\vec n\bigr]
-  ⊗\vec n+\tfrac12\vec n⊗\bigl[\bigl(\vec n⋅\tens C⋅\vec n
-  \bigr)^{-1}⋅\tilde{\tensτ}⋅\vec n\bigr],
+  \hat{\tens\Gamma}(\vec k)\dbldot\tilde{\tens\tau}
+  =\tfrac12\bigl[\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
+  \cdot\tilde{\tens\tau}\cdot\vec n\bigr]\otimes\vec n
+  +\tfrac12\vec n\otimes\bigl[\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
+  \cdot\tilde{\tens\tau}\cdot\vec n\bigr],
 \end{equation}
 ```
 
 where ``\vec n=\vec k/\lVert\vec k\rVert``. Eq. \eqref{eq:20210730095035}
-defines ``\hat{\tensΓ}(\vec k)`` by how it operates on second-order, symmetric
-tensors. A closed-form expression of this tensor can be derived in the case of
-an isotropic material, for which
+defines ``\hat{\tens\Gamma}(\vec k)`` by how it operates on second-order,
+symmetric tensors. A closed-form expression of this tensor can be derived in the
+case of an isotropic material, for which
 
 ```math
-\tens C=λ\tens I_2⊗\tens I_2+2μ\tens I_4,
+\tens C=\lambda\tens I_2\otimes\tens I_2+2μ\tens I_4,
 ```
 
 where ``\tens I_2`` (resp. ``\tens I_4``) is the second-order
-(resp. fourth-order) identity tensor, and ``λ``, ``μ`` are the Lamé
+(resp. fourth-order) identity tensor, and ``\lambda``, ``μ`` are the Lamé
 coefficients. Then
 
 ```math
-\vec n⋅\bigl(\tens I_2⊗\tens I_2\bigr)⋅\vec n=\vec n⊗\vec n
+\vec n\cdot\bigl(\tens I_2\otimes\tens I_2\bigr)\cdot\vec n=\vec n\otimes\vec n
 ```
 
 then (recalling that ``\lVert\vec n\rVert=1``)
 
 ```math
 \begin{aligned}[b]
-\vec n⋅\tens I_4⋅\vec n&=\tfrac12 n_i\bigl(δ_{ik}δ_{jl}+
-δ_{il}δ_{jk}\bigr)n_l\vec e_j⊗\vec e_k=\tfrac12\bigl(n_kn_j
-+n_in_iδ_{jk}\bigr)\vec e_j⊗\vec e_k\\
-&=\tfrac12\bigl[\vec n⊗\vec n+\bigl(\vec n⋅\vec n\bigr)\tens I_2
-\bigr]=\tfrac12\bigl(\vec n⊗\vec n+\tens I_2\bigr)
-=\vec n⊗\vec n+\tfrac12\bigl(\tens I_2-\vec n⊗\vec n\bigr)
+\vec n\cdot\tens I_4\cdot\vec n&=\tfrac12 n_i\bigl(δ_{ik}δ_{jl}+
+δ_{il}δ_{jk}\bigr)n_l\vec e_j\otimes\vec e_k=\tfrac12\bigl(n_kn_j
++n_in_iδ_{jk}\bigr)\vec e_j\otimes\vec e_k\\
+&=\tfrac12\bigl[\vec n\otimes\vec n+\bigl(\vec n\cdot\vec n\bigr)\tens I_2
+\bigr]=\tfrac12\bigl(\vec n\otimes\vec n+\tens I_2\bigr)
+=\vec n\otimes\vec n+\tfrac12\bigl(\tens I_2-\vec n\otimes\vec n\bigr)
 \end{aligned}
 ```
 
 and finally
 
 ```math
-\vec n⋅\tens C⋅\vec n=\bigl(λ+2μ\bigr)\vec n⊗\vec n+μ
-\bigl(\tens I_2-\vec n⊗\vec n\bigr)=2μ\frac{1-ν}{1-2ν}\vec n
-⊗\vec n+μ\bigl(\tens I_2-\vec n⊗\vec n\bigr),
+\vec n\cdot\tens C\cdot\vec n
+=\bigl(\lambda+2\mu\bigr)\vec n\otimes\vec n
++\mu\bigl(\tens I_2-\vec n\otimes\vec n\bigr)
+=2\mu\frac{1-\nu}{1-2\nu}\vec n\otimes\vec n
++\mu\bigl(\tens I_2-\vec n\otimes\vec n\bigr),
 ```
 
-where ``ν`` denotes the Poisson ratio. The above second-order tensor is easily
-inverted, since ``\vec n⊗\vec n`` and ``\tens I_2-\vec n⊗\vec n``
+where ``\nu`` denotes the Poisson ratio. The above second-order tensor is easily
+inverted, since ``\vec n\otimes\vec n`` and ``\tens I_2-\vec n\otimes\vec n``
 are two orthogonal projectors (in the sense of the “``\dbldot``” product)
 
 ```math
-2μ\bigl(\vec n⋅\tens C⋅\vec n\bigr)^{-1}=\frac{1-2ν}{1-ν}\vec n
-⊗\vec n+2\bigl(\tens I_2-\vec n⊗\vec n\bigr)=2\tens I_2
--\frac{\vec n⊗\vec n}{1-ν},
+2\mu\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
+=\frac{1-2\nu}{1-\nu}\vec n\otimes\vec n+2\bigl(\tens I_2-\vec n\otimes\vec n\bigr)
+=2\tens I_2-\frac{\vec n\otimes\vec n}{1-\nu},
 ```
 
 from which it results that
 
 ```math
-2μ\bigl(\vec n⋅\tens C⋅\vec n\bigr)^{-1}⋅\tilde{\tensτ}⋅
-\vec n=2\tilde{\tensτ}⋅\vec n-\frac{\vec n⋅\tilde{\tensτ}⋅
-\vec n}{1-ν}\vec n
+2\mu\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
+\cdot\tilde{\tens\tau}\cdot\vec n
+=2\tilde{\tens\tau}\cdot\vec n
+-\frac{\vec n\cdot\tilde{\tens\tau}\cdot\vec n}{1-\nu}\vec n
 ```
 
 and finally
@@ -261,19 +270,19 @@ and finally
 ```math
 \begin{equation}
 \label{eq:20210730095803}
-2μ\hat{\tens Γ}(\vec k)\dbldot\tilde{\tens τ}
-=\bigl(\tilde{\tens τ}⋅\vec n\bigr)⊗\vec n
-+\vec n⊗\bigl(\tilde{\tens τ}⋅\vec n\bigr)
--\frac{\vec n⋅\tilde{\tens τ}⋅\vec n}{1-ν}\vec n⊗\vec n.
+2\mu\hat{\tens \Gamma}(\vec k)\dbldot\tilde{\tens \tau}
+=\bigl(\tilde{\tens \tau}\cdot\vec n\bigr)\otimes\vec n
++\vec n\otimes\bigl(\tilde{\tens \tau}\cdot\vec n\bigr)
+-\frac{\vec n\cdot\tilde{\tens \tau}\cdot\vec n}{1-\nu}\vec n\otimes\vec n.
 \end{equation}
 ```
 
-The components of the ``\hat{\tens Γ}`` tensor are then readily found
+The components of the ``\hat{\tens \Gamma}`` tensor are then readily found
 
 ```math
-\hat{Γ}_{ijkl}(\vec k)
-=\frac{δ_{ik}n_jn_l+δ_{il}n_jn_k+δ_{jk}n_in_l+δ_{jl}n_in_k}{4μ}
--\frac{n_in_jn_kn_l}{2μ\bigl(1-ν\bigr)},
+\hat{\Gamma}_{ijkl}(\vec k)
+=\frac{\delta_{ik}n_jn_l+\delta_{il}n_jn_k+\delta_{jk}n_in_l+\delta_{jl}n_in_k}{4\mu}
+-\frac{n_in_jn_kn_l}{2\mu\bigl(1-\nu\bigr)},
 ```
 
 which coincide with classical expressions \parencite[see
