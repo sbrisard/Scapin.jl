@@ -135,17 +135,14 @@ the following equations (respectively: equilibrium, geometric compatibility,
 constitutive relation)
 
 ```math
-\begin{gather}
-\label{eq:20210730094655}
+\begin{gathered}
 \tilde{\tens\sigma}_\tuple{n}\cdot\vec k_\tuple{n}=\vec 0\\
-\label{eq:20210730094504}
 \tilde{\tens\varepsilon}_\tuple{n}
 =\frac{\I}{2}\bigl(\tilde{\vec u}_\tuple{n}\otimes\vec k_\tuple{n}
 +\vec k_\tuple{n}\otimes\tilde{\vec u}_\tuple{n}\bigr)\\
-\label{eq:20210730094514}
 \tilde{\tens\sigma}_\tuple{n}=\tens C\dbldot\tilde{\tens\varepsilon}_\tuple{n}
 +\tilde{\tens\tau}_\tuple{n}.
-\end{gather}
+\end{gathered}
 ```
 
 Plugging the third equation into the second equation, and recalling that ``\tens
@@ -190,14 +187,11 @@ k_\tuple{n})`` where, for arbitrary wave-vector ``\vec k``,
 symmetries, such that
 
 ```math
-\begin{equation}
-  \label{eq:20210730095035}
-  \hat{\tens\Gamma}(\vec k)\dbldot\tilde{\tens\tau}
-  =\tfrac12\bigl[\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
-  \cdot\tilde{\tens\tau}\cdot\vec n\bigr]\otimes\vec n
-  +\tfrac12\vec n\otimes\bigl[\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
-  \cdot\tilde{\tens\tau}\cdot\vec n\bigr],
-\end{equation}
+\hat{\tens\Gamma}(\vec k)\dbldot\tilde{\tens\tau}
+=\tfrac12\bigl[\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
+\cdot\tilde{\tens\tau}\cdot\vec n\bigr]\otimes\vec n
++\tfrac12\vec n\otimes\bigl[\bigl(\vec n\cdot\tens C\cdot\vec n\bigr)^{-1}
+\cdot\tilde{\tens\tau}\cdot\vec n\bigr],
 ```
 
 where ``\vec n=\vec k/\lVert\vec k\rVert``. The above equation defines
@@ -220,19 +214,20 @@ coefficients. Then
 then (recalling that ``\lVert\vec n\rVert=1``)
 
 ```math
-\begin{aligned}[b]
-\vec n\cdot\tens I_4\cdot\vec n&=\tfrac12 n_i\bigl(δ_{ik}δ_{jl}+
-δ_{il}δ_{jk}\bigr)n_l\vec e_j\otimes\vec e_k=\tfrac12\bigl(n_kn_j
-+n_in_iδ_{jk}\bigr)\vec e_j\otimes\vec e_k\\
-&=\tfrac12\bigl[\vec n\otimes\vec n+\bigl(\vec n\cdot\vec n\bigr)\tens I_2
-\bigr]=\tfrac12\bigl(\vec n\otimes\vec n+\tens I_2\bigr)
+\begin{aligned}
+\vec n\cdot\tens I_4\cdot\vec n
+&=\tfrac12 n_i\bigl(\delta_{ik}\delta_{jl}+\delta_{il}\delta_{jk}\bigr)n_l
+\vec e_j\otimes\vec e_k
+=\tfrac12\bigl(n_kn_j+n_in_i\delta_{jk}\bigr)\vec e_j\otimes\vec e_k\\
+&=\tfrac12\bigl[\vec n\otimes\vec n+\bigl(\vec n\cdot\vec n\bigr)\tens I_2\bigr]
+=\tfrac12\bigl(\vec n\otimes\vec n+\tens I_2\bigr)
 =\vec n\otimes\vec n+\tfrac12\bigl(\tens I_2-\vec n\otimes\vec n\bigr)
 \end{aligned}
 ```
 
-and finally, we find
+and finally, we find the following expression of the “matrix-vector” product.
 
-### The matrix-vector product for the Green operator of isotropic, linear elasticity
+### [The “matrix-vector” product for the Green operator of isotropic, linear elasticity](@id sec20210803063111)
 
 ```math
 \vec n\cdot\tens C\cdot\vec n
@@ -281,9 +276,9 @@ The components of the ``\hat{\tens \Gamma}`` tensor are then readily found
 ```
 
 which coincide with classical expressions \parencite[see
-e.g.][]{suqu1990}. Implementation of the above equation is cumbersome; it is
-only used for testing purposes. In Scapin, only the `matvec` product is
-required, and the equation derived in Sec. [The matrix-vector product for the
-Green operator of isotropic, linear elasticity](@ref) was implemented.
+e.g.][]{suqu1990}. Implementation of the above equation is cumbersome;
+it is only used for testing purposes. In Scapin, only the `matvec`
+product is required, and the [the “matrix-vector” product](@ref
+sec20210803063111) was implemented.
 
 ## Hyperelasticity
