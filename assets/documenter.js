@@ -59,6 +59,7 @@ window.MathJax = {
       "PI": "\\symup{\\pi}",
       "cellindices": "\\mathcal P",
       "D": "\\mathrm d",
+      "sinc": "\\operatorname{sinc}",
       "stresses": "\\mathcal S",
       "I": "\\mathrm i",
       "reals": "\\mathbb R",
