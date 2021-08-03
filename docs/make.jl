@@ -87,6 +87,7 @@ makedocs(;
             "theory/continuous_green_operators.md",
             "theory/discrete_green_operators.md",
             "theory/appendix.md",
+            "theory/bibliography.md"
         ],
         "Library" => "api.md",
     ],

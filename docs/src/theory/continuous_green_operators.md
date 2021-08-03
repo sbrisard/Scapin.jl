@@ -275,10 +275,10 @@ The components of the ``\hat{\tens \Gamma}`` tensor are then readily found
 -\frac{n_in_jn_kn_l}{2\mu\bigl(1-\nu\bigr)},
 ```
 
-which coincide with classical expressions \parencite[see
-e.g.][]{suqu1990}. Implementation of the above equation is cumbersome;
-it is only used for testing purposes. In Scapin, only the `matvec`
-product is required, and the [the “matrix-vector” product](@ref
-sec20210803063111) was implemented.
+which coincide with classical expressions (see e.g. [Suquet,
+1990](@ref suqu1990)). Implementation of the above equation is
+cumbersome; it is only used for testing purposes. In Scapin, only the
+`matvec` product is required, and the [the “matrix-vector”
+product](@ref sec20210803063111) was implemented.
 
 ## Hyperelasticity

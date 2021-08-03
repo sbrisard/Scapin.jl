@@ -311,10 +311,10 @@ Any discrete operator that will be considered below must ensure that
 
 ## Discretizations of the Green operator
 
-### The discretization of \textcite{bris2010a}
+### The discretization of Brisard and Dormieux
 
-It was proved by \textcite{bris2010a} that, for all ``\tens\tau^{\tuple h},
-\tens\varpi^{\tuple h}\in\tensors_2^{\tuple h}(\Omega)``
+It was proved by Brisard and Dormieux [(2010)](@ref bris2010a) that, for all
+``\tens\tau^{\tuple h}, \tens\varpi^{\tuple h}\in\tensors_2^{\tuple h}(\Omega)``
 
 ```math
 \langle\tens\varpi^h\dbldot\tens\Gamma(\tens\tau^h)\rangle=\frac1{N^2}
@@ -353,11 +353,11 @@ general not be evaluated, owing to very slow convergence. Therefore, this
 discrete Green operator is unpractical, and is recalled here only for pedagocial
 reasons.
 
-## The discretization of \textcite{moul1994, moul1998}
+### The discretization of Moulinec and Suquet
 
-This is probably the most simple discretization, introduced first by
-\textcite{moul1994}. Only the lowest (positive and negative) frequencies are
-kept
+This is probably the most simple discretization, introduced first by Moulinec
+and Suquet ([1994](@ref moul1994), [1998](@ref moul1998)). Only the lowest
+(positive and negative) frequencies are kept
 
 ```math
 \hat{\tens\Gamma}_{\tuple n}^{\tuple h, \mathrm{MS94}}=\hat{\tens\Gamma}
@@ -396,8 +396,8 @@ and the property is verified. Conversely, if all the ``n_i`` are such that
 ```
 
 More problematic is the case when a few, but not all, ``n_i`` are such that
-``2n_i=N_i``. Then the property does not hold for such
-frequencies. \textcite{moul1998} use a specific treatment for such cases
+``2n_i=N_i``. Then the property does not hold for such frequencies. Moulinec and
+Suquet ([1998](@ref moul1998)) use a specific treatment for such cases
 
 ```math
 \hat{\tens\Gamma}(\vec k_{\tuple n})=\tens C^{-1},
