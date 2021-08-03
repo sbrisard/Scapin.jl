@@ -4,8 +4,10 @@ requirejs.config({
     'highlight-julia': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/languages/julia.min',
     'headroom': 'https://cdnjs.cloudflare.com/ajax/libs/headroom/0.12.0/headroom.min',
     'jqueryui': 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min',
+    'katex-auto-render': 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/contrib/auto-render.min',
     'jquery': 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min',
     'headroom-jquery': 'https://cdnjs.cloudflare.com/ajax/libs/headroom/0.12.0/jQuery.headroom.min',
+    'katex': 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min',
     'highlight': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/highlight.min',
     'highlight-julia-repl': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.1/languages/julia-repl.min',
   },
@@ -13,6 +15,11 @@ requirejs.config({
   "highlight-julia": {
     "deps": [
       "highlight"
+    ]
+  },
+  "katex-auto-render": {
+    "deps": [
+      "katex"
     ]
   },
   "headroom-jquery": {
@@ -29,64 +36,53 @@ requirejs.config({
 }
 });
 ////////////////////////////////////////////////////////////////////////////////
-require([], function() {
-window.MathJax = {
-  "tex": {
-    "inlineMath": [
-      [
-        "$",
-        "$"
-      ],
-      [
-        "\\(",
-        "\\)"
-      ]
-    ],
-    "macros": {
-      "strains": "\\mathcal E",
-      "tuple": [
-        "\\mathsf{#1}",
-        1
-      ],
-      "dbldot": "\\mathbin{\\mathord{:}}",
-      "vec": [
-        "\\symbf{#1}",
-        1
-      ],
-      "sym": "\\operatorname{\\symbfsf{sym}}",
-      "conj": "\\operatorname{conj}",
-      "dft": "\\operatorname{DFT}",
-      "PI": "\\symup{\\pi}",
-      "cellindices": "\\mathcal P",
-      "D": "\\mathrm d",
-      "sinc": "\\operatorname{sinc}",
-      "stresses": "\\mathcal S",
-      "I": "\\mathrm i",
-      "reals": "\\mathbb R",
-      "tens": [
-        "\\symbfsf{#1}",
-        1
-      ],
-      "tensors": "\\mathcal T",
-      "fftfreq": "\\operatorname{Z}",
-      "naturals": "\\mathbb N",
-      "integers": "\\mathbb Z"
+require(['jquery', 'katex', 'katex-auto-render'], function($, katex, renderMathInElement) {
+$(document).ready(function() {
+  renderMathInElement(
+    document.body,
+    {
+  "delimiters": [
+    {
+      "left": "$",
+      "right": "$",
+      "display": false
     },
-    "tags": "ams"
-  },
-  "options": {
-    "ignoreHtmlClass": "tex2jax_ignore",
-    "processHtmlClass": "tex2jax_process"
+    {
+      "left": "$$",
+      "right": "$$",
+      "display": true
+    },
+    {
+      "left": "\\[",
+      "right": "\\]",
+      "display": true
+    }
+  ],
+  "macros": {
+    "\\stresses": "\\mathcal S",
+    "\\vec": "\\bm",
+    "\\conj": "\\operatorname{conj}",
+    "\\dbldot": "\\mathbin{\\mathord{:}}",
+    "\\cellindices": "\\mathcal P",
+    "\\D": "\\mathrm d",
+    "\\dft": "\\operatorname{DFT}",
+    "\\reals": "\\mathbb R",
+    "\\strains": "\\mathcal E",
+    "\\sym": "\\operatorname{\\textbf{\\textsf{sym}}}",
+    "\\naturals": "\\mathbb N",
+    "\\I": "\\mathrm i",
+    "\\fftfreq": "\\operatorname{Z}",
+    "\\tensors": "\\mathcal T",
+    "\\PI": "\\mathrm{\\pi}",
+    "\\integers": "\\mathbb Z",
+    "\\tuple": "\\mathsf",
+    "\\sinc": "\\operatorname{sinc}",
+    "\\tens": "\\bm"
   }
 }
-;
 
-(function () {
-    var script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.1.4/es5/tex-svg.js';
-    script.async = true;
-    document.head.appendChild(script);
-})();
+  );
+})
 
 })
 ////////////////////////////////////////////////////////////////////////////////
