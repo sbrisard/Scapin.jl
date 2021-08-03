@@ -18,6 +18,7 @@ mathengine = MathJax3(
                 "naturals" => "\\mathbb N",
                 "PI" => "\\symup{\\pi}",
                 "reals" => "\\mathbb R",
+                "sinc" => "\\operatorname{sinc}",
                 "strains" => "\\mathcal E",
                 "stresses" => "\\mathcal S",
                 "sym" => "\\operatorname{\\symbfsf{sym}}",
