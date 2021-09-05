@@ -55,6 +55,55 @@ function shape(ξ::AbstractArray{T,1}, k::Int) where {T<:Number}
     [prod(N[i, cartesian[j][i]] for i = 1:d) for j = 1:length(cartesian)]
 end
 
+"""
+    strain_displacement_matrix(x, h)
+
+Return the strain-displacement matrix for the `d`-dimensional element of size `h`.
+
+The strain-displacement matrix `B` is such that `B * q` is the strain at point `x`
+(`d × d` matrix). Note that the degrees of freedom are ordered as follows
+
+```
+q = [u₁, v₁, u₂, v₂, u₃, v₃, u₄, v₄]           (2d)
+q = [u₁, v₁, w₁, u₂, v₂, w₂, …, u₈, v₈, w₈]    (3d)
+```
+
+where `uₖ`, `vₖ` and `wₖ` are the components of the displacement of node `k` in the `x`,
+`y` and `z` directions, respectively.
+"""
+function strain_displacement_matrix(
+    x::AbstractVector{T},
+    h::AbstractVector{T},
+) where {T<:Number}
+    d = size(x, 1)
+    @assert size(h, 1) == d "x and h must have same size"
+    nvertices = 2^d
+    ndofs = d * nvertices
+
+    ξ = x ./ h
+    ∂ = hcat((shape(ξ, i) ./ h[i] for i = 1:d)...)
+    u = zeros(T, d, nvertices, ndofs)
+    for i = 1:d, j = 1:nvertices
+        u[i, j, d*(j-1)+i] = one(T)
+    end
+    B = Array{T}(undef, d, d, ndofs)
+    for i = 1:d, j = 1:d
+        B[i, j, :] = (∂[:, i]' * u[j, :, :] + ∂[:, j]' * u[i, :, :]) / 2
+    end
+    return B
+end
+
+
+"""
+    avg_strain_displacement_matrix(h)
+
+Return the strain-displacement matrix, averaged over the whole element.
+"""
+function avg_strain_displacement_matrix(h::AbstractArray{T,1}) where {T<:Number}
+    return integrate(x -> strain_displacement_matrix(x, h), h, avg = true)
+end
+
+
 @testset "integrate" begin
     h = [1.1, 1.2, 1.3]
     n = [1.0, 2.0, 3.0]
@@ -75,6 +124,62 @@ for d = 1:3
         @test actual == I
     end
 end
+
+@testset "Average strain-displacement matrix 2d" begin
+    h = [1.1, 1.2]
+    # Note: reference values where computed with maxima, using the
+    # Kelvin–Mandel representation and a different numbering of dofs.
+    nodes = [1, 5, 3, 7, 2, 6, 4, 8]
+    B₁ = 0.4545454545454545
+    B₂ = 0.4166666666666667
+    B₃ = 0.2946278254943947
+    B₄ = 0.3214121732666125
+    B_exp = [
+        -B₁ -B₁ B₁ B₁ 0 0 0 0
+        0 0 0 0 -B₂ B₂ -B₂ B₂
+        -B₃ B₃ -B₃ B₃ -B₄ -B₄ B₄ B₄
+    ]
+
+    B_act = avg_strain_displacement_matrix(h)
+
+    @test isapprox(B_act[1, 1, nodes], B_exp[1, :], rtol = 1e-15)
+    @test isapprox(B_act[2, 2, nodes], B_exp[2, :], rtol = 1e-15)
+    @test isapprox(B_act[1, 2, nodes], B_exp[3, :] / sqrt(2), rtol = 1e-15)
+end
+
+@testset "Average strain-displacement matrix 3d" begin
+    h = [1.1, 1.2, 1.3]
+    # Note: reference values where computed with maxima, using the
+    # Kelvin–Mandel representation and a different numbering of dofs.
+    nodes = [1, 13, 7, 19, 4, 16, 10, 22,
+             2, 14, 8, 20, 5, 17, 11, 23,
+             3, 15, 9, 21, 6, 18, 12, 24]
+    B₁ = 0.2272727272727273
+    B₂ = 0.2083333333333333
+    B₃ = 0.1923076923076923
+    B₄ = 0.1359820733051053
+    B₅ = 0.1473139127471974
+    B₆ = 0.1607060866333062
+    B_exp = [
+        -B₁ -B₁ -B₁ -B₁ B₁ B₁ B₁ B₁ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0;
+        0 0 0 0 0 0 0 0 -B₂ -B₂ B₂ B₂ -B₂ -B₂ B₂ B₂ 0 0 0 0 0 0 0 0;
+        0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -B₃ B₃ -B₃ B₃ -B₃ B₃ -B₃ B₃;
+        0 0 0 0 0 0 0 0 -B₄ B₄ -B₄ B₄ -B₄ B₄ -B₄ B₄ -B₅ -B₅ B₅ B₅ -B₅ -B₅ B₅ B₅;
+        -B₄ B₄ -B₄ B₄ -B₄ B₄ -B₄ B₄ 0 0 0 0 0 0 0 0 -B₆ -B₆ -B₆ -B₆ B₆ B₆ B₆ B₆;
+        -B₅ -B₅ B₅ B₅ -B₅ -B₅ B₅ B₅ -B₆ -B₆ -B₆ -B₆ B₆ B₆ B₆ B₆ 0 0 0 0 0 0 0 0
+    ]
+
+    B_act = avg_strain_displacement_matrix(h)
+
+    @test isapprox(B_act[1, 1, nodes], B_exp[1, :], rtol = 1e-15)
+    @test isapprox(B_act[2, 2, nodes], B_exp[2, :], rtol = 1e-15)
+    @test isapprox(B_act[3, 3, nodes], B_exp[3, :], rtol = 1e-15)
+    @test isapprox(B_act[2, 3, nodes], B_exp[4, :] / sqrt(2), rtol = 1e-15)
+    @test isapprox(B_act[3, 1, nodes], B_exp[5, :] / sqrt(2), rtol = 1e-15)
+    @test isapprox(B_act[1, 2, nodes], B_exp[6, :] / sqrt(2), rtol = 1e-15)
+end
+
+
 
 # @testset "bri17, 2D" begin
 #     C = Hooke{Float64, 2}(5.6, 0.3)
