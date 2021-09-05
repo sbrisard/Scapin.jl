@@ -116,3 +116,5 @@ end
 #     @test Γ_h.L == L
 #     @test Γ_h.k == k
 # end
+
+include("test_bri17.jl")
