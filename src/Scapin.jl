@@ -1,8 +1,11 @@
 module Scapin
 
+using Base.Iterators
+using LinearAlgebra
+
 include("hooke.jl")
 include("bri17.jl")
 
-export Hooke, bulk_modulus, block_apply!, block_matrix, modal_strain_displacement!, modal_strain_displacement, modal_stiffness!, modal_stiffness
+export Hooke, bulk_modulus, block_apply!, block_matrix, modal_strain_displacement!, modal_strain_displacement, modal_stiffness!, modal_stiffness, integrate, shape, strain_displacement_matrix, avg_strain_displacement_matrix, stiffness_matrix, cell_vertices
 
 end
