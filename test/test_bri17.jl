@@ -134,18 +134,34 @@ function cell_vertices(K, linear::LinearIndices)
     return collect(flatten(linear[i...] for i in product(bounds...)))
 end
 
-function global_stiffness_matrix(
+"""
+    global_stiffness_matrix(N, h, μ, ν)
+
+Return the global stiffness matrix for periodic, homogeneous elasticity.
+
+- `N`: grid size
+- `h`: cell size
+- `μ`: shear modulus
+- `ν`: Poisson ratio
+
+"""
+function stiffness_matrix(
     N::AbstractVector{Int},
     h::AbstractVector{T},
     μ::T,
     ν::T,
 ) where {T<:Number}
-    d = size(N, 1)
-    nnodes_per_cell = 2^d
-    ndofs_per_cell = d * nnodes_per_cell
-    ncells = prod(N)
-    ndofs = ndofs_per_cell * ncells
-    cartesian = CartesianIndices((1:Nᵢ for Nᵢ in N)...)
+    ndofs = prod(N) * size(N, 1)
+    dims = Tuple(1:n for n in N)
+    cartesian = CartesianIndices(dims)
+    linear = LinearIndices(dims)
+    Ke = stiffness_matrix(h, μ, ν)
+    K = zeros(T, ndofs, ndofs)
+    for J in CartesianIndices
+        vertices = cell_vertices(J, linear)
+        K[vertices, vertices] += Ke
+    end
+    return K
 end
 
 
