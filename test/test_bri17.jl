@@ -121,6 +121,33 @@ function stiffness_matrix(h::AbstractArray{T,1}, μ::T, ν::T) where {T<:Number}
     integrate(f, h)
 end
 
+"""
+    cell_vertices(cell, linear)
+
+Return the vertices of the `cell` (specified as a multi-index) as an
+array of indices. The grid size is defined by `linear` (an instance of
+`LinearIndices`).
+"""
+function cell_vertices(K, linear::LinearIndices)
+    d = ndims(linear)
+    bounds = [(K[i], (K[i] % axes(linear, i)[end] + 1)) for i = 1:d]
+    return collect(flatten(linear[i...] for i in product(bounds...)))
+end
+
+function global_stiffness_matrix(
+    N::AbstractVector{Int},
+    h::AbstractVector{T},
+    μ::T,
+    ν::T,
+) where {T<:Number}
+    d = size(N, 1)
+    nnodes_per_cell = 2^d
+    ndofs_per_cell = d * nnodes_per_cell
+    ncells = prod(N)
+    ndofs = ndofs_per_cell * ncells
+    cartesian = CartesianIndices((1:Nᵢ for Nᵢ in N)...)
+end
+
 
 @testset "Gauss–Legendre integration" begin
     h = [1.1, 1.2, 1.3]
@@ -302,6 +329,232 @@ end
         K_act = stiffness_matrix(h, μ, ν)
 
         @test isapprox(K_act[nodes, nodes], K_exp, rtol = 1e-15)
+    end
+end
+
+@testset "Cell vertices" begin
+    @testset "Cell vertices, 2d" begin
+        """
+        1────────2────────3────────4
+        │        │        │        │
+        │ (1, 4) │ (2, 4) │ (3, 4) │
+        │        │        │        │
+        10──────11────────12──────10
+        │        │        │        │
+        │ (1, 3) │ (2, 3) │ (3, 3) │
+        │        │        │        │
+        7────────8────────9────────7
+        │        │        │        │
+        │ (1, 2) │ (2, 2) │ (3, 2) │
+        │        │        │        │
+        4────────5────────6────────4
+        │        │        │        │
+        │ (1, 1) │ (2, 1) │ (3, 1) │
+        │        │        │        │
+        1────────2────────3────────1
+        """
+        N = [3, 4]
+        d = size(N, 1)
+        dims = Tuple(1:n for n in N)
+        linear = LinearIndices(dims)
+        @test cell_vertices((1, 1), linear) == [1, 2, 4, 5]
+        @test cell_vertices((2, 1), linear) == [2, 3, 5, 6]
+        @test cell_vertices((3, 1), linear) == [3, 1, 6, 4]
+        @test cell_vertices((1, 2), linear) == [4, 5, 7, 8]
+        @test cell_vertices((2, 2), linear) == [5, 6, 8, 9]
+        @test cell_vertices((3, 2), linear) == [6, 4, 9, 7]
+        @test cell_vertices((1, 3), linear) == [7, 8, 10, 11]
+        @test cell_vertices((2, 3), linear) == [8, 9, 11, 12]
+        @test cell_vertices((3, 3), linear) == [9, 7, 12, 10]
+        @test cell_vertices((1, 4), linear) == [10, 11, 1, 2]
+        @test cell_vertices((2, 4), linear) == [11, 12, 2, 3]
+        @test cell_vertices((3, 4), linear) == [12, 10, 3, 1]
+    end
+
+    @testset "Cell vertices, 3d" begin
+        """
+        1───────────2───────────3───────────4
+        │           │           │           │
+        │ (1, 4, 1) │ (2, 4, 1) │ (3, 4, 1) │
+        │           │           │           │
+        10─────────11───────────12─────────10
+        │           │           │           │
+        │ (1, 3, 1) │ (2, 3, 1) │ (3, 3, 1) │
+        │           │           │           │
+        7───────────8───────────9───────────7
+        │           │           │           │
+        │ (1, 2, 1) │ (2, 2, 1) │ (3, 2, 1) │
+        │           │           │           │
+        4───────────5───────────6───────────4
+        │           │           │           │
+        │ (1, 1, 1) │ (2, 1, 1) │ (3, 1, 1) │
+        │           │           │           │
+        1───────────2───────────3───────────1
+
+
+        13─────────14───────────15─────────13
+        │           │           │           │
+        │ (1, 4, 2) │ (2, 4, 2) │ (3, 4, 2) │
+        │           │           │           │
+        22─────────23───────────24─────────22
+        │           │           │           │
+        │ (1, 3, 2) │ (2, 3, 2) │ (3, 3, 2) │
+        │           │           │           │
+        19─────────20───────────21─────────19
+        │           │           │           │
+        │ (1, 2, 2) │ (2, 2, 2) │ (3, 2, 2) │
+        │           │           │           │
+        16─────────17───────────18─────────16
+        │           │           │           │
+        │ (1, 1, 2) │ (2, 1, 2) │ (3, 1, 2) │
+        │           │           │           │
+        13─────────14───────────15─────────13
+
+
+        25─────────26───────────27─────────25
+        │           │           │           │
+        │ (1, 4, 3) │ (2, 4, 3) │ (3, 4, 3) │
+        │           │           │           │
+        34─────────35───────────36─────────34
+        │           │           │           │
+        │ (1, 3, 3) │ (2, 3, 3) │ (3, 3, 3) │
+        │           │           │           │
+        31─────────32───────────33─────────31
+        │           │           │           │
+        │ (1, 2, 3) │ (2, 2, 3) │ (3, 2, 3) │
+        │           │           │           │
+        28─────────29───────────30─────────28
+        │           │           │           │
+        │ (1, 1, 3) │ (2, 1, 3) │ (3, 1, 3) │
+        │           │           │           │
+        25─────────26───────────27─────────25
+
+
+        37─────────38───────────39─────────37
+        │           │           │           │
+        │ (1, 4, 4) │ (2, 4, 4) │ (3, 4, 4) │
+        │           │           │           │
+        46─────────47───────────48─────────46
+        │           │           │           │
+        │ (1, 3, 4) │ (2, 3, 4) │ (3, 3, 4) │
+        │           │           │           │
+        43─────────44───────────45─────────43
+        │           │           │           │
+        │ (1, 2, 4) │ (2, 2, 4) │ (3, 2, 4) │
+        │           │           │           │
+        40─────────41───────────42─────────40
+        │           │           │           │
+        │ (1, 1, 4) │ (2, 1, 4) │ (3, 1, 4) │
+        │           │           │           │
+        37─────────38───────────39─────────37
+
+
+        49─────────50───────────51─────────49
+        │           │           │           │
+        │ (1, 4, 5) │ (2, 4, 5) │ (3, 4, 5) │
+        │           │           │           │
+        58─────────59───────────60─────────58
+        │           │           │           │
+        │ (1, 3, 5) │ (2, 3, 5) │ (3, 3, 5) │
+        │           │           │           │
+        55─────────56───────────57─────────55
+        │           │           │           │
+        │ (1, 2, 5) │ (2, 2, 5) │ (3, 2, 5) │
+        │           │           │           │
+        52─────────53───────────54─────────52
+        │           │           │           │
+        │ (1, 1, 5) │ (2, 1, 5) │ (3, 1, 5) │
+        │           │           │           │
+        49─────────50───────────51─────────49
+
+
+        1───────────2───────────3───────────4
+        │           │           │           │
+        │           │           │           │
+        │           │           │           │
+        10─────────11───────────12─────────10
+        │           │           │           │
+        │           │           │           │
+        │           │           │           │
+        7───────────8───────────9───────────7
+        │           │           │           │
+        │           │           │           │
+        │           │           │           │
+        4───────────5───────────6───────────4
+        │           │           │           │
+        │           │           │           │
+        │           │           │           │
+        1───────────2───────────3───────────1
+
+        """
+        N = [3, 4, 5]
+        d = size(N, 1)
+        dims = Tuple(1:n for n in N)
+        linear = LinearIndices(dims)
+        @test cell_vertices((1, 1, 1), linear) == [1, 2, 4, 5, 13, 14, 16, 17]
+        @test cell_vertices((2, 1, 1), linear) == [2, 3, 5, 6, 14, 15, 17, 18]
+        @test cell_vertices((3, 1, 1), linear) == [3, 1, 6, 4, 15, 13, 18, 16]
+        @test cell_vertices((1, 2, 1), linear) == [4, 5, 7, 8, 16, 17, 19, 20]
+        @test cell_vertices((2, 2, 1), linear) == [5, 6, 8, 9, 17, 18, 20, 21]
+        @test cell_vertices((3, 2, 1), linear) == [6, 4, 9, 7, 18, 16, 21, 19]
+        @test cell_vertices((1, 3, 1), linear) == [7, 8, 10, 11, 19, 20, 22, 23]
+        @test cell_vertices((2, 3, 1), linear) == [8, 9, 11, 12, 20, 21, 23, 24]
+        @test cell_vertices((3, 3, 1), linear) == [9, 7, 12, 10, 21, 19, 24, 22]
+        @test cell_vertices((1, 4, 1), linear) == [10, 11, 1, 2, 22, 23, 13, 14]
+        @test cell_vertices((2, 4, 1), linear) == [11, 12, 2, 3, 23, 24, 14, 15]
+        @test cell_vertices((3, 4, 1), linear) == [12, 10, 3, 1, 24, 22, 15, 13]
+
+        @test cell_vertices((1, 1, 2), linear) == [13, 14, 16, 17, 25, 26, 28, 29]
+        @test cell_vertices((2, 1, 2), linear) == [14, 15, 17, 18, 26, 27, 29, 30]
+        @test cell_vertices((3, 1, 2), linear) == [15, 13, 18, 16, 27, 25, 30, 28]
+        @test cell_vertices((1, 2, 2), linear) == [16, 17, 19, 20, 28, 29, 31, 32]
+        @test cell_vertices((2, 2, 2), linear) == [17, 18, 20, 21, 29, 30, 32, 33]
+        @test cell_vertices((3, 2, 2), linear) == [18, 16, 21, 19, 30, 28, 33, 31]
+        @test cell_vertices((1, 3, 2), linear) == [19, 20, 22, 23, 31, 32, 34, 35]
+        @test cell_vertices((2, 3, 2), linear) == [20, 21, 23, 24, 32, 33, 35, 36]
+        @test cell_vertices((3, 3, 2), linear) == [21, 19, 24, 22, 33, 31, 36, 34]
+        @test cell_vertices((1, 4, 2), linear) == [22, 23, 13, 14, 34, 35, 25, 26]
+        @test cell_vertices((2, 4, 2), linear) == [23, 24, 14, 15, 35, 36, 26, 27]
+        @test cell_vertices((3, 4, 2), linear) == [24, 22, 15, 13, 36, 34, 27, 25]
+
+        @test cell_vertices((1, 1, 3), linear) == [25, 26, 28, 29, 37, 38, 40, 41]
+        @test cell_vertices((2, 1, 3), linear) == [26, 27, 29, 30, 38, 39, 41, 42]
+        @test cell_vertices((3, 1, 3), linear) == [27, 25, 30, 28, 39, 37, 42, 40]
+        @test cell_vertices((1, 2, 3), linear) == [28, 29, 31, 32, 40, 41, 43, 44]
+        @test cell_vertices((2, 2, 3), linear) == [29, 30, 32, 33, 41, 42, 44, 45]
+        @test cell_vertices((3, 2, 3), linear) == [30, 28, 33, 31, 42, 40, 45, 43]
+        @test cell_vertices((1, 3, 3), linear) == [31, 32, 34, 35, 43, 44, 46, 47]
+        @test cell_vertices((2, 3, 3), linear) == [32, 33, 35, 36, 44, 45, 47, 48]
+        @test cell_vertices((3, 3, 3), linear) == [33, 31, 36, 34, 45, 43, 48, 46]
+        @test cell_vertices((1, 4, 3), linear) == [34, 35, 25, 26, 46, 47, 37, 38]
+        @test cell_vertices((2, 4, 3), linear) == [35, 36, 26, 27, 47, 48, 38, 39]
+        @test cell_vertices((3, 4, 3), linear) == [36, 34, 27, 25, 48, 46, 39, 37]
+
+        @test cell_vertices((1, 1, 4), linear) == [37, 38, 40, 41, 49, 50, 52, 53]
+        @test cell_vertices((2, 1, 4), linear) == [38, 39, 41, 42, 50, 51, 53, 54]
+        @test cell_vertices((3, 1, 4), linear) == [39, 37, 42, 40, 51, 49, 54, 52]
+        @test cell_vertices((1, 2, 4), linear) == [40, 41, 43, 44, 52, 53, 55, 56]
+        @test cell_vertices((2, 2, 4), linear) == [41, 42, 44, 45, 53, 54, 56, 57]
+        @test cell_vertices((3, 2, 4), linear) == [42, 40, 45, 43, 54, 52, 57, 55]
+        @test cell_vertices((1, 3, 4), linear) == [43, 44, 46, 47, 55, 56, 58, 59]
+        @test cell_vertices((2, 3, 4), linear) == [44, 45, 47, 48, 56, 57, 59, 60]
+        @test cell_vertices((3, 3, 4), linear) == [45, 43, 48, 46, 57, 55, 60, 58]
+        @test cell_vertices((1, 4, 4), linear) == [46, 47, 37, 38, 58, 59, 49, 50]
+        @test cell_vertices((2, 4, 4), linear) == [47, 48, 38, 39, 59, 60, 50, 51]
+        @test cell_vertices((3, 4, 4), linear) == [48, 46, 39, 37, 60, 58, 51, 49]
+
+        @test cell_vertices((1, 1, 5), linear) == [49, 50, 52, 53, 1, 2, 4, 5]
+        @test cell_vertices((2, 1, 5), linear) == [50, 51, 53, 54, 2, 3, 5, 6]
+        @test cell_vertices((3, 1, 5), linear) == [51, 49, 54, 52, 3, 1, 6, 4]
+        @test cell_vertices((1, 2, 5), linear) == [52, 53, 55, 56, 4, 5, 7, 8]
+        @test cell_vertices((2, 2, 5), linear) == [53, 54, 56, 57, 5, 6, 8, 9]
+        @test cell_vertices((3, 2, 5), linear) == [54, 52, 57, 55, 6, 4, 9, 7]
+        @test cell_vertices((1, 3, 5), linear) == [55, 56, 58, 59, 7, 8, 10, 11]
+        @test cell_vertices((2, 3, 5), linear) == [56, 57, 59, 60, 8, 9, 11, 12]
+        @test cell_vertices((3, 3, 5), linear) == [57, 55, 60, 58, 9, 7, 12, 10]
+        @test cell_vertices((1, 4, 5), linear) == [58, 59, 49, 50, 10, 11, 1, 2]
+        @test cell_vertices((2, 4, 5), linear) == [59, 60, 50, 51, 11, 12, 2, 3]
+        @test cell_vertices((3, 4, 5), linear) == [60, 58, 51, 49, 12, 10, 3, 1]
     end
 end
 
