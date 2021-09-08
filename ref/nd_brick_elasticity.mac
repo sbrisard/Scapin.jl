@@ -96,7 +96,11 @@ eps[i, j] := (diff(u_[j], x[i]) + diff(u_[i], x[j])) / 2;
 eps_avg[i, j] := expand(integrate_nd(eps[i, j], d) / product(h[i], i, 1, d));
 B_[i, j, n, k] := coeff(eps_avg[i, j], u[n, k]);
 
-for i in CxCxNxC do print(arrayapply(B, i) = arrayapply(B_, i));
+print("```");
+for i in CxCxNxC do block(
+  print(arrayapply(B, i) = arrayapply(B_, i)),
+  newline());
+print("```");
 
 newline();
 print("## Stiffness matrix");
