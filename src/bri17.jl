@@ -132,51 +132,77 @@ end
 
 Return the value of the shape functions or their derivatives, at the specified point.
 
-The `ξ[i]` (`i = 1, …, d`) are the reduced coordinates, such that `0 ≤ ξ[i] ≤ 1`.
+`ξ` is the `d`-dimensional array of the reduced coordinates (`d`: number of
+spatial dimensions), such that `0 ≤ ξ[i] ≤ 1`.
 
-For `k == 0`, the function returns a vector `N`, such that `N[i]` is the value of the
-`i`-th shape function at `ξ`. The shape functions are ordered using the column-major
-convention. More precisely, if `ξ` are the reduced coordinates of a node (`ξ[i] ∈ {0, 1}`
-for all `i = 1, …, d`), we can define the multi-index `I` such that `I[i] = ξ[i] + 1`.
-Then, the index of the node under consideration can be found from
+Vertices of the element are referred to with their cartesian index `n`, a
+`d`-dimensional array such that `n[1], …, n[d] ∈ {1, 2}`. The reduced coordinates
+ of vertex `n` are `n .- 1`.
+
+For `k == 0`, the function returns a `d`-dimensional array `N`, such that `N[n]`
+is the shape function associated with vertex `n`. In other words,
 
 ```
-linear = LinearIndices(1:2, 1:2)      # d == 2
-linear = LinearIndices(1:2, 1:2, 1:2) # d == 3
-index = linear(I...)
+size(N, 1) = … = size(N, d) = 2
+```.
+
+```
+shape(n .- 1, 0)[m] = 0    (m ≠ n),
+shape(n .- 1, 0)[n] = 1.
 ```
 
-For `k == 1, …, d`, the function returns the vector of the derivatives of the shape
-functions at `ξ`, with respect to `ξ[k]`.
+For `k == 1, …, d`, the function returns the array of the derivatives of the
+shape functions at `ξ`, with respect to `ξ[k]`.
 
 """
 function shape(ξ::AbstractArray{T,1}, k::Int) where {T<:Number}
     d = size(ξ, 1)
-    N = Array{T}(undef, d, 2)
+    N_1d = Array{T}(undef, d, 2)
     for i = 1:d
-        N[i, 1] = k == i ? -one(T) : 1 - ξ[i]
-        N[i, 2] = k == i ? one(T) : ξ[i]
+        N_1d[i, 1] = k == i ? -one(T) : 1 - ξ[i]
+        N_1d[i, 2] = k == i ? one(T) : ξ[i]
     end
-    ranges = Tuple(fill(1:2, d))
-    cartesian = CartesianIndices(ranges)
-    [prod(N[i, cartesian[j][i]] for i = 1:d) for j = 1:length(cartesian)]
+    cartesian = CartesianIndices(Tuple(fill(1:2, d)))
+    return [prod(N_1d[i, n[i]] for i = 1:d) for n in cartesian]
 end
 
 """
-    strain_displacement_matrix(x, h)
+    strain_displacement_operator(x, h)
 
 Return the strain-displacement matrix for the `d`-dimensional element of size `h`.
 
-The strain-displacement matrix `B` is such that `B * q` is the strain at point `x`
-(`d × d` matrix). Note that the degrees of freedom are ordered as follows
+The strain-displacement operator maps the array of nodal displacements `u` onto
+the array of strains at `x`. `u` is a `d+1` dimensional array (`d`: number of
+spatial dimensions) such that
 
 ```
-q = [u₁, v₁, u₂, v₂, u₃, v₃, u₄, v₄]           (2d)
-q = [u₁, v₁, w₁, u₂, v₂, w₂, …, u₈, v₈, w₈]    (3d)
+size(u, 1) = … = size(u, d) = 2``,
+size(u, d+1) = d
 ```
 
-where `uₖ`, `vₖ` and `wₖ` are the components of the displacement of node `k` in the `x`,
-`y` and `z` directions, respectively.
+and the `i`-th component of the displacement of vertex `n` is `u[n..., i]`. See
+`shape_function` for the numbering of vertices. The strain at `x`, `ε` is a
+2-dimensional array array such that
+
+```
+size(ε, 1) = size(ε, 2) = d
+```
+
+and
+
+```
+ε[i, j] = Σₙ Σₖ B[i, j, n..., k] * u[n..., k],
+```
+
+where `B` is the strain-displacement operator `B` returned by the present
+function. This `d+3`-dimensional array is such that
+
+```
+size(B, 1) = size(B, 2) = d,
+size(B, 3) = … = size(B, d+2) = 2,
+size(B, d+3) = d.
+```
+
 """
 function strain_displacement_matrix(
     x::AbstractVector{T},
