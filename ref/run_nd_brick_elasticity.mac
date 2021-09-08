@@ -1,0 +1,7 @@
+kill(all);
+d : 2;
+with_stdout("2d_brick_elasticity.md", batchload("nd_brick_elasticity.mac"));
+
+kill(all);
+d : 3;
+with_stdout("3d_brick_elasticity.md", batchload("nd_brick_elasticity.mac"));

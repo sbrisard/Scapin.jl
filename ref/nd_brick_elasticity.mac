@@ -1,0 +1,134 @@
+/*
+ * Prior to calling this script, the variable `d` must be defined (number of
+ * spatial dimensions).
+ */
+if not member('d, values) then d : read("Please enter the value of d (number of spatial dimensions)");
+if d = 2 then title : "# Quadrilateral element for linear 2d elasticity"
+elseif d = 3 then title : "# Brick element for linear 3d elasticity"
+else error();
+
+linel : 125;
+
+integrate_nd(expr, d) := if d = 1 then integrate(expr, x[1], 0, h[1]) else integrate(integrate_nd(expr, d-1), x[d], 0, h[d]);
+
+print(title);
+newline();
+print("## Nomenclature");
+newline();
+
+print("### Coordinates of the current point");
+newline();
+print("```");
+print(makelist(x[i], i, 1, d));
+print("```");
+
+newline();
+print("### Dimensions of the element");
+newline();
+print("```");
+print(makelist(h[i], i, 1, d));
+print("```");
+
+/* Useful sets */
+C : setify(makelist(i, i, 1, d)); /* Components */
+N : apply(cartesian_product, makelist({1, 2}, i, 1, d)); /* Nodes */
+NxN : listify(cartesian_product(N, N));
+NxC : listify(cartesian_product(N, C));
+CxCxNxC : listify(cartesian_product(C, C, N, C));
+NxCxNxC : listify(cartesian_product(N, C, N, C));
+C : listify(C);
+N : listify(N);
+
+newline();
+print("### Numbering of nodes");
+newline();
+node_coordinates(n) := makelist(x[i] = (n[i]-1)*h[i], i, 1, d);
+print("```");
+for n in N do block(
+  print(arrayapply('node, n) = node_coordinates(n)),
+  newline());
+print("```");
+
+newline();
+print("## Shape functions and interpolation of the displacements");
+newline();
+
+shape_1d : [lambda([xi], 1-xi), identity];
+shape(n) := product(shape_1d[n[i]](x[i] / h[i]), i, 1, d);
+
+print("```");
+for n in N do block(
+  print(arrayapply('N, n) = shape(n)),
+  newline());
+print("```");
+
+newline();
+print("Testing numbering of vertices...");
+test(m, n) := if subst(node_coordinates(m), shape(n)) # kron_delta(m, n) then error();
+for mn in NxN do test(first(mn), last(mn));
+kill(test);
+print("... OK");
+
+u_[i] := lreduce("+", listify(map(lambda([n], shape(n) * u[n, i]), N)));
+
+newline();
+print("Testing that interpolated displacements are correct at vertices...");
+test(n, i) := if subst(node_coordinates(n), u_[i]) # u[n, i] then error();
+for k in NxC do apply(test, k);
+kill(test);
+print("... OK");
+
+reduced_coordinates : makelist(x[i] = xi[i] * h[i], i, 1, d);
+newline();
+print("We get the following expressions for the displacements");
+newline();
+print("```");
+for i in C do block(
+  print('u[i] = subst(reduced_coordinates, u_[i])),
+  newline());
+print("```");
+
+newline();
+print("## Interpolation of the strains");
+newline();
+
+eps[i, j] := (diff(u_[j], x[i]) + diff(u_[i], x[j])) / 2;
+eps_avg[i, j] := expand(integrate_nd(eps[i, j], d) / product(h[i], i, 1, d));
+B_[i, j, n, k] := coeff(eps_avg[i, j], u[n, k]);
+
+for i in CxCxNxC do print(arrayapply(B, i) = arrayapply(B_, i));
+
+newline();
+print("## Stiffness matrix");
+newline();
+tr_eps : sum(eps[i, i], i, 1, d);
+sig[i, j] := lambda_ * tr_eps * kron_delta(i, j) + 2 * mu * eps[i, j];
+
+U_integrand : sum(sum(sig[i, j] * eps[i, j], j, 1, d), i, 1, d);
+U : expand(integrate_nd(U_integrand, d));
+
+K_[m, i, n, j] := if m # n or i # j then coeff(coeff(U, u[n, j]), u[m, i]) else expand(2 * coeff(U, u[m, i], 2));
+
+print("Testing that elastic energy is retrieved from extracted stiffness matrix...");
+res : lreduce("+", map(lambda([i], arrayapply(K_, i)*u[i[1], i[2]]*u[i[3], i[4]]), NxCxNxC)) / 2 - U;
+if expand(res) # 0 then error();
+print("... OK");
+
+print("We get the following coefficients of the stiffness operator");
+
+newline();
+print("```");
+for i in NxCxNxC do block(
+  print(arrayapply(K, i) = arrayapply(K_, i)),
+  newline());
+print("```");
+
+newline();
+print("## Julia code");
+newline();
+
+print("```");
+for i in CxCxNxC do print(string(arrayapply(B, flatten(i)) = arrayapply(B_, i)));
+for i in NxCxNxC do print(string(arrayapply(K_lambda, flatten(i)) = coeff(expand(arrayapply(K_, i)), lambda_)));
+for i in NxCxNxC do print(string(arrayapply(K_mu, flatten(i)) = coeff(expand(arrayapply(K_, i)), mu)));
+print("```");
