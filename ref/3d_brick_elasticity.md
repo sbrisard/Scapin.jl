@@ -116,10 +116,10 @@ N        = --------
 
 ``` 
 
-Testing numbering of vertices...  
+Testing numbering of vertices... 
 OK 
 
-Testing that interpolated displacements are correct at vertices...  
+Testing that interpolated displacements are correct at vertices... 
 OK 
 
 We get the following expressions for the displacements 
@@ -1043,7 +1043,7 @@ B                   = ----
 
 ## Stiffness matrix 
 
-Testing that elastic energy is retrieved from extracted stiffness matrix...  
+Testing that elastic energy is retrieved from extracted stiffness matrix... 
 OK 
 
 We get the following coefficients of the stiffness operator 

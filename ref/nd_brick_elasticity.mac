@@ -63,7 +63,7 @@ for n in N do block(
 print("```");
 
 newline();
-print("Testing numbering of vertices... ");
+print("Testing numbering of vertices...");
 test(m, n) := if subst(node_coordinates(m), shape(n)) # kron_delta(m, n) then error();
 for mn in NxN do test(first(mn), last(mn));
 kill(test);
@@ -72,7 +72,7 @@ print("OK");
 u_[i] := lreduce("+", listify(map(lambda([n], shape(n) * u[n, i]), N)));
 
 newline();
-print("Testing that interpolated displacements are correct at vertices... ");
+print("Testing that interpolated displacements are correct at vertices...");
 test(n, i) := if subst(node_coordinates(n), u_[i]) # u[n, i] then error();
 for k in NxC do apply(test, k);
 kill(test);
@@ -113,7 +113,7 @@ U : expand(integrate_nd(U_integrand, d));
 
 K_[m, i, n, j] := if m # n or i # j then coeff(coeff(U, u[n, j]), u[m, i]) else expand(2 * coeff(U, u[m, i], 2));
 
-print("Testing that elastic energy is retrieved from extracted stiffness matrix... ");
+print("Testing that elastic energy is retrieved from extracted stiffness matrix...");
 res : lreduce("+", map(lambda([i], arrayapply(K_, i)*u[i[1], i[2]]*u[i[3], i[4]]), NxCxNxC)) / 2 - U;
 if expand(res) # 0 then error();
 print("OK");
