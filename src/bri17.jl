@@ -204,36 +204,43 @@ size(B, d+3) = d.
 ```
 
 """
-function strain_displacement_matrix(
+function strain_displacement_operator(
     x::AbstractVector{T},
     h::AbstractVector{T},
 ) where {T<:Number}
+    # ∂[n, i] = ∂ᵢN[n] (partial derivative w.r.t x, not ξ!)
+    #
+    # uᵢ = Σₙ N[n] * u[n, i]
+    #
+    # εᵢⱼ = ½(∂ⱼuᵢ + ∂ᵢuⱼ)
+    #     = ½Σₙ {∂ⱼN[n] * u[n, i] + ∂ᵢN[n] * u[n, j]}
+    #     = ½Σₙ {∂[n, j] * u[n, i] + ∂[n, i] * u[n, j]}
+    #     = ½ΣₙΣₖ{∂[n, j] * δ[i, k] + ∂[n, i] * δ[j, k]} * u[n, k]
+    #
+    # B[i, j, n, k] = ½{∂[n, j] * δ[i, k] + ∂[n, i] * δ[j, k]}
     d = size(x, 1)
     @assert size(h, 1) == d "x and h must have same size"
-    nvertices = 2^d
-    ndofs = d * nvertices
 
     ξ = x ./ h
-    ∂ = hcat((shape(ξ, i) ./ h[i] for i = 1:d)...)
-    u = zeros(T, d, nvertices, ndofs)
-    for i = 1:d, j = 1:nvertices
-        u[i, j, d*(j-1)+i] = one(T)
-    end
-    B = Array{T}(undef, d, d, ndofs)
-    for i = 1:d, j = 1:d
-        B[i, j, :] = (∂[:, i]' * u[j, :, :] + ∂[:, j]' * u[i, :, :]) / 2
+    ∂ = cat((shape(ξ, i) ./ h[i] for i = 1:d)..., dims=d+1)
+    cartesian = CartesianIndices(Tuple(fill(1:2, d)))
+
+    B = zeros(T, d, d, fill(2, d)..., d)
+    for i = 1:d, j = 1:d, n ∈ cartesian
+        B[i, j, n, i] += ∂[n, j] / 2
+        B[i, j, n, j] += ∂[n, i] / 2
     end
     return B
 end
 
 
 """
-    avg_strain_displacement_matrix(h)
+    avg_strain_displacement_operator(h)
 
-Return the strain-displacement matrix, averaged over the whole element.
+Return the cell average of the strain-displacement operator.
 """
-function avg_strain_displacement_matrix(h::AbstractArray{T,1}) where {T<:Number}
-    return integrate(x -> strain_displacement_matrix(x, h), h, avg = true)
+function avg_strain_displacement_operator(h::AbstractArray{T,1}) where {T<:Number}
+    return integrate(x -> strain_displacement_operator(x, h), h, avg = true)
 end
 
 function stiffness_matrix(h::AbstractArray{T,1}, μ::T, ν::T) where {T<:Number}
