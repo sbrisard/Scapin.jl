@@ -1,8 +1,6 @@
 using Base.Iterators
 using LinearAlgebra
 
-L∞ = x -> norm(x, Inf)
-
 function expected_avg_gradient_operator(h::AbstractVector{T}) where {T<:Number}
     d = size(h, 1)
     𝔑 = element_nodes(d)
