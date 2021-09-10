@@ -109,6 +109,23 @@ end
 # Helper functions (for testing purposes)
 
 """
+    element_nodes(d)
+
+Return the multi-indices of the `d`-dimensional brick element.
+
+This function returns an object `𝔑` of type `CartesianIndices`. An
+element `n ∈ 𝔑` represents the node with coordinates `(x[1], …, x[d])`
+
+```
+x[i] = (-1)^n[i] * h[i] / 2,    i = 1, …, d
+```
+
+See “[Geometry of the reference brick element](@id 20210910120306)” in the docs.
+"""
+element_nodes(d::Int) = CartesianIndices(Tuple(fill(1:2, d)))
+
+
+"""
     integrate(f, h)
 
 Return the `N`-dimensional integral of `f` over `(0, h[1]) × (0, h[2]) × … × (0, h[N])`.
@@ -118,117 +135,98 @@ take a 1-dimensional array of size `N` as unique input. If `avg` is `true`, the
 function returns the `N`-dimensional average.
 """
 function integrate(f, h::AbstractArray{T,1}; avg = false) where {T<:Number}
-    ndims = size(h, 1)
-    nvertices = 2^ndims
-    ξ = [(1 - 1 / sqrt(3)) / 2, (1 + 1 / sqrt(3)) / 2]
-    weight = (avg ? one(T) : prod(h)) / nvertices
-    x = map(collect, product((ξ .* hᵢ for hᵢ in h)...))
+    d = size(h, 1)
+    ξ = [-1 / sqrt(3), 1 / sqrt(3)]
+    weight = (avg ? one(T) : prod(h)) / 2^d
+    x = map(collect, product((ξ .* h_ / 2 for h_ in h)...))
     return weight * sum(f, x)
 end
 
 
 """
-    shape(ξ, k)
+    shape(x, h)
 
-Return the value of the shape functions or their derivatives, at the specified point.
+Return the value of the shape functions of the element, at the specified point.
 
-`ξ` is the `d`-dimensional array of the reduced coordinates (`d`: number of
-spatial dimensions), such that `0 ≤ ξ[i] ≤ 1`.
+This function returns a `d`-dimensional array `N`, such that `N[n]` is the shape
+function associated with node `n`, evaluated at `x`. In particular, `N[n]`
+evaluated at node `m` is `δ[m, n]` (Kronecker).
 
-Vertices of the element are referred to with their cartesian index `n`, a
-`d`-dimensional array such that `n[1], …, n[d] ∈ {1, 2}`. The reduced coordinates
- of vertex `n` are `n .- 1`.
-
-For `k == 0`, the function returns a `d`-dimensional array `N`, such that `N[n]`
-is the shape function associated with vertex `n`. In other words,
-
-```
-size(N, 1) = … = size(N, d) = 2
-```.
-
-```
-shape(n .- 1, 0)[m] = 0    (m ≠ n),
-shape(n .- 1, 0)[n] = 1.
-```
-
-For `k == 1, …, d`, the function returns the array of the derivatives of the
-shape functions at `ξ`, with respect to `ξ[k]`.
+See “[Shape functions](@ref sec:20210910114136)” in the docs.
 
 """
-function shape(ξ::AbstractArray{T,1}, k::Int) where {T<:Number}
-    d = size(ξ, 1)
-    N_1d = Array{T}(undef, d, 2)
-    for i = 1:d
-        N_1d[i, 1] = k == i ? -one(T) : 1 - ξ[i]
-        N_1d[i, 2] = k == i ? one(T) : ξ[i]
-    end
-    cartesian = CartesianIndices(Tuple(fill(1:2, d)))
-    return [prod(N_1d[i, n[i]] for i = 1:d) for n in cartesian]
+function shape(x::AbstractArray{T,1}, h::AbstractArray{T,1}) where {T<:Number}
+    d = size(x, 1)
+    # TODO — Check that x and h have same size
+    ξ = 2 * x ./ h
+    𝔑 = element_nodes(d)
+    return [prod((1 + (-1)^n[i] * ξ[i]) / 2 for i = 1:d) for n in 𝔑]
 end
+
+"""
+    gradient_operator(x, h)
+
+Return the gradient operator at the specified point.
+
+This function returns a `(d+1)` dimensional array `D` of size `(d, 2, 2, …)`.
+If `n` is the multi-index of the node, and `i` is the index of a component, then
+`D[i, n]` is the partial derivative of `N[n]` w.r.t. `x[i]`, evaluated at `x`.
+
+`h` is the size of the brick element.
+
+See “[Geometry of the reference brick element](@ref 20210910120306)”.
+"""
+function gradient_operator(x::AbstractVector{T}, h::AbstractVector{T}) where {T<:Number}
+    d = size(x, 1)
+    # TODO — Check that x and h have same size
+    ξ = 2 * x ./ h
+    𝔑 = element_nodes(d)
+    return [
+        prod(j == i ? (-1)^n[j] / h[j] : (1 + (-1)^n[j] * ξ[j]) / 2 for j = 1:d) for i = 1:d,
+        n in 𝔑
+    ]
+end
+
+
+"""
+    avg_gradient_operator(h)
+
+Return the cell average of the gradient operator.
+"""
+function avg_gradient_operator(h::AbstractArray{T,1}) where {T<:Number}
+    return integrate(x -> gradient_operator(x, h), h, avg = true)
+end
+
 
 """
     strain_displacement_operator(x, h)
 
-Return the strain-displacement matrix for the `d`-dimensional element of size `h`.
+Return the strain-displacement operator for the `d`-dimensional brick element of
+size `h`, evaluated at point `x`.
 
-The strain-displacement operator maps the array of nodal displacements `u` onto
-the array of strains at `x`. `u` is a `d+1` dimensional array (`d`: number of
-spatial dimensions) such that
-
-```
-size(u, 1) = … = size(u, d) = 2``,
-size(u, d+1) = d
-```
-
-and the `i`-th component of the displacement of vertex `n` is `u[n..., i]`. See
-`shape_function` for the numbering of vertices. The strain at `x`, `ε` is a
-2-dimensional array array such that
+This function returns a `(d+3)` dimensional array `B` of size `(d, d, 2, …, 2, d)`.
+If `n` is the multi-index of the node, and `i`, `j`, `k` are component indices
+then, the interpolated `(i, j)` component of the strain at `x` reads
 
 ```
-size(ε, 1) = size(ε, 2) = d
+ε[i, j] = Σₙ Σₖ B[i, j, n, k] * u[n, k].
 ```
 
-and
-
-```
-ε[i, j] = Σₙ Σₖ B[i, j, n..., k] * u[n..., k],
-```
-
-where `B` is the strain-displacement operator `B` returned by the present
-function. This `d+3`-dimensional array is such that
-
-```
-size(B, 1) = size(B, 2) = d,
-size(B, 3) = … = size(B, d+2) = 2,
-size(B, d+3) = d.
-```
-
+See “[Gradient and strain-displacement operators](@ref 20210910114926)”.
 """
 function strain_displacement_operator(
     x::AbstractVector{T},
     h::AbstractVector{T},
 ) where {T<:Number}
-    # ∂[n, i] = ∂ᵢN[n] (partial derivative w.r.t x, not ξ!)
-    #
-    # uᵢ = Σₙ N[n] * u[n, i]
-    #
-    # εᵢⱼ = ½(∂ⱼuᵢ + ∂ᵢuⱼ)
-    #     = ½Σₙ {∂ⱼN[n] * u[n, i] + ∂ᵢN[n] * u[n, j]}
-    #     = ½Σₙ {∂[n, j] * u[n, i] + ∂[n, i] * u[n, j]}
-    #     = ½ΣₙΣₖ{∂[n, j] * δ[i, k] + ∂[n, i] * δ[j, k]} * u[n, k]
-    #
-    # B[i, j, n, k] = ½{∂[n, j] * δ[i, k] + ∂[n, i] * δ[j, k]}
     d = size(x, 1)
     @assert size(h, 1) == d "x and h must have same size"
 
-    ξ = x ./ h
-    ∂ = cat((shape(ξ, i) ./ h[i] for i = 1:d)..., dims=d+1)
-    cartesian = CartesianIndices(Tuple(fill(1:2, d)))
-
+    𝔑 = element_nodes(d)
+    D = gradient_operator(x, h)
     B = zeros(T, d, d, fill(2, d)..., d)
-    for i = 1:d, j = 1:d, n ∈ cartesian
-        B[i, j, n, i] += ∂[n, j] / 2
-        B[i, j, n, j] += ∂[n, i] / 2
+    for i = 1:d, j = 1:d, n ∈ 𝔑
+        B[i, j, n, i] += D[j, n] / 2
+        B[i, j, n, j] += D[i, n] / 2
     end
     return B
 end
@@ -243,20 +241,40 @@ function avg_strain_displacement_operator(h::AbstractArray{T,1}) where {T<:Numbe
     return integrate(x -> strain_displacement_operator(x, h), h, avg = true)
 end
 
-function stiffness_matrix(h::AbstractArray{T,1}, μ::T, ν::T) where {T<:Number}
+function stiffness_operator(h::AbstractArray{T,1}, μ::T, ν::T) where {T<:Number}
+    # εₕₖ = Σₙⱼ B[h, k, n, j] * u[n, j]
+    #
+    # tr(ε) = Σₙⱼₖ B[k, k, n, j] * u[n, j]
+    #       = Σₙⱼ tr_B[n, j] * u[n, j]
+    #
+    # where
+    #
+    # tr_B[n, j] = Σₖ B[k, k, n, j]
+    #
+    # σₕₖ = λ ⋅ tr(ε) ⋅ δₕₖ + 2μ ⋅ εₕₖ
+    #     = Σₘᵢ {λ * tr_B[m, i] * δ[h, k] + 2 * μ * B[h, k, m, i]} * u[m, i]
+    #
+    # ½ σ : ε
+    # = ½ Σₘᵢₙⱼₕₖ {λ * tr_B[m, i] * δ[h, k] + 2 * μ * B[h, k, m, i]} * B[h, k, n, j]
+    #             * u[m, i] * u[n, j]
+    # = ½ Σₘᵢₙⱼ {λ *  tr_B[m, i] * tr_B[n, j] + 2μ * Σₕₖ B[h, k, m, i] * B[h, k, n, j]}
+    #           * u[m, i] * u[n, j]
+    #
+    # Kₘᵢₙⱼ = ∫ {λ *  tr_B[m, i] * tr_B[n, j] + 2μ * Σₕₖ B[h, k, m, i] * B[h, k, n, j]}
+
     d = size(h, 1)
-    ndofs = d * 2^d
+    nodes = CartesianIndices(Tuple(fill(1:2, d)))
     λ = 2μ * ν / (1 - 2ν)
     function f(x)
-        B = strain_displacement_matrix(x, h)
-        tr_B = [tr(B[:, :, i]) for i = 1:ndofs]
-        Ke = Array{T}(undef, ndofs, ndofs)
-        for i = 1:ndofs, j = 1:ndofs
-            Ke[i, j] =
-                λ * tr_B[i] * tr_B[j] +
-                2μ * sum(B[h, k, i] * B[h, k, j] for h = 1:d, k = 1:d)
+        B = strain_displacement_operator(x, h)
+        tr_B = [tr(B[:, :, n, i]) for n ∈ nodes, i = 1:d]
+        σε = Array{T}(undef, fill(2, d)..., d, fill(2, d)..., d)
+        for m ∈ nodes, i = 1:d, n ∈ nodes, j = 1:d
+            σε[m, i, n, j] =
+                λ * tr_B[m, i] * tr_B[n, j] +
+                2μ * sum(B[h, k, m, i] * B[h, k, n, j] for h = 1:d, k = 1:d)
         end
-        return Ke
+        return σε
     end
     integrate(f, h)
 end

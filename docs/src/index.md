@@ -13,6 +13,7 @@ Pages = [
     "theory/nomenclature.md",
 	"theory/continuous_green_operators.md",
 	"theory/discrete_green_operators.md",
+	"theory/brick_element.md",
 	"theory/appendix.md",
 	"theory/bibliography.md"
 ]

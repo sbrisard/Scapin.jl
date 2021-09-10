@@ -3,16 +3,17 @@ using Documenter
 
 DocMeta.setdocmeta!(Scapin, :DocTestSetup, :(using Scapin); recursive = true)
 
-use_KaTeX = true
+use_KaTeX = false
 
 # Use MathJax syntax to define macros:
 # - macro names should not be preceded by "\\"
 macros = Dict(
-    "cellindices" => "\\mathcal P",
+    "cellindices" => "\\mathcal{P}",
     "conj" => "\\operatorname{conj}",
     "D" => "\\mathrm d",
     "dbldot" => "\\mathbin{\\mathord{:}}",
     "dft" => "\\operatorname{DFT}",
+    "element" => "\\mathrm{e}",
     "fftfreq" => "\\operatorname{Z}",
     "I" => "\\mathrm i",
     "integers" => "\\mathbb Z",
@@ -86,6 +87,7 @@ makedocs(;
             "theory/nomenclature.md",
             "theory/continuous_green_operators.md",
             "theory/discrete_green_operators.md",
+            "theory/brick_element.md",
             "theory/appendix.md",
             "theory/bibliography.md"
         ],

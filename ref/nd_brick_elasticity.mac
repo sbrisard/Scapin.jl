@@ -7,7 +7,7 @@ if d = 2 then title : "# Quadrilateral element for linear 2d elasticity"
 elseif d = 3 then title : "# Brick element for linear 3d elasticity"
 else error();
 
-linel : 125;
+linel : 999;
 
 integrate_nd(expr, d) := if d = 1 then integrate(expr, x[1], 0, h[1]) else integrate(integrate_nd(expr, d-1), x[d], 0, h[d]);
 
@@ -45,7 +45,7 @@ newline();
 node_coordinates(n) := makelist(x[i] = (n[i]-1)*h[i], i, 1, d);
 print("```");
 for n in N do block(
-  print(arrayapply('node, n) = node_coordinates(n)),
+  print(concat("node", string(n = node_coordinates(n)))),
   newline());
 print("```");
 
@@ -58,7 +58,7 @@ shape(n) := product(shape_1d[n[i]](x[i] / h[i]), i, 1, d);
 
 print("```");
 for n in N do block(
-  print(arrayapply('N, n) = shape(n)),
+  print(concat("N", string(n = shape(n)))),
   newline());
 print("```");
 
@@ -84,7 +84,7 @@ print("We get the following expressions for the displacements");
 newline();
 print("```");
 for i in C do block(
-  print('u[i] = subst(reduced_coordinates, u_[i])),
+  print(concat("u", string([i] = subst(reduced_coordinates, u_[i])))),
   newline());
 print("```");
 
@@ -97,9 +97,7 @@ eps_avg[i, j] := expand(integrate_nd(eps[i, j], d) / product(h[i], i, 1, d));
 B_[i, j, n, k] := coeff(eps_avg[i, j], u[n, k]);
 
 print("```");
-for i in CxCxNxC do block(
-  print(arrayapply(B, i) = arrayapply(B_, i)),
-  newline());
+for i in CxCxNxC do print(string(arrayapply(B, flatten(i)) = arrayapply(B_, i)));
 print("```");
 
 newline();
@@ -108,32 +106,48 @@ newline();
 tr_eps : sum(eps[i, i], i, 1, d);
 sig[i, j] := lambda_ * tr_eps * kron_delta(i, j) + 2 * mu * eps[i, j];
 
-U_integrand : sum(sum(sig[i, j] * eps[i, j], j, 1, d), i, 1, d);
+U_integrand : sum(sum(sig[i, j] * eps[i, j], j, 1, d), i, 1, d) / 2;
 U : expand(integrate_nd(U_integrand, d));
 
-K_[m, i, n, j] := if m # n or i # j then coeff(coeff(U, u[n, j]), u[m, i]) else expand(2 * coeff(U, u[m, i], 2));
+K[m, i, n, j] := if m # n or i # j then expand(coeff(coeff(U, u[n, j]), u[m, i])) else expand(2 * coeff(U, u[m, i], 2));
+K_I[m, i, n, j] := coeff(K[m, i, n, j], lambda_);
+K_II[m, i, n, j] := coeff(K[m, i, n, j], mu);
 
 print("Testing that elastic energy is retrieved from extracted stiffness matrix...");
-res : lreduce("+", map(lambda([i], arrayapply(K_, i)*u[i[1], i[2]]*u[i[3], i[4]]), NxCxNxC)) / 2 - U;
+res : lreduce("+", map(lambda([i], arrayapply(K, i)*u[i[1], i[2]]*u[i[3], i[4]]), NxCxNxC)) / 2 - U;
 if expand(res) # 0 then error();
 print("OK");
 
 newline();
 print("We get the following coefficients of the stiffness operator");
 
-newline();
+/*
 print("```");
+for i in NxCxNxC do print(concat("K_λ", string(flatten(i) = arrayapply(K_I, i))));
+for i in NxCxNxC do print(concat("K_μ", string(flatten(i) = arrayapply(K_II, i))));
+print("```");
+*/
+
 for i in NxCxNxC do block(
-  print(arrayapply(K, i) = arrayapply(K_, i)),
-  newline());
-print("```");
+  K_I_[arrayapply(K_I, i)] : [],
+  K_II_[arrayapply(K_II, i)] : []);
 
-newline();
-print("## Julia code");
-newline();
+for i in NxCxNxC do block(
+  [key],
+  key: arrayapply(K_I, i),
+  K_I_[key] : endcons(flatten(i), K_I_[key]),
+  key: arrayapply(K_II, i),
+  K_II_[key] : endcons(flatten(i), K_II_[key])
+  );
 
 print("```");
-for i in CxCxNxC do print(string(arrayapply(B, flatten(i)) = arrayapply(B_, i)));
-for i in NxCxNxC do print(string(arrayapply(K_lambda, flatten(i)) = coeff(expand(arrayapply(K_, i)), lambda_)));
-for i in NxCxNxC do print(string(arrayapply(K_mu, flatten(i)) = coeff(expand(arrayapply(K_, i)), mu)));
+for key in map(first, rest(arrayinfo(K_I_), 2)) do block(
+  newline(),
+  print(concat("value = ", string(key))),
+  for index in K_I_[key] do print(concat("K_λ", string(index), " = value")));
+
+for key in map(first, rest(arrayinfo(K_II_), 2)) do block(
+  newline(),
+  print(concat("value = ", string(key))),
+  for index in K_II_[key] do print(concat("K_μ", string(index), " = value")));
 print("```");
