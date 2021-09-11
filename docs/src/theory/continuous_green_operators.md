@@ -1,4 +1,4 @@
-# Continuous Green operators
+# [Continuous Green operators](@id _20210911035306)
 
 In this chapter, we discuss various boundary-value problems in a periodic
 setting. For each of these problems, we introduce the associated *Green
@@ -17,7 +17,8 @@ being a ``\Omega``-periodic tensor field
 ```
 
 where ``\tuple{n}`` denotes a ``d``-dimensional tuple of integers (see
-[Nomenclature](@ref)). The wave vectors ``\vec k_{\tuple{n}}`` are given by
+[Nomenclature](@ref _20210911034346)). The wave vectors ``\vec k_{\tuple{n}}``
+are given by
 
 ```math
 \vec k_{\tuple{n}}=\frac{2\PI n_1}{L_1}\vec e_1+\frac{2\PI n_2}{L_2}\vec e_2
@@ -73,7 +74,7 @@ defined as follows
 \tens\varepsilon\in\strains(\Omega)\iff\left\{
 \begin{gathered}
 \tens\varepsilon\in\tensors_2(\Omega)\\
-\tens\varepsilon=\sym\bigl(\vec u\otimes\nabla\bigr)
+\tens\varepsilon=\vec u\symotimes\nabla
 \text{ a.e. in }\Omega\text{ for some vector field }\vec u\\
 \vec u\text{ has square-integrable components}\\
 \vec u\text{ is }\Omega\text{-periodic.}
@@ -200,11 +201,11 @@ tensors. A closed-form expression of this tensor can be derived in the case of
 an isotropic material, for which
 
 ```math
-\tens C=\lambda\tens I_2\otimes\tens I_2+2μ\tens I_4,
+\tens C=\lambda\tens I_2\otimes\tens I_2+2\mu\tens I_4,
 ```
 
 where ``\tens I_2`` (resp. ``\tens I_4``) is the second-order
-(resp. fourth-order) identity tensor, and ``\lambda``, ``μ`` are the Lamé
+(resp. fourth-order) identity tensor, and ``\lambda``, ``\mu`` are the Lamé
 coefficients. Then
 
 ```math
@@ -227,7 +228,7 @@ then (recalling that ``\lVert\vec n\rVert=1``)
 
 and finally, we find the following expression of the “matrix-vector” product.
 
-### [The “matrix-vector” product for the Green operator of isotropic, linear elasticity](@id sec20210803063111)
+### [The “matrix-vector” product for the Green operator of isotropic, linear elasticity](@id _20210803063111)
 
 ```math
 \vec n\cdot\tens C\cdot\vec n
@@ -278,7 +279,7 @@ The components of the ``\hat{\tens \Gamma}`` tensor are then readily found
 which coincide with classical expressions (see e.g. [Suquet,
 1990](@ref suqu1990)). Implementation of the above equation is
 cumbersome; it is only used for testing purposes. In Scapin, only the
-`matvec` product is required, and the [the “matrix-vector”
-product](@ref sec20210803063111) was implemented.
+`matvec` product is required, and [the “matrix-vector” product](@ref
+_20210803063111) was implemented.
 
 ## Hyperelasticity

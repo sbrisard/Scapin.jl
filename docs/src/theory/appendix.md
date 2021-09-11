@@ -1,6 +1,6 @@
 # Appendix
 
-## Properties of the ``\fftfreq`` function
+## [Properties of the ``\fftfreq`` function](@id _20210911035430)
 
 In this paragraph, we prove the following property of the ``\fftfreq``
 function

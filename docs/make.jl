@@ -21,13 +21,15 @@ macros = Dict(
     "PI" => "\\mathrm{\\pi}",
     "reals" => "\\mathbb R",
     "sinc" => "\\operatorname{sinc}",
+    "symotimes" => "\\stackrel{\\mathrm{s}}{\\otimes}",
+    "strain" => "\\boldsymbol{\\varepsilon}",
     "strains" => "\\mathcal E",
+    "stress" => "\\boldsymbol{\\sigma}",
     "stresses" => "\\mathcal S",
-    "sym" => "\\operatorname{\\textbf{\\textsf{sym}}}",
-    "tens" => "\\bm",
+    "tens" => "\\mathbf",
     "tensors" => "\\mathcal T",
     "tuple" => "\\mathsf",
-    "vec" => "\\bm",
+    "vec" => "\\mathbf",
 )
 
 if use_KaTeX
@@ -54,7 +56,7 @@ mathengine =
         Dict{Symbol,Any}(
             :tex => Dict{String,Any}(
                 "macros" => macros,
-                #"packages" => ["base", "ams", "autoload"],
+                #"packages" => ["base", "ams", "autoload", "bm"],
                 "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
                 "tags" => "ams",
             ),
@@ -66,14 +68,14 @@ mathengine =
         true,
     )
 
-format = Documenter.HTML(;
-    prettyurls = get(ENV, "CI", "false") == "true",
-    canonical = "https://sbrisard.github.io/Scapin.jl",
-    assets = String[],
-    mathengine = mathengine,
-)
+# format = Documenter.HTML(;
+#     prettyurls = get(ENV, "CI", "false") == "true",
+#     canonical = "https://sbrisard.github.io/Scapin.jl",
+#     assets = String[],
+#     mathengine = mathengine,
+# )
 
-# format = Documenter.LaTeX(platform = "none")
+format = Documenter.LaTeX(platform = "none")
 
 makedocs(;
     modules = [Scapin],

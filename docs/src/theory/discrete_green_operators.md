@@ -2,7 +2,8 @@
 
 In this chapter, we introduce various discretizations of the Green operator; we
 will adopt the vocabulary of linear elasticity, although the concepts apply to
-all the various physical models presented in [Continuous Green operators](@ref).
+all the various physical models presented in Chap. “[Continuous Green
+operators](@ref _20210911035306)”.
 
 ## On the discrete Fourier transform
 
@@ -64,7 +65,7 @@ following property
 The above condition is actually a *necessary and sufficient* condition for the
 ``x_{\tuple{p}}`` to be real.
 
-### [The ``\fftfreq`` function](@id sec20210803055450)
+### [The ``\fftfreq`` function](@id 20210803055450)
 
 For ``n, N\in\naturals``, ``0\leq n<N``, we introduce ``\fftfreq(n, N)``
 
@@ -79,8 +80,8 @@ n-N & \text{otherwise.}
 For ``n<0`` or ``n\geq N``, ``\fftfreq(n, N)`` is defined by
 ``N``-periodicity. ``\fftfreq`` is very similar to the NumPy
 [fftfreq](https://numpy.org/doc/1.18/reference/generated/numpy.fft.fftfreq.html#numpy.fft.fftfreq)
-function. We have the important result (see proof in
-Sec. [Properties of the ``\fftfreq`` function](@ref) of the [Appendix](@ref))
+function. We have the important result (see proof in Sec. “[Properties of the
+``\fftfreq`` function](@ref _20210911035430)”.
 
 ```math
 \fftfreq(N-n, N)=
@@ -289,7 +290,7 @@ implemented in a matrix-free fashion as follows
 
 discrete Fourier transforms being computed in steps 1 and 3 by means of the FFT.
 
-### [Condition for the discrete Green operator to map real fields onto real fields](@id sec20210803053100)
+### [Condition for the discrete Green operator to map real fields onto real fields](@id _20210803053100)
 
 In the remainder of this chapter, we propose various discretizations of the
 Green operator. Before we proceed, though, it should be emphasized that the
@@ -364,10 +365,11 @@ and Suquet ([1994](@ref moul1994), [1998](@ref moul1998)). Only the lowest
 (\vec k_{\tuple Z(\tuple n, \tuple N)}).
 ```
 
-We must check that the [property ensuring realness of the discrete Green
-operator](@ref sec20210803053100) is satisfied. Using the [fundamental
-property](@ref sec20210803055450) of the ``\fftfreq`` function and assuming
-first that none of the ``n_i`` is such that ``2n_i=N_i``
+We must check that the “[Condition for the discrete Green operator to map real
+fields onto real fields](@ref _20210803053100)” is satisfied. Using the
+“[Properties of the ``\fftfreq`` function](@ref _20210911035430)” of the
+``\fftfreq`` function and assuming first that none of the ``n_i`` is such that
+``2n_i=N_i``
 
 ```math
 \hat{\tens\Gamma}_{\tuple N-\tuple n}^{\tuple h, \mathrm{MS94}}
@@ -376,8 +378,9 @@ first that none of the ``n_i`` is such that ``2n_i=N_i``
 =\hat{\tens\Gamma}(-\vec k_{\tuple Z(\tuple n, \tuple N)})
 ```
 
-All Green operators presented in Chap. [Continuous Green operators](@ref) are
-such that ``\hat{\tens\Gamma}(-\vec k)=\hat{\tens\Gamma}(\vec k)``, therefore
+All Green operators presented in Chap. “[Continuous Green operators](@ref
+_20210911035306)” are such that ``\hat{\tens\Gamma}(-\vec
+k)=\hat{\tens\Gamma}(\vec k)``, therefore
 
 ```math
 \hat{\tens\Gamma}_{\tuple N-\tuple n}^{\tuple h, \mathrm{MS94}}

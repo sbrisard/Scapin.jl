@@ -120,7 +120,7 @@ element `n ∈ 𝔑` represents the node with coordinates `(x[1], …, x[d])`
 x[i] = (-1)^n[i] * h[i] / 2,    i = 1, …, d
 ```
 
-See “[Geometry of the reference brick element](@id 20210910120306)” in the docs.
+See “[Geometry of the reference brick element](@ref _20210910120306)” in the docs.
 """
 element_nodes(d::Int) = CartesianIndices(Tuple(fill(1:2, d)))
 
@@ -152,7 +152,7 @@ This function returns a `d`-dimensional array `N`, such that `N[n]` is the shape
 function associated with node `n`, evaluated at `x`. In particular, `N[n]`
 evaluated at node `m` is `δ[m, n]` (Kronecker).
 
-See “[Shape functions](@ref sec:20210910114136)” in the docs.
+See “[Shape functions](@ref _20210910114136)” in the docs.
 
 """
 function shape(x::AbstractArray{T,1}, h::AbstractArray{T,1}) where {T<:Number}
@@ -174,7 +174,7 @@ If `n` is the multi-index of the node, and `i` is the index of a component, then
 
 `h` is the size of the brick element.
 
-See “[Geometry of the reference brick element](@ref 20210910120306)”.
+See “[Geometry of the reference brick element](@ref _20210910120306)”.
 """
 function gradient_operator(x::AbstractVector{T}, h::AbstractVector{T}) where {T<:Number}
     d = size(x, 1)
@@ -212,7 +212,7 @@ then, the interpolated `(i, j)` component of the strain at `x` reads
 ε[i, j] = Σₙ Σₖ B[i, j, n, k] * u[n, k].
 ```
 
-See “[Gradient and strain-displacement operators](@ref 20210910114926)”.
+See “[Gradient and strain-displacement operators](@ref _20210910114926)”.
 """
 function strain_displacement_operator(
     x::AbstractVector{T},

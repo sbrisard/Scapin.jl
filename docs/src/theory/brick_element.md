@@ -1,19 +1,18 @@
 # On the d-dimensional brick element
 
-In this chapter, we formulate the brick element for conductivity and linear
-elasticity in ``d`` dimensions (``d\in\{2, 3\}``).
+In this chapter, we formulate the linear brick finite element for conductivity
+and linear elasticity in ``d`` dimensions (``d\in\{2, 3\}``).
 
 !!! note
 
-    In the remainder of this chapter, ``i``, ``j``, ``h``, ``k`` and ``l`` denote
-	scalar indices that refer to tensor components, and span
-	``\{1, 2, \cdots d\}``; ``\tuple{m}``, ``\tuple{n}`` are ``d``-dimensional
-	multi-indices that refer to nodes. Depending on the context (local, element
-	operators or global, assembled operators) they span ``\{1, 2\}^d`` or the
-	whole grid ``\cellindices``. We adopt Einstein's convention for indices of
-	both types.
+    In the remainder of this chapter, ``i``, ``j``, ``h`` and ``k`` denote scalar
+	indices that refer to tensor components, and span ``\{1, 2, \cdots d\}``;
+	``\tuple{m}``, ``\tuple{n}`` are ``d``-dimensional multi-indices that refer
+	to nodes. Depending on the context (local, element operators or global,
+	assembled operators) they span ``\{1, 2\}^d`` or the whole grid
+	``\cellindices``. We adopt Einstein's convention for indices of both types.
 
-## [Geometry of the reference brick element](@id 20210910120306)
+## [Geometry of the reference brick element](@id _20210910120306)
 
 The reference element being centered at the origin, it occupies the following
 domain
@@ -43,7 +42,7 @@ For integration purposes, it is useful to introduce the *reduced coordinates*
 and it is observed that the reduced coordinates of the node ``\tuple{n}`` are
 ``\xi_i=(-1)^{n_i}``.
 
-## [Shape functions](@id sec:20210910114136)
+## [Shape functions](@id _20210910114136)
 
 The shape function associated with node ``\tuple{n}`` is
 ``N^\element_{\tuple{n}}(\vec x)``, wich is defined below as a function of the
@@ -58,14 +57,14 @@ and we have as expected ``N^\element_{\tuple{m}}(\vec x_{\tuple n}) =
 we have the interpolation formula: ``f(\vec x)=N^\element_\tuple{n}(\vec
 x)f_\tuple{n}``.
 
-## [Gradient and strain-displacement operators](@id 20210910114926)
+## [Gradient and strain-displacement operators](@id _20210910114926)
 
 We consider a scalar interpolated field, ``f(\vec x)=N^\element_\tuple{n}(\vec
 x)f_\tuple{n}``. The components of its gradient are given by the following
 expression
 
 ```math
-\bigl(f\otimes\nabla\bigr)=\partial_i f=D_{i\tuple{n}}^\element f_\tuple{n},
+\bigl(f\otimes\nabla\bigr)_i=\partial_i f=D_{i\tuple{n}}^\element f_\tuple{n},
 ```
 
 where the observation point ``\vec x`` has been dropped, and
@@ -95,7 +94,7 @@ averages to 1), we find
 
 We now consider the interpolated displacement field, ``\vec u =
 N^\element_\tuple{n} \vec u_\tuple{n}``. The components of the associated
-strain, ``\tens\varepsilon=\sym\bigl(\vec u\otimes\nabla\bigr)`` are
+strain, ``\tens\varepsilon=\vec u\symotimes\nabla`` are
 
 ```math
 \varepsilon_{ij}=\tfrac12\bigl(\partial_iu_j+\partial_ju_i\bigr)
