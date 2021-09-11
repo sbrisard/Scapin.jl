@@ -11,8 +11,8 @@ operator*.
 
 We first define a few functional spaces; ``\tensors_2(\Omega)`` denotes the
 space of second-order, symmetric, tensor fields, with square-integrable
-components. Then, the space ``\tens\stresses(\Omega)`` of periodic,
-self-equilibrated stresses is defined as follows
+components. Then, the space ``\stresses(\Omega)`` of periodic, self-equilibrated
+stresses is defined as follows
 
 ```math
 \tens\sigma\in\stresses(\Omega)\iff\left\{
@@ -70,8 +70,9 @@ following problem
 [^1]: In other words, ``\tens C`` is a constant, fourth-order tensor with major
       and minor symmetries; furthermore, ``\tens C`` is positive definite.
 
-Owing to the periodic boundary conditions, we use Fourier series expansions of
-``\tens\tau``, ``\tens\sigma``, ``\tens\varepsilon`` and ``\vec u``
+Owing to the periodic boundary conditions, we use [Fourier series](@ref
+_20210911054826) expansions of ``\tens\tau``, ``\tens\sigma``,
+``\tens\varepsilon`` and ``\vec u``
 
 ```math
 \begin{Bmatrix}
@@ -186,16 +187,17 @@ then (recalling that ``\lVert\vec n\rVert=1``)
 \end{aligned}
 ```
 
-and finally, we find the following expression of the “matrix-vector” product.
-
-### [The “matrix-vector” product for the Green operator of isotropic, linear elasticity](@id _20210803063111)
+and finally, we find the following expression of the “matrix-vector” product
 
 ```math
+\begin{equation}
+\label{_20210803063111}
 \vec n\cdot\tens C\cdot\vec n
 =\bigl(\lambda+2\mu\bigr)\vec n\otimes\vec n
 +\mu\bigl(\tens I_2-\vec n\otimes\vec n\bigr)
 =2\mu\frac{1-\nu}{1-2\nu}\vec n\otimes\vec n
 +\mu\bigl(\tens I_2-\vec n\otimes\vec n\bigr),
+\end{equation}
 ```
 
 where ``\nu`` denotes the Poisson ratio. The above second-order tensor is easily
@@ -219,8 +221,6 @@ from which it results that
 
 and we finally get
 
-### The components of the Green operator of isotropic, linear elasticity
-
 ```math
 2\mu\hat{\tens \Gamma}(\vec k)\dbldot\tilde{\tens \tau}
 =\bigl(\tilde{\tens \tau}\cdot\vec n\bigr)\otimes\vec n
@@ -236,10 +236,9 @@ The components of the ``\hat{\tens \Gamma}`` tensor are then readily found
 -\frac{n_in_jn_kn_l}{2\mu\bigl(1-\nu\bigr)},
 ```
 
-which coincide with classical expressions (see e.g. [Suquet,
-1990](@ref suqu1990)). Implementation of the above equation is
-cumbersome; it is only used for testing purposes. In Scapin, only the
-`matvec` product is required, and [the “matrix-vector” product](@ref
-_20210803063111) was implemented.
+which coincide with classical expressions (see e.g. [Suquet, 1990](@ref
+suqu1990)). Implementation of the above equation is cumbersome; it is only used
+for testing purposes. In Scapin, only the `matvec` product is required, and
+Eq. \eqref{_20210803063111} was implemented.
 
 ## Hyperelasticity
