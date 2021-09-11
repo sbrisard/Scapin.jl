@@ -4,46 +4,6 @@ In this chapter, we discuss various boundary-value problems in a periodic
 setting. For each of these problems, we introduce the associated *Green
 operator*.
 
-## On Fourier series
-
-Owing to the periodic setting, the fields that are involved in the various BVPs
-to be discussed in this chapter are expanded in Fourier series. ``\tens T``
-being a ``\Omega``-periodic tensor field
-
-```math
-\tens T(\vec x)
-=\sum_{\tuple{n}∈\integers^d}\mathcal F(\tens T)(\vec k_{\tuple{n}})
-\exp(\I\vec k_{\tuple{n}}\cdot\vec x),
-```
-
-where ``\tuple{n}`` denotes a ``d``-dimensional tuple of integers (see
-[Nomenclature](@ref _20210911034346)). The wave vectors ``\vec k_{\tuple{n}}``
-are given by
-
-```math
-\vec k_{\tuple{n}}=\frac{2\PI n_1}{L_1}\vec e_1+\frac{2\PI n_2}{L_2}\vec e_2
-+\cdots+\frac{2\PI n_d}{L_d}\vec e_d,
-```
-
-and the Fourier coefficients of ``\tens T`` are defined as follows
-
-```math
-\mathcal F(\tens T)(\vec k)=\frac1V\int_{\vec x∈\Omega}
-\tens T(\vec x)\exp(-\I\vec k\cdot\vec x)\,\D x_1\cdots\D x_d.
-```
-
-It is recalled that the Fourier coefficients of the gradient and divergence of
-``\tens T`` can readily be computed from the Fourier coefficients of ``\tens T``
-
-```math
-\mathcal F(\tens T\otimes\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)\otimes\I\vec k
-\quad\text{and}\quad
-\mathcal F(\tens T\cdot\nabla)(\vec k)=\mathcal F(\tens T)(\vec k)\cdot\I\vec k.
-```
-
-When no confusion is possible, we will use the tilde to denote the Fourier
-coefficients: ``\tilde{\tens T}_\tuple{n}=\mathcal F(\tens T)(\vec
-k_\tuple{n})``.
 
 ## Conductivity
 

@@ -98,6 +98,7 @@ makedocs(;
         "Home" => "index.md",
         "Theory" => [
             "theory/nomenclature.md",
+            "theory/fourier.md",
             "theory/continuous_green_operators.md",
             "theory/discrete_green_operators.md",
             "theory/brick_element.md",
