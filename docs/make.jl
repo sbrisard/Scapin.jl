@@ -1,5 +1,6 @@
-using Scapin
+using Dates
 using Documenter
+using Scapin
 
 DocMeta.setdocmeta!(Scapin, :DocTestSetup, :(using Scapin); recursive = true)
 
@@ -26,10 +27,11 @@ macros = Dict(
     "strains" => "\\mathcal E",
     "stress" => "\\boldsymbol{\\sigma}",
     "stresses" => "\\mathcal S",
-    "tens" => "\\mathbf",
+    #"tens" => "\\@ifstar{\\boldsymbol}{\\mathbf}",
+    "tens" => "\\boldsymbol",
     "tensors" => "\\mathcal T",
     "tuple" => "\\mathsf",
-    "vec" => "\\mathbf",
+    "vec" => "\\boldsymbol",
 )
 
 if use_KaTeX
@@ -68,14 +70,23 @@ mathengine =
         true,
     )
 
-# format = Documenter.HTML(;
-#     prettyurls = get(ENV, "CI", "false") == "true",
-#     canonical = "https://sbrisard.github.io/Scapin.jl",
-#     assets = String[],
-#     mathengine = mathengine,
-# )
+format = Documenter.HTML(;
+    prettyurls = get(ENV, "CI", "false") == "true",
+    canonical = "https://sbrisard.github.io/Scapin.jl",
+    assets = String[],
+    mathengine = mathengine,
+)
 
-format = Documenter.LaTeX(platform = "none")
+# format = Documenter.LaTeX(platform = "none")
+
+open(joinpath(@__DIR__, "src", "assets", "custom.sty"), "w") do io
+    write(io, "% WARNING: Automatically generated -- Do NOT edit by hand!\n")
+    write(io, "% Script: $(@__FILE__)\n")
+    write(io, "% Date: $(now())\n\n")
+    for (name, definition) in
+        macros write(io, "\\providecommand{\\$name}{$definition}\n")
+    end
+end
 
 makedocs(;
     modules = [Scapin],
