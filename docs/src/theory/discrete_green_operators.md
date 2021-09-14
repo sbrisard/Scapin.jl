@@ -47,7 +47,7 @@ and we have again
 
 if none of the ``n_i`` is such that ``2n_i=N_i``.
 
-## The approximation space
+## [The approximation space](@id _20210914103411)
 
 In order to define a discrete Green operator, we need to introduce the
 approximation space for the stress-polarizations. We will consider here
@@ -92,6 +92,8 @@ linear mapping between the cell values ``\tens\tau_{\tuple{p}}^{\tuple{h}}`` of
 is therefore a *matrix*, and the above equation should be understood as
 
 ```math
+\begin{equation}
+\label{eq20210914103849}
 \langle\tens\varpi^{\tuple{h}}\dbldot\tens\Gamma(\tens\tau^{\tuple{h}})\rangle
 \simeq\frac1{\lvert\tuple{N}\rvert}\sum_{\tuple{p}, \tuple{q}\in\cellindices}
 \tens\varpi_{\tuple{p}}^{\tuple{h}}\dbldot
@@ -99,6 +101,7 @@ is therefore a *matrix*, and the above equation should be understood as
 \tau_{\tuple{q}}^{\tuple{h}}
 \quad\text{for all}\quad
 \tens\tau^{\tuple{h}},\tens\varpi^{\tuple{h}}\in\tensors_2^{\tuple{h}}(\Omega).
+\end{equation}
 ```
 
 The continuous Green operator is translation invariant, and this property will
@@ -252,6 +255,225 @@ Any discrete operator that will be considered below must ensure that
 ```
 
 ## Discretizations of the Green operator
+
+### The finite element discretization
+
+As discussed in section “[The approximation space](@section _20210914103411)”
+[see in particular Eq. \eqref{eq20210914103849}], the discrete Green operator
+can be seen as an operator that delivers the cell-averages of the strains
+induced by a cell-wise constant eigenstress
+``\tens\tau^\tuple{h}\in\tensors_2^\tuple{h}(\Omega)``. In other words, let us
+consider the solution to the following problem (see Sec. on [elasticity](@ref
+id20210914104336))
+
+```math
+\begin{equation}
+\label{eq20210914140834}
+\text{Find }\tens\sigma\in\stresses_0(\Omega)
+\text{ and }\tens\varepsilon\in\strains_0(\Omega)
+\text{ such that }\tens\sigma=\tens C\dbldot\tens\varepsilon+\tens\tau^\tuple{h}
+\text{ a.e. in }\Omega.
+\end{equation}
+```
+
+Note that, compared to the general problem that [defines the continuous Green
+operator](@id id20210914104336), the above problem differs by the space where
+``\tens\tau^\tuple{h}`` lives. An approximate solution to this problem can be
+retrieved from a finite element discretization (Brisard [2017](@ref
+bris2017))[^1], where the mesh coincides with the grid introduced previously and
+each element is discretized with [linear shape functions](@ref
+_20210910114136). The resulting linear system can be solved efficiently by means
+of a matrix-free approach that is outlined below.
+
+[^1]: The preprint of this paper is freely available on the [HAL
+      archive](https://hal-enpc.archives-ouvertes.fr/hal-01304603); it is not
+      the final version, but the theoretical sections were unchanged through the
+      review process.
+
+Introducing the nodal displacement ``\vec u_\tuple{n}`` at node
+``\tuple{n}\in\cellindices``, we define the inerpolated displacement ``\vec
+u^\tuple{h}(\vec x)`` and strain ``\tens\strain^\tuple{h}(\vec x)``, as well as
+the cell-average of the latter, ``\overline{\tens\strain}_\tuple{p}^\tuple{h}
+
+```math
+\tens\varepsilon^\tuple{h}(\vec x)=\bigl(\vec
+u^\tuple{h}\symotimes\nabla\bigr)(\vec x)
+\quad\text{and}\quad
+\overline{\tens\varepsilon}_\tuple{p}^\tuple{h}
+=\frac1{\lvert\tuple{h}\rvert}\int_{\Omega_\tuple{p}}\tens\strain^\tuple{h}(\vec x)
+\,\D x_1\cdots\D x_d,
+```
+
+where ``|\tuple{h}|=h_1\cdots h_d`` is the cell volume. In the present periodic
+setting, the DFT ``\hat{\overline{\tens\varepsilon}}_\tuple{n}^\tuple{h}`` of
+``\tens\varepsilon`` can be expressed as follows
+
+```math
+\begin{equation}
+\label{eq20210914144114}
+\hat{\overline{\tens\varepsilon}}_\tuple{n}^\tuple{h}
+=\hat{\tens B}_\tuple{n}^\tuple{h}\symotimes\hat{\vec u}_\tuple{n}^\tuple{h},
+\end{equation}
+```
+
+where ``\tens B`` is the so-called *modal strain-displacement vector* [see
+(Brisard [2017](@ref bris2017)) for its expression].
+
+Then, it is recalled that the strain energy ``U`` is defined as the following
+integral over the whole unit-cell ``Ω`` (``\lambda``, ``\mu``: Lamé
+coefficients)
+
+```math
+U=\frac12\int_\Omega\bigl[\lambda\bigl(\tr\tens\varepsilon^\tuple{h}\bigr)^2
++2\mu\,\tens\varepsilon^\tuple{h}\dbldot\tens\varepsilon^\tuple{h}\bigr]
+\D x_1\cdots\D x_d.
+```
+
+The strain energy is a quadratic form of the nodal displacements. Owing to the
+homogeneity of the material (the Lamé coefficients are constant over the
+unit-cell) and the periodic boundary conditions, the strain energy takes a
+simple expression in Fourier space
+
+```math
+\begin{equation}
+\label{eq20210914060318}
+U=\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
+\sum_{\tuple{n}\in\cellindices}
+\conj\bigl(\hat{\vec u}_\tuple{n}^\tuple{h}\bigr)
+\cdot\hat{\tens K}_\tuple{n}^\tuple{h}
+\cdot\hat{\vec u}_\tuple{n}^\tuple{h},
+\end{equation}
+```
+
+where ``\hat{\tens K}_\tuple{n}^\tuple{h}`` is the *modal stiffness matrix*,
+which is computed by the method XXX.
+
+Note that, plugging the [definition of the discrete Fourier transform](@ref
+_20210911055458) into Eq. \eqref{eq20210914060318} delivers the following
+expression
+
+```math
+\begin{aligned}
+U={}&\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
+\sum_{\tuple{n}, \tuple{p}, \tuple{q}\in\cellindices}
+\conj\bigl[\vec u_\tuple{p}^\tuple{h}\exp\bigl(-\I\phi_\tuple{np}\bigr)\bigr]
+\cdot\hat{\tens K}_\tuple{n}^\tuple{h}
+\cdot\vec u_\tuple{q}^\tuple{h}\exp\bigl(-\I\phi_\tuple{nq}\bigr)\\
+={}&\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
+\sum_{\tuple{n}, \tuple{p}, \tuple{q}\in\cellindices}
+\conj\bigl(\vec u_\tuple{p}^\tuple{h}\bigr)
+\cdot\hat{\tens K}_\tuple{n}^\tuple{h}
+\cdot\vec u_\tuple{q}^\tuple{h}
+\exp\bigl[\I\bigl(\phi_\tuple{np}-\phi_\tuple{nq}\bigr)\bigr]\\
+={}&\frac{\lvert\tuple{h}\rvert}2\sum_{\tuple{p},\tuple{q}}
+\conj\bigl(\vec u_\tuple{p}^\tuple{h}\bigr)\cdot\tens K_\tuple{pq}^\tuple{h}
+\cdot\vec u_\tuple{q}^\tuple{h},
+\end{aligned}
+```
+
+where
+
+```math
+\tens{K}_{\tuple{pq}}^\tuple{h}
+=\frac1{\lvert\tuple{N}\rvert}\sum_{\tuple{n}}
+\hat{\tens K}_\tuple{n}^\tuple{h}\exp\bigl(\I\phi_{\tuple{n},\tuple{p}-\tuple{q}}\bigr)
+```
+
+is the *nodal stiffness matrix*, which appears as a block-circulant matrix. This
+expresses the fact that the problem under consideration is
+translation-invariant, owing to the homogeneity of the material and the periodic
+boundary conditions (see also “[On the d-dimensional brick element](@ref
+_20210914055642)”).
+
+!!! danger
+
+    The modal stiffness matrix should be rescaled so as to lead to the more
+	appropriate formula
+
+    ```math
+    U=\frac12\sum_{\tuple{p},\tuple{q}}\overline{\vec u}_\tuple{p}^\tuple{h}
+    \cdot\tens K_\tuple{pq}^\tuple{h}\cdot\vec u_\tuple{q}^\tuple{h}
+    ```
+
+In order to derive a FE-approximate solution to the problem described by
+Eq. \eqref{eq20210914140834}, we need to account for the contribution
+``U^\text{eigen}`` of the eigenstress ``\tens\tau^\tuple{h}`` to the total
+potential energy ``\Pi``. This contribution reads, in the real space,
+
+```math
+U^\text{eigen}=\int_\Omega\bigl[\tens\tau^\tuple{h}(\vec x)
+\dbldot\tens\varepsilon(\vec x)\bigr]\D x_1\cdots\D x_d
+```
+
+which can be expressed in Fourier space
+
+```math
+U^\text{eigen}=\frac{\lvert\tuple{h}\rvert}{\lvert\tuple{N}\rvert}
+\sum_{\tuple{n}\in\cellindices}\conj\bigl(\hat{\vec u}_\tuple{n}\bigr)
+\cdot\hat{\tens\tau}_\tuple{n}^\tuple{h}\cdot
+\conj\hat{\tens B}_\tuple{n}^\tuple{h},
+```
+
+where ``\hat{\tens B}_\tuple{n}^\tuple{h}`` is the modal strain-displacement
+operator introduced above, and ``\hat{\tens\tau}_\tuple{n}^\tuple{h}`` is the
+DFT of the cell-values of the cell-wise constant eigenstrain.
+
+Optimization of ``\Pi`` w.r.t. the nodal displacements delivers the following
+equations
+
+```math
+\begin{equation}
+\label{eq20210914145137}
+\hat{\tens K}_\tuple{n}^\tuple{h}\cdot\hat{\vec u}_\tuple{n}^\tuple{h}
+=-\hat{\tens\tau}_\tuple{n}^\tuple{h}\cdot\hat{\tens B}_\tuple{n}^\tuple{h},
+\end{equation}
+```
+
+Note that these equations are *uncoupled*: they reduce to a ``d\times d`` linear
+system *for each Fourier mode*. The solution to these equations delivers the
+modal displacements
+
+```math
+\hat{\vec u}_\tuple{n}^\tuple{h}
+=-\bigl(\hat{\tens K}_\tuple{n}^\tuple{h}\bigr)^{-1}
+\cdot\hat{\tens\tau}_\tuple{n}^\tuple{h}
+\cdot\hat{\tens B}_\tuple{n}^\tuple{h}.
+```
+
+Combining with Eq. \eqref{eq20210914144114}, we get the following expression of
+the cell-average of the strains, in Fourier space
+
+```math
+\hat{\overline{\tens\varepsilon}}_\tuple{n}^\tuple{h}
+=-\hat{\vec B}_\tuple{n}^\tuple{h}\symotimes
+\bigl[\bigl(\hat{\tens K}_\tuple{n}^\tuple{h}\bigr)^{-1}
+\cdot\hat{\tens\tau}_\tuple{n}^\tuple{h}\cdot\hat{\vec B}_\tuple{n}^\tuple{h}\bigr].
+```
+
+Upon appropriate symmetrization (``\tens\tau^\tuple{h}`` and
+``\tens\varepsilon^\tuple{h}`` are both symmetric, second-rank tensors), we find
+
+```math
+\hat{\overline{\tens\varepsilon}}_\tuple{n}^\tuple{h}=-\hat{\tens\Gamma}_\tuple{n}^{\tuple{h}, \text{Bri17}}\dbldot\hat{\tens\tau}_\tuple{n}^\tuple{h},
+```
+
+with
+
+```math
+\hat{\tens\Gamma}_\tuple{n}^{\tuple{h}, \text{Bri17}}
+=\hat{\vec B}_\tuple{n}^\tuple{h}
+\symotimes\bigl(\tens K_\tuple{n}^\tuple{h}\bigr)^{-1}
+\symotimes\hat{\vec B}_\tuple{n}^\tuple{h},
+```
+
+which defines the discrete Green operator.
+
+!!! note
+
+    Eq. \eqref{eq20210914145137} is singular for ``\vec k = \vec 0``. Indeed, in
+	a periodic setting, the displacement is defined up to a constant translation.
+	It is convenient to select the solution with zero average, that is
+	``\hat{u}_\tuple{0}^\tuple{h}=\vec 0``.
 
 ### The discretization of Brisard and Dormieux
 

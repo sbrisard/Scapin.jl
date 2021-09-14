@@ -30,6 +30,7 @@ macros = Dict(
     #"tens" => "\\@ifstar{\\boldsymbol}{\\mathbf}",
     "tens" => "\\boldsymbol",
     "tensors" => "\\mathcal T",
+    "tr" => "\\operatorname{tr}",
     "tuple" => "\\mathsf",
     "vec" => "\\boldsymbol",
 )

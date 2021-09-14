@@ -1,4 +1,4 @@
-# On the d-dimensional brick element
+# [On the d-dimensional brick element](@id _20210914055642)
 
 In this chapter, we formulate the linear brick finite element for conductivity
 and linear elasticity in ``d`` dimensions (``d\in\{2, 3\}``).

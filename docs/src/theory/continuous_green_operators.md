@@ -7,7 +7,7 @@ operator*.
 
 ## Conductivity
 
-## Elasticity
+## [Elasticity](@id id20210914104336)
 
 We first define a few functional spaces; ``\tensors_2(\Omega)`` denotes the
 space of second-order, symmetric, tensor fields, with square-integrable
