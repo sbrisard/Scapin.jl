@@ -52,6 +52,7 @@ window.MathJax = {
       "stress": "\\boldsymbol{\\sigma}",
       "conj": "\\operatorname{conj}",
       "dft": "\\operatorname{DFT}",
+      "tr": "\\operatorname{tr}",
       "strain": "\\boldsymbol{\\varepsilon}",
       "PI": "\\mathrm{\\pi}",
       "cellindices": "\\mathcal{P}",
