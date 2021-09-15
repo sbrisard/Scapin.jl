@@ -182,8 +182,8 @@ function gradient_operator(x::AbstractVector{T}, h::AbstractVector{T}) where {T<
     ξ = 2 * x ./ h
     𝔑 = element_nodes(d)
     return [
-        prod(j == i ? (-1)^n[j] / h[j] : (1 + (-1)^n[j] * ξ[j]) / 2 for j = 1:d) for i = 1:d,
-        n in 𝔑
+        prod(j == i ? (-1)^n[j] / h[j] : (1 + (-1)^n[j] * ξ[j]) / 2 for j = 1:d) for
+        i = 1:d, n in 𝔑
     ]
 end
 
@@ -280,16 +280,22 @@ function stiffness_operator(h::AbstractArray{T,1}, μ::T, ν::T) where {T<:Numbe
 end
 
 """
-    cell_vertices(cell, linear)
+    element_nodes(e, N)
 
-Return the vertices of the `cell` (specified as a multi-index) as an
-array of indices. The grid size is defined by `linear` (an instance of
-`LinearIndices`).
+Return the nodes of element `e` within the grid of size `N`.
+
+The element is specified as a `d`-dimensional multi-index, `e`. The function
+returns an array of `2^d` multi-indices. The size of the grid is specified by the
+array `N` (`size(N, 1) = d`).
+
+Note that periodic boundary conditions are accounted for.
+
 """
-function cell_vertices(K, linear::LinearIndices)
-    d = ndims(linear)
-    bounds = [(K[i], (K[i] % axes(linear, i)[end] + 1)) for i = 1:d]
-    return collect(flatten(linear[i...] for i in product(bounds...)))
+function element_nodes(e, N::AbstractVector{Int})
+    d = size(N, 1)
+    e_ = collect(e)
+    increments = map(collect, product(fill(0:1, d)...))
+    reshape(map(n -> Tuple((e_ .+ n .- 1) .% N .+ 1), increments), 2^d)
 end
 
 """
@@ -303,21 +309,20 @@ Return the global stiffness matrix for periodic, homogeneous elasticity.
 - `ν`: Poisson ratio
 
 """
-function stiffness_matrix(
+function global_stiffness_operator(
     N::AbstractVector{Int},
     h::AbstractVector{T},
     μ::T,
     ν::T,
 ) where {T<:Number}
-    ndofs = prod(N) * size(N, 1)
-    dims = Tuple(1:n for n in N)
-    cartesian = CartesianIndices(dims)
-    linear = LinearIndices(dims)
-    Ke = stiffness_matrix(h, μ, ν)
-    K = zeros(T, ndofs, ndofs)
-    for J in CartesianIndices
-        vertices = cell_vertices(J, linear)
-        K[vertices, vertices] += Ke
+    d = size(N, 1)
+    cartesian = CartesianIndices(Tuple(N))
+    linear = LinearIndices(Tuple(N))
+    Ke = stiffness_operator(h, μ, ν)
+    K = zeros(T, N..., d, N..., d)
+    for e ∈ cartesian
+        nodes = cell_vertices(e, linear)
+        K[nodes, :, nodes, :] += Ke
     end
     return K
 end
