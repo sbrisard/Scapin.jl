@@ -1588,13 +1588,13 @@ end
             @testset "Average gradient_operator, $(d)d" begin
                 D_act = Scapin.avg_gradient_operator(h)
                 D_exp = expected_avg_gradient_operator(h)
-                @test D_act ≈ D_exp norm = L∞ rtol = 1e-15
+                @test D_act ≈ D_exp rtol = 1e-15 atol = 1e-15
             end
 
             @testset "Average strain-displacement matrix, $(d)d" begin
                 B_act = avg_strain_displacement_operator(h)
                 B_exp = expected_avg_strain_displacement_operator(h)
-                @test isapprox(B_act, B_exp, rtol = 1e-15)
+                @test B_act ≈ B_exp rtol = 1e-15 atol = 1e-15
             end
 
             @testset "Stiffness operator, $(d)d" begin
@@ -1602,7 +1602,7 @@ end
                 K_λ = expected_K_λ(h)
                 K_μ = expected_K_μ(h)
                 K_exp = λ * K_λ + μ * K_μ
-                @test K_act ≈ K_exp rtol = 1e-15
+                @test K_act ≈ K_exp rtol = 1e-15 atol = 1e-15
             end
         end
     end
