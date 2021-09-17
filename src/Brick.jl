@@ -44,21 +44,19 @@ end
 Return the gradient operator at the specified point.
 
 This function returns a `(d+1)` dimensional array `D` of size `(d, 2, 2, …)`.
-If `n` is the multi-index of the node, and `i` is the index of a component, then
-`D[i, n]` is the partial derivative of `N[n]` w.r.t. `x[i]`, evaluated at `x`.
+If  `i` is the index of a component and `p` the `CartesianIndex` of the node, then
+`D[i, p]` is the partial derivative of `N[p]` w.r.t. `x[i]`, evaluated at `x`.
 
 `h` is the size of the brick element.
 
 See “[Geometry of the reference brick element](@ref _20210910120306)”.
 """
-function gradient_operator(x::AbstractVector{T}, h::AbstractVector{T}) where {T<:Number}
-    d = size(x, 1)
-    # TODO — Check that x and h have same size
-    ξ = 2 * x ./ h
-    𝔑 = cell_vertices(d)
+function gradient_operator(x::NTuple{d, T}, h::NTuple{d, T}) where {d, T<:Number}
+    ξ = 2 .* x ./ h
+    ℒ = cell_vertices(d)
     return [
         prod(j == i ? (-1)^n[j] / h[j] : (1 + (-1)^n[j] * ξ[j]) / 2 for j = 1:d) for
-        i = 1:d, n in 𝔑
+        i = 1:d, n in ℒ
     ]
 end
 
@@ -66,9 +64,9 @@ end
 """
     avg_gradient_operator(h)
 
-Return the cell average of the gradient operator.
+Return the cell-average of the gradient operator.
 """
-function avg_gradient_operator(h::AbstractArray{T,1}) where {T<:Number}
+function avg_gradient_operator(h::NTuple{d, T}) where {d, T<:Number}
     return integrate(x -> gradient_operator(x, h), h, avg = true)
 end
 
@@ -80,28 +78,25 @@ Return the strain-displacement operator for the `d`-dimensional brick element of
 size `h`, evaluated at point `x`.
 
 This function returns a `(d+3)` dimensional array `B` of size `(d, d, 2, …, 2, d)`.
-If `n` is the multi-index of the node, and `i`, `j`, `k` are component indices
-then, the interpolated `(i, j)` component of the strain at `x` reads
+If `p` is the `CartesianIndex` of the node, and `i`, `j`, `k` are component
+indices then, the interpolated `(i, j)` component of the strain at `x` reads
 
 ```
-ε[i, j] = Σₙ Σₖ B[i, j, n, k] * u[n, k].
+ε[i, j] = Σₖ Σₚ B[i, j, k, p] * u[k, p].
 ```
 
 See “[Gradient and strain-displacement operators](@ref _20210910114926)”.
 """
 function strain_displacement_operator(
-    x::AbstractVector{T},
-    h::AbstractVector{T},
-) where {T<:Number}
-    d = size(x, 1)
-    @assert size(h, 1) == d "x and h must have same size"
-
-    𝔑 = cell_vertices(d)
+    x::NTuple{d, T},
+    h::NTuple{d, T},
+) where {d, T<:Number}
+    ℒ = cell_vertices(d)
     D = gradient_operator(x, h)
-    B = zeros(T, d, d, fill(2, d)..., d)
-    for i = 1:d, j = 1:d, n ∈ 𝔑
-        B[i, j, n, i] += D[j, n] / 2
-        B[i, j, n, j] += D[i, n] / 2
+    B = zeros(T, d, d, d, fill(2, d)...)
+    for i = 1:d, j = 1:d, p ∈ ℒ
+        B[i, j, i, p] += D[j, p] / 2
+        B[i, j, j, p] += D[i, p] / 2
     end
     return B
 end
@@ -112,7 +107,7 @@ end
 
 Return the cell average of the strain-displacement operator.
 """
-function avg_strain_displacement_operator(h::AbstractArray{T,1}) where {T<:Number}
+function avg_strain_displacement_operator(h::NTuple{d, T}) where {d, T<:Number}
     return integrate(x -> strain_displacement_operator(x, h), h, avg = true)
 end
 
