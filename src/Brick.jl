@@ -14,7 +14,7 @@ take a 1-dimensional array of size `d` as unique input. If `avg` is `true`, the
 function returns the `N`-dimensional average.
 """
 function integrate(f, h::NTuple{d, T}; avg = false) where {d, T<:Number}
-    ξ = [-1 / sqrt(3), 1 / sqrt(3)]
+    ξ = [-1 / √3, 1 / √3]
     weight = (avg ? one(T) : prod(h)) / 2^d
     return weight * sum(f, product((ξ .* h_ / 2 for h_ in h)...))
 end
@@ -25,19 +25,17 @@ end
 
 Return the value of the shape functions of the element, at the specified point.
 
-This function returns a `d`-dimensional array `N`, such that `N[n]` is the shape
-function associated with node `n`, evaluated at `x`. In particular, `N[n]`
-evaluated at node `m` is `δ[m, n]` (Kronecker).
+This function returns a `d`-dimensional array `N`, such that `N[p]` is the shape
+function associated with node `p`, evaluated at `x`. In particular, `N[p]`
+evaluated at node `q` is `δ[p, q]` (Kronecker).
 
 See “[Shape functions](@ref _20210910114136)” in the docs.
 
 """
-function shape(x::AbstractArray{T,1}, h::AbstractArray{T,1}) where {T<:Number}
-    d = size(x, 1)
-    # TODO — Check that x and h have same size
-    ξ = 2 * x ./ h
-    𝔑 = cell_vertices(d)
-    return [prod((1 + (-1)^n[i] * ξ[i]) / 2 for i = 1:d) for n in 𝔑]
+function shape(x::NTuple{d, T}, h::NTuple{d, T}) where {d, T<:Number}
+    ξ = 2 .* x ./ h
+    ℒ = cell_vertices(d)
+    return [prod((1 + (-1)^p[i] * ξ[i]) / 2 for i = 1:d) for p in ℒ]
 end
 
 """
