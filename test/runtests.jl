@@ -118,4 +118,5 @@ end
 # end
 
 include("test_grid.jl")
+include("test_brick.jl")
 include("test_bri17.jl")
