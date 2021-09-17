@@ -117,4 +117,5 @@ end
 #     @test Γ_h.k == k
 # end
 
+include("test_grid.jl")
 include("test_bri17.jl")

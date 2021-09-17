@@ -1,3 +1,5 @@
+using Scapin.Grid
+
 """
     modal_strain_displacement!(B, k, N, h)
 
@@ -108,21 +110,6 @@ end
 
 # Helper functions (for testing purposes)
 
-"""
-    element_nodes(d)
-
-Return the multi-indices of the `d`-dimensional brick element.
-
-This function returns an object `𝔑` of type `CartesianIndices`. An
-element `n ∈ 𝔑` represents the node with coordinates `(x[1], …, x[d])`
-
-```
-x[i] = (-1)^n[i] * h[i] / 2,    i = 1, …, d
-```
-
-See “[Geometry of the reference brick element](@ref _20210910120306)” in the docs.
-"""
-element_nodes(d::Int) = CartesianIndices(Tuple(fill(1:2, d)))
 
 
 """
@@ -159,7 +146,7 @@ function shape(x::AbstractArray{T,1}, h::AbstractArray{T,1}) where {T<:Number}
     d = size(x, 1)
     # TODO — Check that x and h have same size
     ξ = 2 * x ./ h
-    𝔑 = element_nodes(d)
+    𝔑 = cell_vertices(d)
     return [prod((1 + (-1)^n[i] * ξ[i]) / 2 for i = 1:d) for n in 𝔑]
 end
 
@@ -180,7 +167,7 @@ function gradient_operator(x::AbstractVector{T}, h::AbstractVector{T}) where {T<
     d = size(x, 1)
     # TODO — Check that x and h have same size
     ξ = 2 * x ./ h
-    𝔑 = element_nodes(d)
+    𝔑 = cell_vertices(d)
     return [
         prod(j == i ? (-1)^n[j] / h[j] : (1 + (-1)^n[j] * ξ[j]) / 2 for j = 1:d) for
         i = 1:d, n in 𝔑
@@ -221,7 +208,7 @@ function strain_displacement_operator(
     d = size(x, 1)
     @assert size(h, 1) == d "x and h must have same size"
 
-    𝔑 = element_nodes(d)
+    𝔑 = cell_vertices(d)
     D = gradient_operator(x, h)
     B = zeros(T, d, d, fill(2, d)..., d)
     for i = 1:d, j = 1:d, n ∈ 𝔑
@@ -277,25 +264,6 @@ function stiffness_operator(h::AbstractArray{T,1}, μ::T, ν::T) where {T<:Numbe
         return σε
     end
     integrate(f, h)
-end
-
-"""
-    element_nodes(e, N)
-
-Return the nodes of element `e` within the grid of size `N`.
-
-The element is specified as a `d`-dimensional multi-index, `e`. The function
-returns an array of `2^d` multi-indices. The size of the grid is specified by the
-array `N` (`size(N, 1) = d`).
-
-Note that periodic boundary conditions are accounted for.
-
-"""
-function element_nodes(e, N::AbstractVector{Int})
-    d = size(N, 1)
-    e_ = collect(e)
-    increments = map(collect, product(fill(0:1, d)...))
-    reshape(map(n -> Tuple((e_ .+ n .- 1) .% N .+ 1), increments), 2^d)
 end
 
 """
