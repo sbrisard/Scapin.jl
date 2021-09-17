@@ -1,3 +1,5 @@
+using Scapin.Grid
+
 @testset "Grid module" begin
     @testset "Connectivity" begin
         @testset "Connectivity, 2d" begin
