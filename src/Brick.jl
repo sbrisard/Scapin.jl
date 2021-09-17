@@ -7,18 +7,16 @@ using Scapin.Grid
 """
     integrate(f, h)
 
-Return the `N`-dimensional integral of `f` over `(0, h[1]) × (0, h[2]) × … × (0, h[N])`.
+Return the `d`-dimensional integral of `f` over `(0, h[1]) × (0, h[2]) × … × (0, h[d])`.
 
-Uses 2-point Gauss-Legendre integration (tensorized over the `N` dimensions). `f` must
-take a 1-dimensional array of size `N` as unique input. If `avg` is `true`, the
+Uses 2-point Gauss-Legendre integration (tensorized over the `d` dimensions). `f` must
+take a 1-dimensional array of size `d` as unique input. If `avg` is `true`, the
 function returns the `N`-dimensional average.
 """
-function integrate(f, h::AbstractArray{T,1}; avg = false) where {T<:Number}
-    d = size(h, 1)
+function integrate(f, h::NTuple{d, T}; avg = false) where {d, T<:Number}
     ξ = [-1 / sqrt(3), 1 / sqrt(3)]
     weight = (avg ? one(T) : prod(h)) / 2^d
-    x = map(collect, product((ξ .* h_ / 2 for h_ in h)...))
-    return weight * sum(f, x)
+    return weight * sum(f, product((ξ .* h_ / 2 for h_ in h)...))
 end
 
 

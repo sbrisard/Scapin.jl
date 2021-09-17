@@ -1547,15 +1547,14 @@ end
 @testset "Brick module" begin
 
     @testset "Gauss–Legendre integration" begin
-        h3 = [1.1, 1.2, 1.3]
         order = 2
         for d = 1:3
             @testset "Gauss-Legendre integration, $(d)d" begin
                 for n in map(Tuple, CartesianIndices(Tuple(fill(1:(2*order-1), d))))
-                    h = h3[1:d]
+                    h = Tuple([1.1, 1.2, 1.3][1:d])
                     actual = integrate(x -> prod(x .^ n), h)
                     n1 = n .+ 1
-                    expected = prod(((h / 2) .^ n1 .- (-h / 2) .^ n1) ./ n1)
+                    expected = prod(((h ./ 2) .^ n1 .- (h ./ (-2)) .^ n1) ./ n1)
                     @test actual ≈ expected rtol = 1e-15 atol = 1e-15
                 end
             end
