@@ -1544,64 +1544,67 @@ function expected_K_μ(h::AbstractVector{T}) where {T<:Number}
     return K_μ
 end
 
-@testset "Gauss–Legendre integration" begin
-    h3 = [1.1, 1.2, 1.3]
-    order = 2
-    for d = 1:3
-        @testset "Gauss-Legendre integration, $(d)d" begin
-            for n in map(Tuple, CartesianIndices(Tuple(fill(1:(2*order-1), d))))
-                h = h3[1:d]
-                actual = integrate(x -> prod(x .^ n), h)
-                n1 = n .+ 1
-                expected = prod(((h / 2) .^ n1 .- (-h / 2) .^ n1) ./ n1)
-                @test actual ≈ expected rtol = 1e-15 atol = 1e-15
-            end
-        end
-    end
-end
-
-@testset "Node numbering" begin
-    for d = 1:3
-        h = [1.1, 1.2, 1.3][1:d]
-        𝔑 = cell_vertices(d)
-        for m ∈ 𝔑
-            x = h .* (-1) .^ Tuple(m) / 2
-            N = shape(x, h)
-            for n ∈ 𝔑
-                @test N[n] == Float64(m == n)
-            end
-        end
-    end
-end
-
 @testset "Brick module" begin
-    for d = 2:3
-        @testset "Brick element operators, $(d)d" begin
-            # Note: reference values where computed with maxima
-            # (see `ref/nd_brick_elasticity.mac`).
+
+    @testset "Gauss–Legendre integration" begin
+        h3 = [1.1, 1.2, 1.3]
+        order = 2
+        for d = 1:3
+            @testset "Gauss-Legendre integration, $(d)d" begin
+                for n in map(Tuple, CartesianIndices(Tuple(fill(1:(2*order-1), d))))
+                    h = h3[1:d]
+                    actual = integrate(x -> prod(x .^ n), h)
+                    n1 = n .+ 1
+                    expected = prod(((h / 2) .^ n1 .- (-h / 2) .^ n1) ./ n1)
+                    @test actual ≈ expected rtol = 1e-15 atol = 1e-15
+                end
+            end
+        end
+    end
+
+    @testset "Node numbering" begin
+        for d = 1:3
             h = [1.1, 1.2, 1.3][1:d]
-            μ = 5.6
-            ν = 0.3
-            λ = 2μ * ν / (1 - 2ν)
-
-            @testset "Average gradient_operator, $(d)d" begin
-                D_act = avg_gradient_operator(h)
-                D_exp = expected_avg_gradient_operator(h)
-                @test D_act ≈ D_exp rtol = 1e-15 atol = 1e-15
+            𝔑 = cell_vertices(d)
+            for m ∈ 𝔑
+                x = h .* (-1) .^ Tuple(m) / 2
+                N = shape(x, h)
+                for n ∈ 𝔑
+                    @test N[n] == Float64(m == n)
+                end
             end
+        end
+    end
 
-            @testset "Average strain-displacement matrix, $(d)d" begin
-                B_act = avg_strain_displacement_operator(h)
-                B_exp = expected_avg_strain_displacement_operator(h)
-                @test B_act ≈ B_exp rtol = 1e-15 atol = 1e-15
-            end
+    @testset "Brick element operators" begin
+        for d = 2:3
+            @testset "Brick element operators, $(d)d" begin
+                # Note: reference values where computed with maxima
+                # (see `ref/nd_brick_elasticity.mac`).
+                h = [1.1, 1.2, 1.3][1:d]
+                μ = 5.6
+                ν = 0.3
+                λ = 2μ * ν / (1 - 2ν)
 
-            @testset "Stiffness operator, $(d)d" begin
-                K_act = stiffness_operator(h, μ, ν)
-                K_λ = expected_K_λ(h)
-                K_μ = expected_K_μ(h)
-                K_exp = λ * K_λ + μ * K_μ
-                @test K_act ≈ K_exp rtol = 1e-15 atol = 1e-15
+                @testset "Average gradient_operator, $(d)d" begin
+                    D_act = avg_gradient_operator(h)
+                    D_exp = expected_avg_gradient_operator(h)
+                    @test D_act ≈ D_exp rtol = 1e-15 atol = 1e-15
+                end
+
+                @testset "Average strain-displacement matrix, $(d)d" begin
+                    B_act = avg_strain_displacement_operator(h)
+                    B_exp = expected_avg_strain_displacement_operator(h)
+                    @test B_act ≈ B_exp rtol = 1e-15 atol = 1e-15
+                end
+
+                @testset "Stiffness operator, $(d)d" begin
+                    K_act = stiffness_operator(h, μ, ν)
+                    K_λ = expected_K_λ(h)
+                    K_μ = expected_K_μ(h)
+                    K_exp = λ * K_λ + μ * K_μ
+                    @test K_act ≈ K_exp rtol = 1e-15 atol = 1e-15
+                end
             end
         end
     end
