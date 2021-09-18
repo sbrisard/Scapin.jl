@@ -113,6 +113,21 @@ function avg_strain_displacement_operator(h::NTuple{d, T}) where {d, T<:Number}
 end
 
 
+"""
+    stiffness_operator(h, C)
+
+Return the stifness operator for the brick element of size `h`, and Hooke material `C`.
+
+The stiffness operator `K` delivers the strain energy associated to the nodal
+displacements `u`
+
+```
+U = u[i, p] * K[i, p, j, q] * u[j, q] / 2,
+
+where `i, j ∈ {1, …, d}` are component indices and `p, q ∈ {1, 2}^d` are
+`CartesianIndex`.
+
+"""
 function stiffness_operator(h::NTuple{d, T}, C::Hooke{T, d}) where {d, T<:Number}
     ℒ = cell_vertices(d)
     function f(x)
