@@ -1,3 +1,4 @@
+module Elasticity
 """
 Isotropic, linear elastic material.
 
@@ -143,3 +144,7 @@ end
 
 # function apply(out::AbstractArray{T, DIM+1}, Γ_h::TruncatedGreenOperator{T, DIM}, τ::AbstractArray{T, DIM+1}) where {T, DIM}
 # end
+
+export Hooke, bulk_modulus, block_apply!, block_matrix
+
+end
