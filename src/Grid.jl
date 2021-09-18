@@ -27,8 +27,9 @@ Return the global multi-indices of the vertices of a grid-cell.
 The cell is specified through its `CartesianIndex`, `p`; the size of the grid is
 defined by `N`.
 
-This function returns a `d`-dimensional array `𝒢` of `CartesianIndex`, such that 𝒢[l] is
-the global index of the vertex with local index `l ∈ CartesianIndices(1:2, …, 1:2)`.
+This function returns a `d`-dimensional array `𝒢` of `CartesianIndex`, such that
+`𝒢[l]` is the global index of the vertex with local index
+`l ∈ CartesianIndices(1:2, …, 1:2)`.
 
 Note that periodic boundary conditions are used.
 

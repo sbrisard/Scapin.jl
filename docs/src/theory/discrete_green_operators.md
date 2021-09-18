@@ -258,7 +258,7 @@ Any discrete operator that will be considered below must ensure that
 
 ### The finite element discretization
 
-As discussed in section “[The approximation space](@section _20210914103411)”
+As discussed in section “[The approximation space](@ref _20210914103411)”
 [see in particular Eq. \eqref{eq20210914103849}], the discrete Green operator
 can be seen as an operator that delivers the cell-averages of the strains
 induced by a cell-wise constant eigenstress
@@ -277,7 +277,7 @@ id20210914104336))
 ```
 
 Note that, compared to the general problem that [defines the continuous Green
-operator](@id id20210914104336), the above problem differs by the space where
+operator](@ref id20210914104336), the above problem differs by the space where
 ``\tens\tau^\tuple{h}`` lives. An approximate solution to this problem can be
 retrieved from a finite element discretization (Brisard [2017](@ref
 bris2017))[^1], where the mesh coincides with the grid introduced previously and

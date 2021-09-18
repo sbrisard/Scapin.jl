@@ -120,9 +120,9 @@ displacements `u`
 
 ```
 U = u[i, p] * K[i, p, j, q] * u[j, q] / 2,
+```
 
-where `i, j ∈ {1, …, d}` are component indices and `p, q ∈ {1, 2}^d` are
-`CartesianIndex`.
+where `i, j ∈ {1, …, d}` are component indices and `p, q ∈ CartesianIndices(1:2, …, 1:2)`.
 
 """
 function stiffness_operator(h::NTuple{d,T}, C::Hooke{T,d}) where {d,T<:Number}
