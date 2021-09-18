@@ -2,6 +2,7 @@ module Brick
 
 using Base.Iterators
 using LinearAlgebra
+using Scapin.Elasticity
 using Scapin.Grid
 
 """
@@ -111,38 +112,17 @@ function avg_strain_displacement_operator(h::NTuple{d, T}) where {d, T<:Number}
     return integrate(x -> strain_displacement_operator(x, h), h, avg = true)
 end
 
-function stiffness_operator(h::AbstractArray{T,1}, μ::T, ν::T) where {T<:Number}
-    # εₕₖ = Σₙⱼ B[h, k, n, j] * u[n, j]
-    #
-    # tr(ε) = Σₙⱼₖ B[k, k, n, j] * u[n, j]
-    #       = Σₙⱼ tr_B[n, j] * u[n, j]
-    #
-    # where
-    #
-    # tr_B[n, j] = Σₖ B[k, k, n, j]
-    #
-    # σₕₖ = λ ⋅ tr(ε) ⋅ δₕₖ + 2μ ⋅ εₕₖ
-    #     = Σₘᵢ {λ * tr_B[m, i] * δ[h, k] + 2 * μ * B[h, k, m, i]} * u[m, i]
-    #
-    # ½ σ : ε
-    # = ½ Σₘᵢₙⱼₕₖ {λ * tr_B[m, i] * δ[h, k] + 2 * μ * B[h, k, m, i]} * B[h, k, n, j]
-    #             * u[m, i] * u[n, j]
-    # = ½ Σₘᵢₙⱼ {λ *  tr_B[m, i] * tr_B[n, j] + 2μ * Σₕₖ B[h, k, m, i] * B[h, k, n, j]}
-    #           * u[m, i] * u[n, j]
-    #
-    # Kₘᵢₙⱼ = ∫ {λ *  tr_B[m, i] * tr_B[n, j] + 2μ * Σₕₖ B[h, k, m, i] * B[h, k, n, j]}
 
-    d = size(h, 1)
-    nodes = CartesianIndices(Tuple(fill(1:2, d)))
-    λ = 2μ * ν / (1 - 2ν)
+function stiffness_operator(h::NTuple{d, T}, C::Hooke{T, d}) where {d, T<:Number}
+    ℒ = cell_vertices(d)
     function f(x)
+        D = gradient_operator(x, h)
         B = strain_displacement_operator(x, h)
-        tr_B = [tr(B[:, :, n, i]) for n ∈ nodes, i = 1:d]
-        σε = Array{T}(undef, fill(2, d)..., d, fill(2, d)..., d)
-        for m ∈ nodes, i = 1:d, n ∈ nodes, j = 1:d
-            σε[m, i, n, j] =
-                λ * tr_B[m, i] * tr_B[n, j] +
-                2μ * sum(B[h, k, m, i] * B[h, k, n, j] for h = 1:d, k = 1:d)
+        σε = Array{T}(undef, d, fill(2, d)..., d, fill(2, d)...)
+        for i = 1:d, p ∈ ℒ, j=1:d, q ∈ ℒ
+            σε[i, p, j, q] =
+                C.λ * D[i, p] * D[j, q] +
+                2C.μ * sum(B[h, k, i, p] * B[h, k, j, q] for h = 1:d, k = 1:d)
         end
         return σε
     end
