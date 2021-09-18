@@ -14,7 +14,7 @@ Uses 2-point Gauss-Legendre integration (tensorized over the `d` dimensions). `f
 take a 1-dimensional array of size `d` as unique input. If `avg` is `true`, the
 function returns the `N`-dimensional average.
 """
-function integrate(f, h::NTuple{d, T}; avg = false) where {d, T<:Number}
+function integrate(f, h::NTuple{d,T}; avg = false) where {d,T<:Number}
     ξ = [-1 / √3, 1 / √3]
     weight = (avg ? one(T) : prod(h)) / 2^d
     return weight * sum(f, product((ξ .* h_ / 2 for h_ in h)...))
@@ -33,7 +33,7 @@ evaluated at node `q` is `δ[p, q]` (Kronecker).
 See “[Shape functions](@ref _20210910114136)” in the docs.
 
 """
-function shape(x::NTuple{d, T}, h::NTuple{d, T}) where {d, T<:Number}
+function shape(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
     ξ = 2 .* x ./ h
     ℒ = cell_vertices(d)
     return [prod((1 + (-1)^p[i] * ξ[i]) / 2 for i = 1:d) for p in ℒ]
@@ -52,7 +52,7 @@ If  `i` is the index of a component and `p` the `CartesianIndex` of the node, th
 
 See “[Geometry of the reference brick element](@ref _20210910120306)”.
 """
-function gradient_operator(x::NTuple{d, T}, h::NTuple{d, T}) where {d, T<:Number}
+function gradient_operator(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
     ξ = 2 .* x ./ h
     ℒ = cell_vertices(d)
     return [
@@ -67,7 +67,7 @@ end
 
 Return the cell-average of the gradient operator.
 """
-function avg_gradient_operator(h::NTuple{d, T}) where {d, T<:Number}
+function avg_gradient_operator(h::NTuple{d,T}) where {d,T<:Number}
     return integrate(x -> gradient_operator(x, h), h, avg = true)
 end
 
@@ -88,10 +88,7 @@ indices then, the interpolated `(i, j)` component of the strain at `x` reads
 
 See “[Gradient and strain-displacement operators](@ref _20210910114926)”.
 """
-function strain_displacement_operator(
-    x::NTuple{d, T},
-    h::NTuple{d, T},
-) where {d, T<:Number}
+function strain_displacement_operator(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
     ℒ = cell_vertices(d)
     D = gradient_operator(x, h)
     B = zeros(T, d, d, d, fill(2, d)...)
@@ -108,7 +105,7 @@ end
 
 Return the cell average of the strain-displacement operator.
 """
-function avg_strain_displacement_operator(h::NTuple{d, T}) where {d, T<:Number}
+function avg_strain_displacement_operator(h::NTuple{d,T}) where {d,T<:Number}
     return integrate(x -> strain_displacement_operator(x, h), h, avg = true)
 end
 
@@ -128,13 +125,13 @@ where `i, j ∈ {1, …, d}` are component indices and `p, q ∈ {1, 2}^d` are
 `CartesianIndex`.
 
 """
-function stiffness_operator(h::NTuple{d, T}, C::Hooke{T, d}) where {d, T<:Number}
+function stiffness_operator(h::NTuple{d,T}, C::Hooke{T,d}) where {d,T<:Number}
     ℒ = cell_vertices(d)
     function f(x)
         D = gradient_operator(x, h)
         B = strain_displacement_operator(x, h)
         σε = Array{T}(undef, d, fill(2, d)..., d, fill(2, d)...)
-        for i = 1:d, p ∈ ℒ, j=1:d, q ∈ ℒ
+        for i = 1:d, p ∈ ℒ, j = 1:d, q ∈ ℒ
             σε[i, p, j, q] =
                 C.λ * D[i, p] * D[j, q] +
                 2C.μ * sum(B[h, k, i, p] * B[h, k, j, q] for h = 1:d, k = 1:d)
@@ -173,5 +170,11 @@ Return the global stiffness matrix for periodic, homogeneous elasticity.
 #     return K
 # end
 
-export integrate, shape, gradient_operator, avg_gradient_operator, strain_displacement_operator, avg_strain_displacement_operator, stiffness_operator
+export integrate,
+    shape,
+    gradient_operator,
+    avg_gradient_operator,
+    strain_displacement_operator,
+    avg_strain_displacement_operator,
+    stiffness_operator
 end

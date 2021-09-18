@@ -33,7 +33,7 @@ the global index of the vertex with local index `l ∈ CartesianIndices(1:2, …
 Note that periodic boundary conditions are used.
 
 """
-function cell_vertices(p::CartesianIndex{d}, N::NTuple{d, Int}) where d
+function cell_vertices(p::CartesianIndex{d}, N::NTuple{d,Int}) where {d}
     p_ = collect(Tuple(p))
     𝓛 = map(collect, product(fill(0:1, d)...))
     return [CartesianIndex(((p_ .+ q .- 1) .% N .+ 1)...) for q in 𝓛]

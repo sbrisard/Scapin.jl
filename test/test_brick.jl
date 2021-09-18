@@ -20,7 +20,7 @@ function expected_avg_strain_displacement_operator(h::NTuple{d,T}) where {d,T<:N
     return B
 end
 
-function expected_K_λ(h::NTuple{d, T}) where {d,T<:Number}
+function expected_K_λ(h::NTuple{d,T}) where {d,T<:Number}
     K_λ = zeros(Float64, d, fill(2, d)..., d, fill(2, d)...)
     if d == 2
         value = -1 / 4
@@ -747,7 +747,7 @@ function expected_K_λ(h::NTuple{d, T}) where {d,T<:Number}
     return K_λ
 end
 
-function expected_K_μ(h::NTuple{d, T}) where {d,T<:Number}
+function expected_K_μ(h::NTuple{d,T}) where {d,T<:Number}
     K_μ = zeros(Float64, d, fill(2, d)..., d, fill(2, d)...)
     if d == 2
         value = -1 / 4
@@ -1577,7 +1577,7 @@ end
                 # Note: reference values where computed with maxima
                 # (see `ref/nd_brick_elasticity.mac`).
                 h = Tuple([1.1, 1.2, 1.3][1:d])
-                C = Hooke{Float64, d}(5.6, 0.3)
+                C = Hooke{Float64,d}(5.6, 0.3)
 
                 @testset "Average gradient_operator, $(d)d" begin
                     D_act = avg_gradient_operator(h)

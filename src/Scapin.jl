@@ -9,6 +9,7 @@ include("Brick.jl")
 
 include("bri17.jl")
 
-export modal_strain_displacement!, modal_strain_displacement, modal_stiffness!, modal_stiffness
+export modal_strain_displacement!,
+    modal_strain_displacement, modal_stiffness!, modal_stiffness
 
 end
