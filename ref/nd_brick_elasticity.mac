@@ -31,21 +31,21 @@ print("```");
 
 /* Useful sets */
 C : setify(makelist(i, i, 1, d)); /* Components */
-N : apply(cartesian_product, makelist({1, 2}, i, 1, d)); /* Nodes */
-NxN : listify(cartesian_product(N, N));
-NxC : listify(cartesian_product(N, C));
-CxCxNxC : listify(cartesian_product(C, C, N, C));
-NxCxNxC : listify(cartesian_product(N, C, N, C));
+P : apply(cartesian_product, makelist({1, 2}, i, 1, d)); /* Nodes */
+PxP : listify(cartesian_product(P, P));
+CxP : listify(cartesian_product(C, P));
+CxCxCxP : listify(cartesian_product(C, C, C, P));
+CxPxCxP : listify(cartesian_product(C, P, C, P));
 C : listify(C);
-N : listify(N);
+P : listify(P);
 
 newline();
 print("### Numbering of nodes");
 newline();
-node_coordinates(n) := makelist(x[i] = (n[i]-1)*h[i], i, 1, d);
+node_coordinates(p) := makelist(x[i] = (p[i]-1)*h[i], i, 1, d);
 print("```");
-for n in N do block(
-  print(concat("node", string(n = node_coordinates(n)))),
+for p in P do block(
+  print(concat("node", string(p = node_coordinates(p)))),
   newline());
 print("```");
 
@@ -54,27 +54,27 @@ print("## Shape functions and interpolation of the displacements");
 newline();
 
 shape_1d : [lambda([xi], 1-xi), identity];
-shape(n) := product(shape_1d[n[i]](x[i] / h[i]), i, 1, d);
+shape(p) := product(shape_1d[p[i]](x[i] / h[i]), i, 1, d);
 
 print("```");
-for n in N do block(
-  print(concat("N", string(n = shape(n)))),
+for p in P do block(
+  print(concat("N", string(p = shape(p)))),
   newline());
 print("```");
 
 newline();
 print("Testing numbering of vertices...");
-test(m, n) := if subst(node_coordinates(m), shape(n)) # kron_delta(m, n) then error();
-for mn in NxN do test(first(mn), last(mn));
+test(p, q) := if subst(node_coordinates(p), shape(q)) # kron_delta(p, q) then error();
+for k in PxP do apply(test, k);
 kill(test);
 print("OK");
 
-u_[i] := lreduce("+", listify(map(lambda([n], shape(n) * u[n, i]), N)));
+u_[i] := lreduce("+", listify(map(lambda([p], shape(p) * u[i, p]), P)));
 
 newline();
 print("Testing that interpolated displacements are correct at vertices...");
-test(n, i) := if subst(node_coordinates(n), u_[i]) # u[n, i] then error();
-for k in NxC do apply(test, k);
+test(i, p) := if subst(node_coordinates(p), u_[i]) # u[i, p] then error();
+for k in CxP do apply(test, k);
 kill(test);
 print("OK");
 
@@ -94,10 +94,10 @@ newline();
 
 eps[i, j] := (diff(u_[j], x[i]) + diff(u_[i], x[j])) / 2;
 eps_avg[i, j] := expand(integrate_nd(eps[i, j], d) / product(h[i], i, 1, d));
-B_[i, j, n, k] := coeff(eps_avg[i, j], u[n, k]);
+B_[i, j, k, p] := coeff(eps_avg[i, j], u[k, p]);
 
 print("```");
-for i in CxCxNxC do print(string(arrayapply(B, flatten(i)) = arrayapply(B_, i)));
+for i in CxCxCxP do print(string(arrayapply(B, flatten(i)) = arrayapply(B_, i)));
 print("```");
 
 newline();
@@ -109,12 +109,12 @@ sig[i, j] := lambda_ * tr_eps * kron_delta(i, j) + 2 * mu * eps[i, j];
 U_integrand : sum(sum(sig[i, j] * eps[i, j], j, 1, d), i, 1, d) / 2;
 U : expand(integrate_nd(U_integrand, d));
 
-K[m, i, n, j] := if m # n or i # j then expand(coeff(coeff(U, u[n, j]), u[m, i])) else expand(2 * coeff(U, u[m, i], 2));
-K_I[m, i, n, j] := coeff(K[m, i, n, j], lambda_);
-K_II[m, i, n, j] := coeff(K[m, i, n, j], mu);
+K[i, p, j, q] := if p # q or i # j then expand(coeff(coeff(U, u[j, q]), u[i, p])) else expand(2 * coeff(U, u[i, p], 2));
+K_I[i, p, j, q] := coeff(K[i, p, j, q], lambda_);
+K_II[i, p, j, q] := coeff(K[i, p, j, q], mu);
 
 print("Testing that elastic energy is retrieved from extracted stiffness matrix...");
-res : lreduce("+", map(lambda([i], arrayapply(K, i)*u[i[1], i[2]]*u[i[3], i[4]]), NxCxNxC)) / 2 - U;
+res : lreduce("+", map(lambda([i], arrayapply(K, i)*u[i[1], i[2]]*u[i[3], i[4]]), CxPxCxP)) / 2 - U;
 if expand(res) # 0 then error();
 print("OK");
 
@@ -128,11 +128,11 @@ for i in NxCxNxC do print(concat("K_μ", string(flatten(i) = arrayapply(K_II, i)
 print("```");
 */
 
-for i in NxCxNxC do block(
+for i in CxPxCxP do block(
   K_I_[arrayapply(K_I, i)] : [],
   K_II_[arrayapply(K_II, i)] : []);
 
-for i in NxCxNxC do block(
+for i in CxPxCxP do block(
   [key],
   key: arrayapply(K_I, i),
   K_I_[key] : endcons(flatten(i), K_I_[key]),
