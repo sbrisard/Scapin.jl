@@ -160,7 +160,7 @@ and the volume density of elastic energy reads
 
 ```math
 \tfrac12\sigma_{hk}\varepsilon_{hk}
-=\bigl(\lambda\delta_{hk} D^\element_{\tuple{p}i}
+=\bigl(\lambda\delta_{hk} D^\element_{i\tuple{p}}
 +2\mu B^\element_{hki\tuple{p}}\bigr)B_{hkj\tuple{q}}^\element
 u_{i\tuple{p}}u_{j\tuple{q}}.
 ```

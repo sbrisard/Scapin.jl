@@ -1,5 +1,6 @@
 using LinearAlgebra
 using Scapin
+using Scapin.Elasticity
 using StaticArrays
 using Test
 
