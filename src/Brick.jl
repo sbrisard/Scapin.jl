@@ -142,33 +142,49 @@ function stiffness_operator(h::NTuple{d,T}, C::Hooke{T,d}) where {d,T<:Number}
 end
 
 """
-    global_stiffness_matrix(N, h, μ, ν)
+    global_stiffness_operator(N, h, μ, ν)
 
-Return the global stiffness matrix for periodic, homogeneous elasticity.
+Return the global stiffness operator for periodic, homogeneous elasticity.
 
-- `N`: grid size
-- `h`: cell size
-- `μ`: shear modulus
-- `ν`: Poisson ratio
+The grid size is `N`, the cell size is `h`. The constitutive material is
+homogeneous, elastic linear and isotropic with stiffness `C`.
+
+The global stiffness operator `K` is a `2d+2`-dimensional array of size
+`(d, N[1], …, N[d], d, N[1], …, N[d])`, such that the strain energy of the
+system reads
+
+```
+U = u[i, p] * K[i, p, j, q] * u[j, q] / 2,
+```
+
+where
+
+- `i, j ∈ {1, …, d}`: component indices,
+- `p, q ∈ CartesianIndices(1:N[1], …, 1:N[d])`: node indices,
+- `u[i, p]`: `i`-th component of the displacement of node `p`.
+
+!!! note
+
+    Assembly of the global stiffness opertor is done under the assumption of
+    periodicity.
 
 """
-# function global_stiffness_operator(
-#     N::AbstractVector{Int},
-#     h::AbstractVector{T},
-#     μ::T,
-#     ν::T,
-# ) where {T<:Number}
-#     d = size(N, 1)
-#     cartesian = map(collect∘Tuple, CartesianIndices(Tuple(N)))
-#     linear = LinearIndices(Tuple(N))
-#     Ke = stiffness_operator(h, μ, ν)
-#     K = zeros(T, N..., d, N..., d)
-#     for e ∈ cartesian
-#         nodes = element_nodes(e, N)
-#         K[nodes, :, nodes, :] += Ke
-#     end
-#     return K
-# end
+function global_stiffness_operator(
+    N::NTuple{d, Int},
+    h::NTuple{d, T},
+    C::Hooke{T, d}
+) where {d, T<:Number}
+    Ke = stiffness_operator(h, C)
+    K = zeros(T, d, N..., d, N...)
+    𝓛 = Scapin.cell_vertices(d) # Local node indices
+    for e ∈ CartesianIndices(N)
+        𝒢 = cell_vertices(e, N) # global node indices
+        for m ∈ 𝓛, n ∈ 𝓛
+            K[𝒢[m], :, 𝒢[n], :] += Ke[m, :, n, :]
+        end
+    end
+    return K
+end
 
 export integrate,
     shape,
@@ -176,5 +192,6 @@ export integrate,
     avg_gradient_operator,
     strain_displacement_operator,
     avg_strain_displacement_operator,
-    stiffness_operator
+    stiffness_operator,
+    global_stiffness_operator
 end
