@@ -170,10 +170,10 @@ where
 
 """
 function global_stiffness_operator(
-    N::NTuple{d, Int},
-    h::NTuple{d, T},
-    C::Hooke{T, d}
-) where {d, T<:Number}
+    N::NTuple{d,Int},
+    h::NTuple{d,T},
+    C::Hooke{T,d},
+) where {d,T<:Number}
     Ke = stiffness_operator(h, C)
     K = zeros(T, d, N..., d, N...)
     𝓛 = Scapin.cell_vertices(d) # Local node indices
