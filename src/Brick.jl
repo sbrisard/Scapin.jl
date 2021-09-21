@@ -174,8 +174,8 @@ function global_strain_displacement_operator(
     h::NTuple{d,T},
 ) where {d,T<:Number}
     Be = avg_strain_displacement_operator(h)
-    B = Array{T}(undef, d, d, N, d, N)
-    𝓛 = Scapin.cell_vertices(d) # Local node indices
+    B = Array{T}(undef, d, d, N..., d, N...)
+    𝓛 = cell_vertices(d) # Local node indices
     for p ∈ CartesianIndices(N)
         𝒢 = cell_vertices(p, N) # global node indices
         for q ∈ 𝓛
@@ -221,7 +221,7 @@ function global_stiffness_operator(
 ) where {d,T<:Number}
     Ke = stiffness_operator(h, C)
     K = zeros(T, d, N..., d, N...)
-    𝓛 = Scapin.cell_vertices(d) # Local node indices
+    𝓛 = cell_vertices(d) # Local node indices
     for e ∈ CartesianIndices(N)
         𝒢 = cell_vertices(e, N) # global node indices
         for m ∈ 𝓛, n ∈ 𝓛
@@ -238,5 +238,6 @@ export integrate,
     strain_displacement_operator,
     avg_strain_displacement_operator,
     stiffness_operator,
+    global_strain_displacement_operator,
     global_stiffness_operator
 end
