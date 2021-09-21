@@ -141,6 +141,51 @@ function stiffness_operator(h::NTuple{d,T}, C::Hooke{T,d}) where {d,T<:Number}
     integrate(f, h)
 end
 
+
+"""
+    global_strain_displacement_operator(N, h)
+
+Return the global strain-displacement operator for periodic boundary conditions.
+
+The grid is defined by its size `N` and its spacing `h`.
+
+The global strain-displacement operator `B` is a `d+2`-dimensional array of size
+`(d, d, N[1], …, N[d])`, such that the average strain within element `p` reads
+
+```
+ε[i, j, p] = B[i, j, p, k, q] * u[k, q],
+```
+
+where
+
+- `i, j, k ∈ {1, …, d}`: component indices,
+- `p, q ∈ CartesianIndices(1:N[1], …, 1:N[d])`: node indices,
+- `ε[i, j, p]`: `(i, j)`-th component of the average strain in element `p`,
+- `u[k, q]`: `i`-th component of the displacement of node `q`.
+
+!!! note
+
+    Assembly of the global strain-displacement operator is done under the
+    assumption of periodicity.
+
+"""
+function global_strain_displacement_operator(
+    N::NTuple{d,Int},
+    h::NTuple{d,T},
+) where {d,T<:Number}
+    Be = avg_strain_displacement_operator(h)
+    B = Array{T}(undef, d, d, N, d, N)
+    𝓛 = Scapin.cell_vertices(d) # Local node indices
+    for p ∈ CartesianIndices(N)
+        𝒢 = cell_vertices(p, N) # global node indices
+        for q ∈ 𝓛
+            B[:, :, p, :, 𝒢[q]] += Be[:, :, :, q]
+        end
+    end
+    return B
+end
+
+
 """
     global_stiffness_operator(N, h, μ, ν)
 
