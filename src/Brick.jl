@@ -174,7 +174,7 @@ function global_strain_displacement_operator(
     h::NTuple{d,T},
 ) where {d,T<:Number}
     Be = avg_strain_displacement_operator(h)
-    B = Array{T}(undef, d, d, N..., d, N...)
+    B = zeros(T, d, d, N..., d, N...)
     𝓛 = cell_vertices(d) # Local node indices
     for p ∈ CartesianIndices(N)
         𝒢 = cell_vertices(p, N) # global node indices
