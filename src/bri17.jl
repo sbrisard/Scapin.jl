@@ -1,30 +1,42 @@
 using Scapin.Grid
+using Scapin.Elasticity
 
 """
-    modal_strain_displacement!(B, k, N, h)
+    modal_strain_displacement!(B, n, N, h)
 
-Compute the modal strain-displacement vector `B` in place, for the spatial frequency `k`.
-The grid is defined by its size, `N` and spacing, `h`.
+Compute the modal strain-displacement vector `B` in place, for the spatial frequency `n`.
+
+The grid is defined by its size, `N` and spacing, `h`. The spatial frequency is
+defined by `n ∈ CartesianIndices(1:N[1], …, 1:N[d])`.
+
+See “[The finite element discretization](@ref)” for a definition of the modal
+strain-displacement vector.
+
 """
-function modal_strain_displacement!(B, k, N, h)
-    dim = size(B, 1)
+function modal_strain_displacement!(
+    B::AbstractVector{Complex{T}},
+    n::CartesianIndex{d},
+    N::NTuple{d,Int},
+    h::NTuple{d,T},
+) where {d,T<:Number}
     ∑α = zero(T)
-
-    for i in eachindex(k)
-        α = π * k[i] / N[i]
+    c = Array{T}(undef, d)
+    s = Array{T}(undef, d)
+    for i = 1:d
+        α = π * (n[i] - 1) / N[i]
         ∑α += α
-        cos_α[i] = cos(α)
-        sin_α[i] = sin(α) / h[i]
+        c[i] = cos(α)
+        s[i] = sin(α) / h[i]
     end
 
-    prefactor = -2sin(∑α) + 2im * cos(∑α)
-    if dim == 2
-        B[1] = prefactor * s[1] * c[2]
-        B[2] = prefactor * c[1] * s[2]
-    elseif dim == 3
-        B[1] = prefactor * s[1] * c[2] * c[3]
-        B[2] = prefactor * c[1] * s[2] * c[3]
-        B[3] = prefactor * c[1] * c[2] * s[3]
+    b = -2sin(∑α) + 2im * cos(∑α)
+    if d == 2
+        B[1] = b * s[1] * c[2]
+        B[2] = b * c[1] * s[2]
+    elseif d == 3
+        B[1] = b * s[1] * c[2] * c[3]
+        B[2] = b * c[1] * s[2] * c[3]
+        B[3] = b * c[1] * c[2] * s[3]
     else
         throw(ArgumentError("not implemented"))
     end
@@ -32,14 +44,19 @@ end
 
 
 """
-    modal_strain_displacement(k, N, h)
+    modal_strain_displacement(n, N, h)
 
-Compute the modal strain-displacement vector `B` for the spatial frequency `k`.
-The grid is defined by its size, `N` and spacing, `h`.
+Return the modal strain-displacement vector `B` for the spatial frequency `k`.
+
+See [`modal_strain_displacement!`](@ref) for a description of the parameters.
 """
-function modal_strain_displacement(k, N, h)
-    B = similar(k, Complex{eltype(k)})
-    modal_strain_displacement!(B, k, N, h)
+function modal_strain_displacement(
+    n::CartesianIndex{d},
+    N::NTuple{d,Int},
+    h::NTuple{d,T},
+) where {d,T<:Number}
+    B = Array{Complex{T}}(undef, d)
+    modal_strain_displacement!(B, n, N, h)
     return B
 end
 
@@ -62,9 +79,9 @@ function modal_stiffness!(K, k, N, h, C)
     dim = size(k, 1)
 
     β = 2π .* k ./ N
-    φ = 2 .* (1 .- cos(β)) ./ (h .^ 2)
-    χ = (2 .+ cos(β)) ./ 3
-    ψ = sin(β) ./ h
+    φ = 2 .* (1 .- cos.(β)) ./ (h .^ 2)
+    χ = (2 .+ cos.(β)) ./ 3
+    ψ = sin.(β) ./ h
 
     scaling = C.μ / (1 - 2 * C.ν)
     if dim == 2
@@ -101,8 +118,8 @@ Compute the modal stiffness matrix `K`, for the spatial frequency `k`.
 The grid is defined by its size, `N` and spacing, `h`; `C` is the material.
 
 """
-function modal_stiffness(k, N, h, C)
-    K = similar(k, Complex{eltype(k)})
+function modal_stiffness(k, N, h::AbstractVector{T}, C::Hooke{T,DIM}) where {T<:Number,DIM}
+    K = Array{Complex{T}}(undef, DIM, DIM)
     modal_stiffness!(K, k, N, h, C)
     return K
 end
