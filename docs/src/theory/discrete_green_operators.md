@@ -290,10 +290,12 @@ of a matrix-free approach that is outlined below.
       the final version, but the theoretical sections were unchanged through the
       review process.
 
+#### The modal strain-displacement vector
+
 Introducing the nodal displacement ``\vec u_\tuple{n}`` at node
 ``\tuple{n}\in\cellindices``, we define the inerpolated displacement ``\vec
 u^\tuple{h}(\vec x)`` and strain ``\tens\strain^\tuple{h}(\vec x)``, as well as
-the cell-average of the latter, ``\overline{\tens\strain}_\tuple{p}^\tuple{h}
+the cell-average of the latter, ``\overline{\tens\strain}_\tuple{p}^\tuple{h}``
 
 ```math
 \tens\varepsilon^\tuple{h}(\vec x)=\bigl(\vec
@@ -312,16 +314,59 @@ setting, the DFT ``\hat{\overline{\tens\varepsilon}}_\tuple{n}^\tuple{h}`` of
 \begin{equation}
 \label{eq20210914144114}
 \hat{\overline{\tens\varepsilon}}_\tuple{n}^\tuple{h}
-=\hat{\tens B}_\tuple{n}^\tuple{h}\symotimes\hat{\vec u}_\tuple{n}^\tuple{h},
+=\hat{\vec b}_\tuple{n}^\tuple{h}\symotimes\hat{\vec u}_\tuple{n}^\tuple{h},
 \end{equation}
 ```
 
-where ``\tens B`` is the so-called *modal strain-displacement vector* [see
-(Brisard [2017](@ref bris2017)) for its expression].
+where ``\hat{\vec b}_\tuple{n}^\tuple{h}`` is the so-called *modal strain-displacement
+vector* [see (Brisard [2017](@ref bris2017)) for its expression].
 
-Then, it is recalled that the strain energy ``U`` is defined as the following
-integral over the whole unit-cell ``Ω`` (``\lambda``, ``\mu``: Lamé
-coefficients)
+The modal strain-displacement vector introduced above is related to the *nodal*
+strain-displacement operator introduced in
+Sec. “[Gradient and strain-displacement operators](@ref _20210910114926)” of
+Chap. “[On the d-dimensional brick element](@ref _20210914055642)”. Indeed, in
+components, Eq. \eqref{eq20210914144114} reads
+
+```math
+\hat{\overline{\varepsilon}}_{ij\tuple{n}}^\tuple{h}
+=\tfrac12\bigl(\hat{b}_{i\tuple{n}}^\tuple{h}\hat{u}_{j\tuple{n}}^\tuple{h}
++\hat{b}_{j\tuple{n}}^\tuple{h}\hat{u}_{i\tuple{n}}^\tuple{h}\bigr),
+```
+
+and, from the circular convolution theorem
+
+```math
+\overline{\varepsilon}_{ij\tuple{p}}^\tuple{h}
+=\frac12\sum_{\tuple{q}\in\cellindices}\bigl(
+b_{i,\tuple{p}-\tuple{q}+1}^\tuple{h}u_{j\tuple{q}}^\tuple{h}
++b_{j,\tuple{p}-\tuple{q}+1}^\tuple{h}u_{i\tuple{q}}^\tuple{h}\bigr)
+=\sum_{k=1}^d\sum_{\tuple{q}\in\cellindices}B_{ij\tuple{p}k\tuple{q}}^\tuple{h}
+u_{k\tuple{q}}^\tuple{h},
+```
+
+where
+
+```math
+B_{ij\tuple{p}k\tuple{q}}^\tuple{h}
+=\frac12\bigl(\delta_{jk}b_{i,\tuple{p}-\tuple{q}+1}^\tuple{h}
++\delta_{ik}b_{j,\tuple{p}-\tuple{q}+1}^\tuple{h}\bigr)
+```
+
+is the global strain-displacement operator. The above identity reads, in Fourier
+space
+
+```math
+\hat{B}_{ij\tuple{n}k\tuple{1}}^\tuple{h}
+=\frac12\bigl(\delta_{jk}\hat{b}_{i\tuple{n}}^\tuple{h}
++\delta_{ik}\hat{b}_{j\tuple{n}}^\tuple{h}\bigr),
+```
+
+where ``\tuple{q}`` has been set to ``(1, \ldots, 1)``.
+
+#### The modal stiffness matrix
+
+It is recalled that the strain energy ``U`` is defined as the following integral
+over the whole unit-cell ``\Omega`` (``\lambda``, ``\mu``: Lamé coefficients)
 
 ```math
 U=\frac12\int_\Omega\bigl[\lambda\bigl(\tr\tens\varepsilon^\tuple{h}\bigr)^2
