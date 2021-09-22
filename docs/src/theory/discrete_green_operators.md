@@ -2,11 +2,11 @@
 
 In this chapter, we introduce various discretizations of the Green operator; we
 will adopt the vocabulary of linear elasticity, although the concepts apply to
-all the various physical models presented in Chap. “[Continuous Green
-operators](@ref _20210911035306)”.
+all the various physical models presented in Chap. [Continuous Green
+operators](@ref).
 
 
-### [The ``\fftfreq`` function](@id 20210803055450)
+### The ``\fftfreq`` function
 
 For ``n, N\in\naturals``, ``0\leq n<N``, we introduce ``\fftfreq(n, N)``
 
@@ -21,8 +21,8 @@ n-N & \text{otherwise.}
 For ``n<0`` or ``n\geq N``, ``\fftfreq(n, N)`` is defined by
 ``N``-periodicity. ``\fftfreq`` is very similar to the NumPy
 [fftfreq](https://numpy.org/doc/1.18/reference/generated/numpy.fft.fftfreq.html#numpy.fft.fftfreq)
-function. We have the important result (see proof in Sec. “[Properties of the
-``\fftfreq`` function](@ref _20210911035430)”.
+function. We have the important result (see proof in Sec. [Properties of the
+``\fftfreq`` function](@ref)).
 
 ```math
 \fftfreq(N-n, N)=
@@ -47,7 +47,7 @@ and we have again
 
 if none of the ``n_i`` is such that ``2n_i=N_i``.
 
-## [The approximation space](@id _20210914103411)
+## The approximation space
 
 In order to define a discrete Green operator, we need to introduce the
 approximation space for the stress-polarizations. We will consider here
@@ -234,7 +234,7 @@ implemented in a matrix-free fashion as follows
 
 discrete Fourier transforms being computed in steps 1 and 3 by means of the FFT.
 
-### [Condition for the discrete Green operator to map real fields onto real fields](@id _20210803053100)
+### Condition for the discrete Green operator to map real fields onto real fields
 
 In the remainder of this chapter, we propose various discretizations of the
 Green operator. Before we proceed, though, it should be emphasized that the
@@ -258,13 +258,12 @@ Any discrete operator that will be considered below must ensure that
 
 ### The finite element discretization
 
-As discussed in section “[The approximation space](@ref _20210914103411)”
-[see in particular Eq. \eqref{eq20210914103849}], the discrete Green operator
-can be seen as an operator that delivers the cell-averages of the strains
-induced by a cell-wise constant eigenstress
-``\tens\tau^\tuple{h}\in\tensors_2^\tuple{h}(\Omega)``. In other words, let us
-consider the solution to the following problem (see Sec. on [elasticity](@ref
-id20210914104336))
+As discussed in Sec. [The approximation space](@ref) [see in particular
+Eq. \eqref{eq20210914103849}], the discrete Green operator can be seen as an
+operator that delivers the cell-averages of the strains induced by a cell-wise
+constant eigenstress ``\tens\tau^\tuple{h}\in\tensors_2^\tuple{h}(\Omega)``. In
+other words, let us consider the solution to the following problem (see
+Sec. [Continuous Green operator for linear elasticity](@ref))
 
 ```math
 \begin{equation}
@@ -276,14 +275,14 @@ id20210914104336))
 \end{equation}
 ```
 
-Note that, compared to the general problem that [defines the continuous Green
-operator](@ref id20210914104336), the above problem differs by the space where
-``\tens\tau^\tuple{h}`` lives. An approximate solution to this problem can be
-retrieved from a finite element discretization (Brisard [2017](@ref
-bris2017))[^1], where the mesh coincides with the grid introduced previously and
-each element is discretized with [linear shape functions](@ref
-_20210910114136). The resulting linear system can be solved efficiently by means
-of a matrix-free approach that is outlined below.
+Note that, compared to the general problem that defines the continuous Green
+operator (see Sec. [Continuous Green operator for linear elasticity](@ref)), the
+above problem differs by the space where ``\tens\tau^\tuple{h}`` lives. An
+approximate solution to this problem can be retrieved from a finite element
+discretization (Brisard [2017](@ref bris2017))[^1], where the mesh coincides
+with the grid introduced previously and each element is discretized with linear
+[Shape functions](@ref). The resulting linear system can be solved efficiently
+by means of a matrix-free approach that is outlined below.
 
 [^1]: The preprint of this paper is freely available on the [HAL
       archive](https://hal-enpc.archives-ouvertes.fr/hal-01304603); it is not
@@ -322,10 +321,9 @@ where ``\hat{\vec b}_\tuple{n}^\tuple{h}`` is the so-called *modal strain-displa
 vector* [see (Brisard [2017](@ref bris2017)) for its expression].
 
 The modal strain-displacement vector introduced above is related to the *nodal*
-strain-displacement operator introduced in
-Sec. “[Gradient and strain-displacement operators](@ref _20210910114926)” of
-Chap. “[On the d-dimensional brick element](@ref _20210914055642)”. Indeed, in
-components, Eq. \eqref{eq20210914144114} reads
+strain-displacement operator introduced in Sec. [Gradient and
+strain-displacement operators](@ref) of Chap. [On the d-dimensional brick
+element](@ref). Indeed, in components, Eq. \eqref{eq20210914144114} reads
 
 ```math
 \hat{\overline{\varepsilon}}_{ij\tuple{n}}^\tuple{h}
@@ -393,9 +391,8 @@ U=\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
 where ``\hat{\tens K}_\tuple{n}^\tuple{h}`` is the *modal stiffness matrix*,
 which is computed by the method XXX.
 
-Note that, plugging the [definition of the discrete Fourier transform](@ref
-_20210911055458) into Eq. \eqref{eq20210914060318} delivers the following
-expression
+Note that, plugging the definition of the [Discrete Fourier transforms](@ref)
+into Eq. \eqref{eq20210914060318} delivers the following expression
 
 ```math
 \begin{aligned}
@@ -427,8 +424,7 @@ where
 is the *nodal stiffness matrix*, which appears as a block-circulant matrix. This
 expresses the fact that the problem under consideration is
 translation-invariant, owing to the homogeneity of the material and the periodic
-boundary conditions (see also “[On the d-dimensional brick element](@ref
-_20210914055642)”).
+boundary conditions (see also Sec. [On the d-dimensional brick element](@ref)).
 
 !!! danger
 
@@ -573,11 +569,10 @@ and Suquet ([1994](@ref moul1994), [1998](@ref moul1998)). Only the lowest
 (\vec k_{\tuple Z(\tuple n, \tuple N)}).
 ```
 
-We must check that the “[Condition for the discrete Green operator to map real
-fields onto real fields](@ref _20210803053100)” is satisfied. Using the
-“[Properties of the ``\fftfreq`` function](@ref _20210911035430)” of the
-``\fftfreq`` function and assuming first that none of the ``n_i`` is such that
-``2n_i=N_i``
+We must check that the [Condition for the discrete Green operator to map real
+fields onto real fields](@ref) is satisfied. Using the [Properties of the
+``\fftfreq`` function](@ref) and assuming first that none of the ``n_i`` is such
+that ``2n_i=N_i``
 
 ```math
 \hat{\tens\Gamma}_{\tuple N-\tuple n}^{\tuple h, \mathrm{MS94}}
@@ -586,9 +581,8 @@ fields onto real fields](@ref _20210803053100)” is satisfied. Using the
 =\hat{\tens\Gamma}(-\vec k_{\tuple Z(\tuple n, \tuple N)})
 ```
 
-All Green operators presented in Chap. “[Continuous Green operators](@ref
-_20210911035306)” are such that ``\hat{\tens\Gamma}(-\vec
-k)=\hat{\tens\Gamma}(\vec k)``, therefore
+All Green operators presented in Chap. [Continuous Green operators](@ref) are
+such that ``\hat{\tens\Gamma}(-\vec k)=\hat{\tens\Gamma}(\vec k)``, therefore
 
 ```math
 \hat{\tens\Gamma}_{\tuple N-\tuple n}^{\tuple h, \mathrm{MS94}}

@@ -1,4 +1,4 @@
-# [Continuous Green operators](@id _20210911035306)
+# Continuous Green operators
 
 In this chapter, we discuss various boundary-value problems in a periodic
 setting. For each of these problems, we introduce the associated *Green
@@ -7,7 +7,7 @@ operator*.
 
 ## Conductivity
 
-## [Elasticity](@id id20210914104336)
+## Continuous Green operator for linear elasticity
 
 We first define a few functional spaces; ``\tensors_2(\Omega)`` denotes the
 space of second-order, symmetric, tensor fields, with square-integrable
@@ -70,9 +70,9 @@ following problem
 [^1]: In other words, ``\tens C`` is a constant, fourth-order tensor with major
       and minor symmetries; furthermore, ``\tens C`` is positive definite.
 
-Owing to the periodic boundary conditions, we use [Fourier series](@ref
-_20210911054826) expansions of ``\tens\tau``, ``\tens\sigma``,
-``\tens\varepsilon`` and ``\vec u``
+Owing to the periodic boundary conditions, we use [Fourier series](@ref)
+expansions of ``\tens\tau``, ``\tens\sigma``, ``\tens\varepsilon`` and ``\vec
+u``
 
 ```math
 \begin{Bmatrix}

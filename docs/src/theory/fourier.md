@@ -1,10 +1,10 @@
 # Fourier transforms in a periodic setting
 
 This chapter provides a brief overview of the two Fourier transforms that are
-going to be used in the previous document, namely [Fourier series](@ref
-_20210911054826) and [discrete Fourier transforms](@ref _20210911055458).
+going to be used in the previous document, namely [Fourier series](@ref) and
+[Discrete Fourier transforms](@ref).
 
-## [Fourier series](@id _20210911054826)
+## Fourier series
 
 Owing to the periodic setting, the fields that are involved in the various BVPs
 to be discussed in this document are expanded in Fourier series. ``\tens T``
@@ -18,8 +18,7 @@ following decomposition holds
 ```
 
 where ``\tuple{n}`` denotes a ``d``-dimensional tuple of integers (see
-[Nomenclature](@ref _20210911034346)). The wave vectors ``\vec k_{\tuple{n}}``
-are given by
+[Nomenclature](@ref)). The wave vectors ``\vec k_{\tuple{n}}`` are given by
 
 ```math
 \vec k_{\tuple{n}}=\frac{2\PI n_1}{L_1}\vec e_1+\frac{2\PI n_2}{L_2}\vec e_2
@@ -46,7 +45,7 @@ When no confusion is possible, we will use a tilde to denote the Fourier
 coefficients: ``\tilde{\tens T}_\tuple{n}=\mathcal F(\tens T)(\vec
 k_\tuple{n})``.
 
-## [Discrete Fourier transforms](@id _20210911055458)
+## Discrete Fourier transforms
 
 !!! note "Naming conventions for indices"
 

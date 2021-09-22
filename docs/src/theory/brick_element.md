@@ -1,4 +1,4 @@
-# [On the d-dimensional brick element](@id _20210914055642)
+# On the d-dimensional brick element
 
 In this chapter, we formulate the linear brick finite element for conductivity
 and linear elasticity in ``d`` dimensions (``d\in\{2, 3\}``).
@@ -12,7 +12,7 @@ and linear elasticity in ``d`` dimensions (``d\in\{2, 3\}``).
 	assembled operators) they span ``\{1, 2\}^d`` or the whole grid
 	``\cellindices``. We adopt Einstein's convention for indices of both types.
 
-## [Geometry of the reference brick element](@id _20210910120306)
+## Geometry of the reference brick element
 
 The reference element being centered at the origin, it occupies the following
 domain
@@ -42,7 +42,7 @@ For integration purposes, it is useful to introduce the *reduced coordinates*
 and it is observed that the reduced coordinates of the node ``\tuple{p}`` are
 ``\xi_i=(-1)^{p_i}``.
 
-## [Shape functions](@id _20210910114136)
+## Shape functions
 
 The shape function associated with node ``\tuple{p}`` is
 ``N^\element_{\tuple{p}}(\vec x)``, wich is defined below as a function of the
@@ -57,7 +57,7 @@ and we have as expected ``N^\element_{\tuple{p}}(\vec x_{\tuple q}) =
 we have the interpolation formula: ``f(\vec x)=N^\element_\tuple{p}(\vec
 x)f_\tuple{p}``.
 
-## [Gradient and strain-displacement operators](@id _20210910114926)
+## Gradient and strain-displacement operators
 
 We consider a scalar interpolated field, ``f(\vec x)=N^\element_\tuple{p}(\vec
 x)f_\tuple{p}``. The components of its gradient are given by the following

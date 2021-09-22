@@ -14,7 +14,8 @@ element `v ∈ 𝓛` represents the vertex with coordinates `(x[1], …, x[d])`
 x[i] = (-1)^v[i] * h[i] / 2,    i = 1, …, d
 ```
 
-See “[Geometry of the reference brick element](@ref _20210910120306)” in the docs.
+See [Geometry of the reference brick element](@ref).
+
 """
 cell_vertices(d::Int) = CartesianIndices(Tuple(fill(1:2, d)))
 

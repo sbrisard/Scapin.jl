@@ -1,4 +1,4 @@
-# [Nomenclature](@id _20210911034346)
+# Nomenclature
 
 - ``d``: dimension of the physical space (typically ``d=2, 3``)
 - ``\Omega``: ``d``-dimensional unit-cell

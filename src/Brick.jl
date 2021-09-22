@@ -30,7 +30,7 @@ This function returns a `d`-dimensional array `N`, such that `N[p]` is the shape
 function associated with node `p`, evaluated at `x`. In particular, `N[p]`
 evaluated at node `q` is `δ[p, q]` (Kronecker).
 
-See “[Shape functions](@ref _20210910114136)” in the docs.
+See [Shape functions](@ref).
 
 """
 function shape(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
@@ -50,7 +50,7 @@ If  `i` is the index of a component and `p` the `CartesianIndex` of the node, th
 
 `h` is the size of the brick element.
 
-See “[Geometry of the reference brick element](@ref _20210910120306)”.
+See [Geometry of the reference brick element](@ref).
 """
 function gradient_operator(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
     ξ = 2 .* x ./ h
@@ -86,7 +86,7 @@ indices then, the interpolated `(i, j)` component of the strain at `x` reads
 ε[i, j] = Σₖ Σₚ B[i, j, k, p] * u[k, p].
 ```
 
-See “[Gradient and strain-displacement operators](@ref _20210910114926)”.
+See [Gradient and strain-displacement operators](@ref).
 """
 function strain_displacement_operator(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
     ℒ = cell_vertices(d)
