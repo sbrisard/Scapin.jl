@@ -9,7 +9,7 @@ Compute the modal strain-displacement vector `B` in place, for the spatial frequ
 The grid is defined by its size, `N` and spacing, `h`. The spatial frequency is
 defined by `n ∈ CartesianIndices(1:N[1], …, 1:N[d])`.
 
-See “[The finite element discretization](@ref)” for a definition of the modal
+See Sec. [The finite element discretization](@ref) for a definition of the modal
 strain-displacement vector.
 
 """
@@ -46,7 +46,7 @@ end
 """
     modal_strain_displacement(n, N, h)
 
-Return the modal strain-displacement vector `B` for the spatial frequency `k`.
+Return the modal strain-displacement vector `B`.
 
 See [`modal_strain_displacement!`](@ref) for a description of the parameters.
 """
@@ -62,29 +62,60 @@ end
 
 
 """
-    modal_stiffness!(K, k, N, h, C)
+    modal_stiffness!(K, n, N, h, C)
 
-Compute the modal stiffness matrix `K` in place, for the spatial frequency `k`.
-The grid is defined by its size, `N` and spacing, `h`; `C` is the material.
+Compute the modal stiffness matrix `K` in place, for the spatial frequency `n`.
+
+The grid is defined by its size, `N` and spacing, `h`. The spatial frequency is
+defined by `n ∈ CartesianIndices(1:N[1], …, 1:N[d])`. The (homogeneous)
+constitutive material is specified by `C`.
+
+See Sec. [The finite element discretization](@ref) for a definition of the modal
+stiffness matrix.
+
+!!! danger "Scaling of the modal stiffness matrix"
+
+    The modal stiffness matrix introduced above differs from the matrix initially
+    introduced in Ref. [DOI:10.1002/nme.5263](https://doi.org/10.1002/nme.5263)
+    by a factor `h[1] * … * h[d]`. More precisely,
+
+    ```
+    K̂{Scapin} = h[1] * … * h[d] * K̂{10.1002/nme.5263}
+    ```
+
+    Such rescaling makes the relation between modal and nodal stiffness operators
+    more natural (the former is the DFT of the latter).
 
 """
-function modal_stiffness!(K, k, N, h, C)
+function modal_stiffness!(
+    K::AbstractMatrix{Complex{T}},
+    n::CartesianIndex{d},
+    N::NTuple{d,Int},
+    h::NTuple{d,T},
+    C::Hooke{T,d},
+) where {d,T<:Number}
     # In the notation of [Bri17, see Eq. (B.17)]
     #
-    # φ[i] = φ(zᵢ) / hᵢ
-    # χ[i] = χ(zᵢ) * hᵢ
-    # ψ[i] = ψ(zᵢ)
+    # φ[i] = φ(zᵢ) * hᵢ
+    # χ[i] = χ(zᵢ) * hᵢ²
+    # ψ[i] = ψ(zᵢ) * hᵢ
     #
-    # Which simplifies the expression of Hₖ (there are no hᵢs).
-    dim = size(k, 1)
+    # Which simplifies the expression of Hₖ and allows to express the
+    # nodal stiffness matrix as the inverse DFT of the modal stiffness
+    # matrix.
 
-    β = 2π .* k ./ N
-    φ = 2 .* (1 .- cos.(β)) ./ (h .^ 2)
-    χ = (2 .+ cos.(β)) ./ 3
-    ψ = sin.(β) ./ h
+    φ = Array{T}(undef, d)
+    χ = Array{T}(undef, d)
+    ψ = Array{T}(undef, d)
+    for i = 1:d
+        β = 2π * (n[i] - 1) / N[i]
+        φ[i] = 2 * (1 - cos(β)) / h[i]
+        χ[i] = (2 + cos(β)) / 3 * h[i]
+        ψ[i] = sin(β)
+    end
 
     scaling = C.μ / (1 - 2 * C.ν)
-    if dim == 2
+    if d == 2
         H₁₁ = φ[1] * χ[2]
         H₂₂ = χ[1] * φ[2]
         K_diag = C.μ * (H₁₁ + H₂₂)
@@ -92,7 +123,7 @@ function modal_stiffness!(K, k, N, h, C)
         K[1, 2] = scaling * ψ[1] * ψ[2]
         K[2, 1] = K[1, 2]
         K[2, 2] = scaling * H₂₂ + K_diag
-    elseif dim == 3
+    elseif d == 3
         H₁₁ = φ[1] * χ[2] * χ[3]
         H₂₂ = χ[1] * φ[2] * χ[3]
         H₃₃ = χ[1] * χ[2] * φ[3]
@@ -112,14 +143,20 @@ function modal_stiffness!(K, k, N, h, C)
 end
 
 """
-    modal_stiffness!(K, k, N, h, C)
+    modal_stiffness(n, N, h, C)
 
-Compute the modal stiffness matrix `K`, for the spatial frequency `k`.
-The grid is defined by its size, `N` and spacing, `h`; `C` is the material.
+Return the modal stiffness matrix `K`.
+
+See [`modal_stiffness!`](@ref) for a description of the parameters.
 
 """
-function modal_stiffness(k, N, h::AbstractVector{T}, C::Hooke{T,DIM}) where {T<:Number,DIM}
-    K = Array{Complex{T}}(undef, DIM, DIM)
-    modal_stiffness!(K, k, N, h, C)
+function modal_stiffness(
+    n::CartesianIndex{d},
+    N::NTuple{d,Int},
+    h::NTuple{d,T},
+    C::Hooke{T,d},
+) where {T<:Number,d}
+    K = Array{Complex{T}}(undef, d, d)
+    modal_stiffness!(K, n, N, h, C)
     return K
 end

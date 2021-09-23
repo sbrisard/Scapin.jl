@@ -380,7 +380,7 @@ simple expression in Fourier space
 ```math
 \begin{equation}
 \label{eq20210914060318}
-U=\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
+U=1{2\lvert\tuple{N}\rvert}
 \sum_{\tuple{n}\in\cellindices}
 \conj\bigl(\hat{\vec u}_\tuple{n}^\tuple{h}\bigr)
 \cdot\hat{\tens K}_\tuple{n}^\tuple{h}
@@ -391,23 +391,45 @@ U=\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
 where ``\hat{\tens K}_\tuple{n}^\tuple{h}`` is the *modal stiffness matrix*,
 which is computed by the method XXX.
 
-Note that, plugging the definition of the [Discrete Fourier transforms](@ref)
-into Eq. \eqref{eq20210914060318} delivers the following expression
+!!! danger
+
+    The modal stiffness matrix introduced above differs from the matrix initially
+	introduced by Brisard ([2017](@ref bris2017)) by a factor
+	``\lvert\tuple{h}\rvert``. More precisely,
+
+	```math
+	\hat{\tens K}_\tuple{n}^\tuple{h}
+	\bigr\rvert_\text{Scapin}
+	=\lvert\tuple{h}\rvert\hat{\tens K}_\tuple{n}^\tuple{h}
+	\bigr\rvert_\text{Brisard (2017)}.
+	```
+
+	Such rescaling makes the relation between modal and nodal stiffness operators
+	more natural (the former is the DFT of the latter).
+
+The modal stiffness matrix introduced above is related to the *nodal* (global)
+stiffness operator introduced in Sec. [Element stiffness operator](@ref) of
+Chap. [On the d-dimensional brick element](@ref). Indeed, plugging the
+definition of the [Discrete Fourier transforms](@ref) into
+Eq. \eqref{eq20210914060318} delivers the following expression
 
 ```math
 \begin{aligned}
-U={}&\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
-\sum_{\tuple{n}, \tuple{p}, \tuple{q}\in\cellindices}
+U={}&\frac1{2\lvert\tuple{N}\rvert}\sum_{\tuple{n}, \tuple{p}, \tuple{q}\in\cellindices}
 \conj\bigl[\vec u_\tuple{p}^\tuple{h}\exp\bigl(-\I\phi_\tuple{np}\bigr)\bigr]
 \cdot\hat{\tens K}_\tuple{n}^\tuple{h}
 \cdot\vec u_\tuple{q}^\tuple{h}\exp\bigl(-\I\phi_\tuple{nq}\bigr)\\
-={}&\frac{\lvert\tuple{h}\rvert}{2\lvert\tuple{N}\rvert}
-\sum_{\tuple{n}, \tuple{p}, \tuple{q}\in\cellindices}
+={}&\frac1{2\lvert\tuple{N}\rvert}\sum_{\tuple{n}, \tuple{p}, \tuple{q}\in\cellindices}
 \conj\bigl(\vec u_\tuple{p}^\tuple{h}\bigr)
 \cdot\hat{\tens K}_\tuple{n}^\tuple{h}
 \cdot\vec u_\tuple{q}^\tuple{h}
 \exp\bigl[\I\bigl(\phi_\tuple{np}-\phi_\tuple{nq}\bigr)\bigr]\\
-={}&\frac{\lvert\tuple{h}\rvert}2\sum_{\tuple{p},\tuple{q}}
+={}&\frac1{2\lvert\tuple{N}\rvert}\sum_{\tuple{n}, \tuple{p}, \tuple{q}\in\cellindices}
+\conj\bigl(\vec u_\tuple{p}^\tuple{h}\bigr)
+\cdot\hat{\tens K}_\tuple{n}^\tuple{h}
+\cdot\vec u_\tuple{q}^\tuple{h}
+\exp\bigl[\I\bigl(\phi_{\tuple{n}, \tuple{p}-\tuple{q}+1}\bigr)\bigr]\\
+={}&\frac12\sum_{\tuple{p},\tuple{q}}
 \conj\bigl(\vec u_\tuple{p}^\tuple{h}\bigr)\cdot\tens K_\tuple{pq}^\tuple{h}
 \cdot\vec u_\tuple{q}^\tuple{h},
 \end{aligned}
@@ -418,23 +440,15 @@ where
 ```math
 \tens{K}_{\tuple{pq}}^\tuple{h}
 =\frac1{\lvert\tuple{N}\rvert}\sum_{\tuple{n}}
-\hat{\tens K}_\tuple{n}^\tuple{h}\exp\bigl(\I\phi_{\tuple{n},\tuple{p}-\tuple{q}}\bigr)
+\hat{\tens K}_\tuple{n}^\tuple{h}
+\exp\bigl(\I\phi_{\tuple{n},\tuple{p}-\tuple{q}+1}\bigr)
+=\dft_{\tuple{p}-\tuple{q}+1}^{-1}\bigl(\hat{\tens K}_\tuple{\bullet}^\tuple{h}\bigr)
 ```
 
 is the *nodal stiffness matrix*, which appears as a block-circulant matrix. This
 expresses the fact that the problem under consideration is
 translation-invariant, owing to the homogeneity of the material and the periodic
 boundary conditions (see also Sec. [On the d-dimensional brick element](@ref)).
-
-!!! danger
-
-    The modal stiffness matrix should be rescaled so as to lead to the more
-	appropriate formula
-
-    ```math
-    U=\frac12\sum_{\tuple{p},\tuple{q}}\overline{\vec u}_\tuple{p}^\tuple{h}
-    \cdot\tens K_\tuple{pq}^\tuple{h}\cdot\vec u_\tuple{q}^\tuple{h}
-    ```
 
 In order to derive a FE-approximate solution to the problem described by
 Eq. \eqref{eq20210914140834}, we need to account for the contribution

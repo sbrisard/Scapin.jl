@@ -225,7 +225,7 @@ function global_stiffness_operator(
     for e ∈ CartesianIndices(N)
         𝒢 = cell_vertices(e, N) # global node indices
         for m ∈ 𝓛, n ∈ 𝓛
-            K[𝒢[m], :, 𝒢[n], :] += Ke[m, :, n, :]
+            K[:, 𝒢[m], :, 𝒢[n]] += Ke[:, m, :, n]
         end
     end
     return K

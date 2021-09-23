@@ -13,7 +13,6 @@ using Test
         @testset "Modal strain-displacement vector, $(d)d" begin
             N = (3, 4, 5)[1:d]
             h = (1.1, 1.2, 1.3)[1:d]
-            C = Hooke{Float64,d}(5.6, 0.3)
             B = global_strain_displacement_operator(N, h)
             B̂_exp = fft(B[fill(:, d + 3)..., fill(1, d)...], 3:(d+2))
             B̂_act = zeros(Complex{Float64}, d, d, N..., d)
@@ -29,13 +28,19 @@ using Test
     end
 end
 
-
-#end
-
-# @testset "Global stiffness operator" begin
-#     N = [3, 4]
-#     h = [1.1, 1.2]
-#     μ = 5.6
-#     ν = 0.3
-#     K = global_stiffness_operator(N, h, μ, ν)
-# end
+@testset "Modal stiffness matrix" begin
+    for d = 2:3
+        @testset "Modal stiffness matrix, $(d)d" begin
+            N = (3, 4, 5)[1:d]
+            h = (1.1, 1.2, 1.3)[1:d]
+            C = Hooke{Float64,d}(5.6, 0.3)
+            K = global_stiffness_operator(N, h, C)
+            K̂_exp = fft(K[fill(:, d + 2)..., fill(1, d)...], 2:(d+1))
+            K̂_act = zeros(Complex{Float64}, d, N..., d)
+            for n ∈ CartesianIndices(N)
+                K̂_act[:, n, :] = modal_stiffness(n, N, h, C)
+            end
+            @test K̂_act ≈ K̂_exp rtol = 1e-15 atol = 1e-15
+        end
+    end
+end
