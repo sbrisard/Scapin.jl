@@ -1,3 +1,5 @@
+module Bri17
+
 using Scapin.Grid
 using Scapin.Elasticity
 
@@ -159,4 +161,9 @@ function modal_stiffness(
     K = Array{Complex{T}}(undef, d, d)
     modal_stiffness!(K, n, N, h, C)
     return K
+end
+
+export modal_strain_displacement!,
+    modal_strain_displacement, modal_stiffness!, modal_stiffness
+
 end
