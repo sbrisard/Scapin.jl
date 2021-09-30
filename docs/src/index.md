@@ -6,24 +6,10 @@ CurrentModule = Scapin
 
 Documentation for [Scapin](https://github.com/sbrisard/Scapin.jl).
 
-## Theory
+!!! note
 
-```@contents
-Pages = [
-    "theory/nomenclature.md",
-	"theory/fourier.md",
-	"theory/continuous_green_operators.md",
-	"theory/discrete_green_operators.md",
-	"theory/brick_element.md",
-	"theory/appendix.md",
-	"theory/bibliography.md"
-]
-```
-
-## API Docs
-
-```@contents
-Pages = [
-    "api.md"
-]
-```
+    For a theoretical overview of Lippmann–Schwinger solvers, please refer to the
+	book
+	[An introduction to Lippmann–Scwhinger solvers](https://github.com/sbrisard/LS-intro).
+	This book was written alongside the present code, which therefore follows
+	closely the concepts and notations introduced in the book.

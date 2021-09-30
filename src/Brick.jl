@@ -13,6 +13,7 @@ Return the `d`-dimensional integral of `f` over `(0, h[1]) × (0, h[2]) × … �
 Uses 2-point Gauss-Legendre integration (tensorized over the `d` dimensions). `f` must
 take a 1-dimensional array of size `d` as unique input. If `avg` is `true`, the
 function returns the `N`-dimensional average.
+
 """
 function integrate(f, h::NTuple{d,T}; avg = false) where {d,T<:Number}
     ξ = [-1 / √3, 1 / √3]
@@ -29,8 +30,6 @@ Return the value of the shape functions of the element, at the specified point.
 This function returns a `d`-dimensional array `N`, such that `N[p]` is the shape
 function associated with node `p`, evaluated at `x`. In particular, `N[p]`
 evaluated at node `q` is `δ[p, q]` (Kronecker).
-
-See [Shape functions](@ref).
 
 """
 function shape(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
@@ -50,7 +49,6 @@ If  `i` is the index of a component and `p` the `CartesianIndex` of the node, th
 
 `h` is the size of the brick element.
 
-See [Geometry of the reference brick element](@ref).
 """
 function gradient_operator(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
     ξ = 2 .* x ./ h
@@ -66,6 +64,7 @@ end
     avg_gradient_operator(h)
 
 Return the cell-average of the gradient operator.
+
 """
 function avg_gradient_operator(h::NTuple{d,T}) where {d,T<:Number}
     return integrate(x -> gradient_operator(x, h), h, avg = true)
@@ -86,7 +85,6 @@ indices then, the interpolated `(i, j)` component of the strain at `x` reads
 ε[i, j] = Σₖ Σₚ B[i, j, k, p] * u[k, p].
 ```
 
-See [Gradient and strain-displacement operators](@ref).
 """
 function strain_displacement_operator(x::NTuple{d,T}, h::NTuple{d,T}) where {d,T<:Number}
     ℒ = cell_vertices(d)
@@ -104,6 +102,7 @@ end
     avg_strain_displacement_operator(h)
 
 Return the cell average of the strain-displacement operator.
+
 """
 function avg_strain_displacement_operator(h::NTuple{d,T}) where {d,T<:Number}
     return integrate(x -> strain_displacement_operator(x, h), h, avg = true)

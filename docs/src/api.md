@@ -4,16 +4,11 @@
 Modules = [Scapin]
 ```
 
-## Scapin.Elasticity
+
+## Scapin.Bri17
 
 ```@autodocs
-Modules = [Scapin.Elasticity]
-```
-
-## Scapin.Grid
-
-```@autodocs
-Modules = [Scapin.Grid]
+Modules = [Scapin.Bri17]
 ```
 
 
@@ -21,4 +16,18 @@ Modules = [Scapin.Grid]
 
 ```@autodocs
 Modules = [Scapin.Brick]
+```
+
+
+## Scapin.Elasticity
+
+```@autodocs
+Modules = [Scapin.Elasticity]
+```
+
+
+## Scapin.Grid
+
+```@autodocs
+Modules = [Scapin.Grid]
 ```

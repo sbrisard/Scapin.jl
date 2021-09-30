@@ -11,9 +11,6 @@ Compute the modal strain-displacement vector `B` in place, for the spatial frequ
 The grid is defined by its size, `N` and spacing, `h`. The spatial frequency is
 defined by `n ∈ CartesianIndices(1:N[1], …, 1:N[d])`.
 
-See Sec. [The finite element discretization](@ref) for a definition of the modal
-strain-displacement vector.
-
 """
 function modal_strain_displacement!(
     B::AbstractVector{Complex{T}},
@@ -51,6 +48,7 @@ end
 Return the modal strain-displacement vector `B`.
 
 See [`modal_strain_displacement!`](@ref) for a description of the parameters.
+
 """
 function modal_strain_displacement(
     n::CartesianIndex{d},
@@ -71,9 +69,6 @@ Compute the modal stiffness matrix `K` in place, for the spatial frequency `n`.
 The grid is defined by its size, `N` and spacing, `h`. The spatial frequency is
 defined by `n ∈ CartesianIndices(1:N[1], …, 1:N[d])`. The (homogeneous)
 constitutive material is specified by `C`.
-
-See Sec. [The finite element discretization](@ref) for a definition of the modal
-stiffness matrix.
 
 !!! danger "Scaling of the modal stiffness matrix"
 
