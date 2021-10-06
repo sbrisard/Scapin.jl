@@ -160,19 +160,23 @@ function modal_stiffness(
 end
 
 function apply_discrete_green_operator!(
-    ε̂::Vector{T},
-    τ̂::Vector{T},
+    ε̂::AbstractVector{Complex{T}},
+    τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
     N::NTuple{d,Int},
     h::NTuple{d,T},
     C::Hooke{T,d},
-) where {T<:Number,d}
+    ) where {T<:Number,d}
+    if all(Tuple(n) .== 1)
+        ε̂ .= zero(eltype(ε̂))
+        return
+    end
     s = one(T) / √(2 * one(T))
     b̂ = modal_strain_displacement(n, N, h)
     conj_b̂ = conj.(b̂)
     K̂ = modal_stiffness(n, N, h, C)
     # TODO: use static arrays here!
-    τ̂_conj_b̂ = Vector{T}(undef, d)
+    τ̂_conj_b̂ = Vector{Complex{T}}(undef, d)
     if d == 2
         #     ┌               ┐
         # τ̂ = │ τ̂₁       τ̂₃/√2│
@@ -206,14 +210,14 @@ function apply_discrete_green_operator!(
     end
 end
 
-function apply_discrete_green_operator!(
-    τ̂::Vector{T},
+function apply_discrete_green_operator(
+    τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
     N::NTuple{d,Int},
     h::NTuple{d,T},
     C::Hooke{T,d},
 ) where {T<:Number,d}
-    ε̂ = Array{T}(undef, div(d * (d + 1), 2))
+    ε̂ = Array{Complex{T}}(undef, div(d * (d + 1), 2))
     apply_discrete_green_operator!(ε̂, τ̂, n, N, h, C)
     return ε̂
 end
@@ -222,5 +226,6 @@ export modal_strain_displacement!,
     modal_strain_displacement,
     modal_stiffness!,
     modal_stiffness,
-    apply_discrete_green_operator!
+    apply_discrete_green_operator!,
+    apply_discrete_green_operator
 end
