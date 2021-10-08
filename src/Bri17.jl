@@ -159,22 +159,26 @@ function modal_stiffness(
     return K
 end
 
-function apply_discrete_green_operator!(
+struct DiscreteGreenOperatorBri17{T,d}
+    C::Hooke{T,d}
+    N::NTuple{d,Int}
+    h::NTuple{d,T}
+end
+
+function apply!(
     ε̂::AbstractVector{Complex{T}},
+    Γ̂::DiscreteGreenOperatorBri17{T, d},
     τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
-    N::NTuple{d,Int},
-    h::NTuple{d,T},
-    C::Hooke{T,d},
-    ) where {T<:Number,d}
+) where {T<:Number,d}
     if all(Tuple(n) .== 1)
         ε̂ .= zero(eltype(ε̂))
         return
     end
     s = one(T) / √(2 * one(T))
-    b̂ = modal_strain_displacement(n, N, h)
+    b̂ = modal_strain_displacement(n, Γ̂.N, Γ̂.h)
     conj_b̂ = conj.(b̂)
-    K̂ = modal_stiffness(n, N, h, C)
+    K̂ = modal_stiffness(n, Γ̂.N, Γ̂.h, Γ̂.C)
     # TODO: use static arrays here!
     τ̂_conj_b̂ = Vector{Complex{T}}(undef, d)
     if d == 2
@@ -195,7 +199,7 @@ function apply_discrete_green_operator!(
         τ̂_conj_b̂[3] = τ̂[3] * conj_b̂[3] + s * (τ̂[5] * conj_b̂[1] + τ̂[4] * conj_b̂[2])
     end
     # Do not include the `-` sign!
-    û = prod(h) .* (K̂ \ τ̂_conj_b̂)
+    û = prod(Γ̂.h) .* (K̂ \ τ̂_conj_b̂)
     if d == 2
         ε̂[1] = û[1] * b̂[1]
         ε̂[2] = û[2] * b̂[2]
@@ -210,15 +214,13 @@ function apply_discrete_green_operator!(
     end
 end
 
-function apply_discrete_green_operator(
+function apply(
+    Γ̂::DiscreteGreenOperatorBri17{T, d},
     τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
-    N::NTuple{d,Int},
-    h::NTuple{d,T},
-    C::Hooke{T,d},
 ) where {T<:Number,d}
     ε̂ = Array{Complex{T}}(undef, div(d * (d + 1), 2))
-    apply_discrete_green_operator!(ε̂, τ̂, n, N, h, C)
+    apply!(ε̂, Γ̂, τ̂, n)
     return ε̂
 end
 
@@ -226,6 +228,7 @@ export modal_strain_displacement!,
     modal_strain_displacement,
     modal_stiffness!,
     modal_stiffness,
-    apply_discrete_green_operator!,
-    apply_discrete_green_operator
+    DiscreteGreenOperatorBri17,
+    apply!,
+    apply
 end
