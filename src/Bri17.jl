@@ -161,18 +161,18 @@ function modal_stiffness(
     return modal_stiffness!(Array{Complex{T}}(undef, d, d), n, N, h, C)
 end
 
-struct DiscreteGreenOperatorBri17{T,d}
+struct DiscreteGreenOperatorBri17{d,T}
     C::Hooke{T,d}
     N::NTuple{d,Int}
     h::NTuple{d,T}
 end
 
-Base.size(::DiscreteGreenOperatorBri17{T,d}) where {T,d} =
+Base.size(::DiscreteGreenOperatorBri17{d,T}) where {d,T} =
     ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 
 function apply!(
     ε̂::AbstractVector{Complex{T}},
-    Γ̂::DiscreteGreenOperatorBri17{T,d},
+    Γ̂::DiscreteGreenOperatorBri17{d,T},
     τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
 ) where {T<:Number,d}
@@ -221,7 +221,7 @@ function apply!(
 end
 
 function apply(
-    Γ̂::DiscreteGreenOperatorBri17{T,d},
+    Γ̂::DiscreteGreenOperatorBri17{d,T},
     τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
 ) where {T<:Number,d}

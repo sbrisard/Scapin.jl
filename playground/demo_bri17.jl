@@ -19,7 +19,7 @@ for r ∈ 0:r_max
     N = (2^r) .* N_coarse
     𝒩 = CartesianIndices(N)
     h = 1.0 ./ N
-    Γ̂ = DiscreteGreenOperatorBri17{T,d}(C, N, h)
+    Γ̂ = DiscreteGreenOperatorBri17{d,T}(C, N, h)
 
     τ = zeros(T, 3, N...)
     τ[3, fill(1:2^r, d)...] .= 1
