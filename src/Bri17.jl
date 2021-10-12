@@ -173,8 +173,8 @@ Base.size(::DiscreteGreenOperatorBri17{d,T}) where {d,T} =
 function apply!(
     ε̂::AbstractVector{Complex{T}},
     Γ̂::DiscreteGreenOperatorBri17{d,T},
-    τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
+    τ̂::AbstractVector{Complex{T}},
 ) where {T<:Number,d}
     if all(Tuple(n) .== 1)
         ε̂ .= zero(eltype(ε̂))
@@ -222,10 +222,10 @@ end
 
 function apply(
     Γ̂::DiscreteGreenOperatorBri17{d,T},
-    τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
+    τ̂::AbstractVector{Complex{T}},
 ) where {T<:Number,d}
-    return apply!(Array{Complex{T}}(undef, size(Γ̂, 1)), τ̂, n)
+    return apply!(Array{Complex{T}}(undef, size(Γ̂, 1)), n, τ̂)
 end
 
 export modal_strain_displacement!,

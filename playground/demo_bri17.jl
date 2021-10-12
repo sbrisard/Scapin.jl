@@ -27,7 +27,7 @@ for r ∈ 0:r_max
     ε̂ = Array{eltype(τ̂)}(undef, size(τ̂)...)
 
     for n ∈ 𝒩
-        apply!(view(ε̂, :, n), Γ̂, τ̂[:, n], n)
+        apply!(view(ε̂, :, n), Γ̂, n, τ̂[:, n])
     end
 
     ε = real.(ifft(ε̂, 2:(d+1)))
