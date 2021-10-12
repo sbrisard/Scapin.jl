@@ -167,9 +167,12 @@ struct DiscreteGreenOperatorBri17{T,d}
     h::NTuple{d,T}
 end
 
+Base.size(::DiscreteGreenOperatorBri17{T,d}) where {T,d} =
+    ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
+
 function apply!(
     ε̂::AbstractVector{Complex{T}},
-    Γ̂::DiscreteGreenOperatorBri17{T, d},
+    Γ̂::DiscreteGreenOperatorBri17{T,d},
     τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
 ) where {T<:Number,d}
@@ -218,11 +221,11 @@ function apply!(
 end
 
 function apply(
-    Γ̂::DiscreteGreenOperatorBri17{T, d},
+    Γ̂::DiscreteGreenOperatorBri17{T,d},
     τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
 ) where {T<:Number,d}
-    return apply!(Array{Complex{T}}(undef, div(d * (d + 1), 2)), Γ̂, τ̂, n)
+    return apply!(Array{Complex{T}}(undef, size(Γ̂, 1)), τ̂, n)
 end
 
 export modal_strain_displacement!,
