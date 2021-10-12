@@ -5,16 +5,18 @@ using Scapin.Grid
 using Scapin.Elasticity
 
 """
-    modal_strain_displacement!(B, n, N, h)
+    modal_strain_displacement!(b, n, N, h)
 
-Compute the modal strain-displacement vector `B` in place, for the spatial frequency `n`.
+Compute the modal strain-displacement vector `b` in place, for the spatial frequency `n`.
+
+This function returns `b`.
 
 The grid is defined by its size, `N` and spacing, `h`. The spatial frequency is
 defined by `n ∈ CartesianIndices(1:N[1], …, 1:N[d])`.
 
 """
 function modal_strain_displacement!(
-    B::AbstractVector{Complex{T}},
+    b::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
     N::NTuple{d,Int},
     h::NTuple{d,T},
@@ -29,24 +31,25 @@ function modal_strain_displacement!(
         s[i] = sin(α) / h[i]
     end
 
-    b = -2sin(∑α) + 2im * cos(∑α)
+    b₀ = -2sin(∑α) + 2im * cos(∑α)
     if d == 2
-        B[1] = b * s[1] * c[2]
-        B[2] = b * c[1] * s[2]
+        b[1] = b₀ * s[1] * c[2]
+        b[2] = b₀ * c[1] * s[2]
     elseif d == 3
-        B[1] = b * s[1] * c[2] * c[3]
-        B[2] = b * c[1] * s[2] * c[3]
-        B[3] = b * c[1] * c[2] * s[3]
+        b[1] = b₀ * s[1] * c[2] * c[3]
+        b[2] = b₀ * c[1] * s[2] * c[3]
+        b[3] = b₀ * c[1] * c[2] * s[3]
     else
         throw(ArgumentError("not implemented"))
     end
+    return b
 end
 
 
 """
     modal_strain_displacement(n, N, h)
 
-Return the modal strain-displacement vector `B`.
+Return the modal strain-displacement vector `b`.
 
 See [`modal_strain_displacement!`](@ref) for a description of the parameters.
 
@@ -56,9 +59,7 @@ function modal_strain_displacement(
     N::NTuple{d,Int},
     h::NTuple{d,T},
 ) where {d,T<:Number}
-    B = Array{Complex{T}}(undef, d)
-    modal_strain_displacement!(B, n, N, h)
-    return B
+    return modal_strain_displacement!(Array{Complex{T}}(undef, d), n, N, h)
 end
 
 
@@ -66,6 +67,8 @@ end
     modal_stiffness!(K, n, N, h, C)
 
 Compute the modal stiffness matrix `K` in place, for the spatial frequency `n`.
+
+This function returns `K`.
 
 The grid is defined by its size, `N` and spacing, `h`. The spatial frequency is
 defined by `n ∈ CartesianIndices(1:N[1], …, 1:N[d])`. The (homogeneous)
@@ -138,6 +141,7 @@ function modal_stiffness!(
     else
         throw(ArgumentError("not implemented"))
     end
+    return K
 end
 
 """
@@ -154,9 +158,7 @@ function modal_stiffness(
     h::NTuple{d,T},
     C::Hooke{T,d},
 ) where {T<:Number,d}
-    K = Array{Complex{T}}(undef, d, d)
-    modal_stiffness!(K, n, N, h, C)
-    return K
+    return modal_stiffness!(Array{Complex{T}}(undef, d, d), n, N, h, C)
 end
 
 struct DiscreteGreenOperatorBri17{T,d}
@@ -212,6 +214,7 @@ function apply!(
         ε̂[5] = s * (û[3] * b̂[1] + û[1] * b̂[3])
         ε̂[6] = s * (û[1] * b̂[2] + û[2] * b̂[1])
     end
+    return ε̂
 end
 
 function apply(
@@ -219,9 +222,7 @@ function apply(
     τ̂::AbstractVector{Complex{T}},
     n::CartesianIndex{d},
 ) where {T<:Number,d}
-    ε̂ = Array{Complex{T}}(undef, div(d * (d + 1), 2))
-    apply!(ε̂, Γ̂, τ̂, n)
-    return ε̂
+    return apply!(Array{Complex{T}}(undef, div(d * (d + 1), 2)), Γ̂, τ̂, n)
 end
 
 export modal_strain_displacement!,
