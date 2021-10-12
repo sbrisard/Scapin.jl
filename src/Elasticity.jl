@@ -17,7 +17,7 @@ Create a new instance with shear modulus `μ` and Poisson ratio `ν`.
     stresses, the *true* Poisson ratio `ν` should be replaced with the *fictitious* ratio
     `ν̃ = ν / (1 + ν)`.
 """
-struct Hooke{T,DIM} <: AbstractMatrix{T}
+struct Hooke{d,T} <: AbstractMatrix{T}
     "The shear modulus."
     μ::T
     "The Poisson ratio."
@@ -27,25 +27,25 @@ struct Hooke{T,DIM} <: AbstractMatrix{T}
 
         σ = λ⋅tr(ε) + 2μ⋅ε,
 
-    regardless of the dimensionality `DIM`.
+    regardless of the number of space dimensions, `d`.
     """
     λ::Float64
-    Hooke{T,DIM}(μ::T, ν::T) where {T,DIM} = new(μ, ν, 2μ * ν / (1 - 2ν))
+    Hooke{d, T}(μ::T, ν::T) where {d, T} = new(μ, ν, 2μ * ν / (1 - 2ν))
 end
 
-Base.size(::Hooke{T,DIM}) where {T,DIM} = ((DIM * (DIM + 1)) ÷ 2, (DIM * (DIM + 1)) ÷ 2)
+Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 
-function Base.getindex(C::Hooke{T,DIM}, i::Int, j::Int) where {T,DIM}
+function Base.getindex(C::Hooke{d,T}, i::Int, j::Int) where {d,T}
     value = zero(T)
     (i == j) && (value += 2C.μ)
-    (i <= DIM) && (j <= DIM) && (value += C.λ)
+    (i <= d) && (j <= d) && (value += C.λ)
     return value
 end
 
-function Base.:*(C::Hooke{T,DIM}, ε::AbstractVector{T}) where {T,DIM}
-    tr_ε = sum(ε[1:DIM])
+function Base.:*(C::Hooke{d,T}, ε::AbstractVector{T}) where {d,T}
+    tr_ε = sum(ε[1:d])
     σ = 2C.μ * ε
-    σ[1:DIM] .+= C.λ * tr_ε
+    σ[1:d] .+= C.λ * tr_ε
     return σ
 end
 
@@ -68,10 +68,10 @@ and, for 3D elasticity
 """
 function bulk_modulus(::Hooke) end
 
-bulk_modulus(C::Hooke{T,2}) where {T} = C.μ / (1 - 2C.ν)
-bulk_modulus(C::Hooke{T,3}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
+bulk_modulus(C::Hooke{2, T}) where {T} = C.μ / (1 - 2C.ν)
+bulk_modulus(C::Hooke{3, T}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
 
-function block_apply!(out, hooke::Hooke{T,2}, k, τ) where {T}
+function block_apply!(out, hooke::Hooke{2, T}, k, τ) where {T}
     k² = sum(abs2, k)
     τk₁ = τ[1] * k[1] + τ[3] * k[2] / sqrt(2 * one(T))
     τk₂ = τ[2] * k[2] + τ[3] * k[1] / sqrt(2 * one(T))
@@ -85,7 +85,7 @@ function block_apply!(out, hooke::Hooke{T,2}, k, τ) where {T}
     return out
 end
 
-function block_apply!(out, hooke::Hooke{T,3}, k, τ) where {T}
+function block_apply!(out, hooke::Hooke{3, T}, k, τ) where {T}
     k² = sum(abs2, k)
     τk₁ = τ[1] * k[1] + (τ[6] * k[2] + τ[5] * k[3]) / sqrt(2 * one(T))
     τk₂ = τ[2] * k[2] + (τ[6] * k[1] + τ[4] * k[3]) / sqrt(2 * one(T))
@@ -103,7 +103,7 @@ function block_apply!(out, hooke::Hooke{T,3}, k, τ) where {T}
     return out
 end
 
-function block_matrix(op::Hooke{T,DIM}, k::AbstractVector{T}) where {T,DIM}
+function block_matrix(op::Hooke{d, T}, k::AbstractVector{T}) where {d, T}
     nrows, ncols = size(op)
     mat = zeros(T, nrows, ncols)
     τ = zeros(T, ncols)
@@ -120,7 +120,7 @@ end
 #     [(2π / L) * (2n < N ? n : n - N) for n = 0:N-1]
 # end
 
-# struct TruncatedGreenOperator{T,DIM}
+# struct TruncatedGreenOperator{T,d}
 #     Γ::Hooke{T,DIM}
 #     N::SVector{DIM,Int}
 #     L::SVector{DIM,T}

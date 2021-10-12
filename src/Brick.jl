@@ -124,7 +124,7 @@ U = u[i, p] * K[i, p, j, q] * u[j, q] / 2,
 where `i, j ∈ {1, …, d}` are component indices and `p, q ∈ CartesianIndices(1:2, …, 1:2)`.
 
 """
-function stiffness_operator(h::NTuple{d,T}, C::Hooke{T,d}) where {d,T<:Number}
+function stiffness_operator(h::NTuple{d,T}, C::Hooke{d,T}) where {d,T<:Number}
     ℒ = cell_vertices(d)
     function f(x)
         D = gradient_operator(x, h)
@@ -216,7 +216,7 @@ where
 function global_stiffness_operator(
     N::NTuple{d,Int},
     h::NTuple{d,T},
-    C::Hooke{T,d},
+    C::Hooke{d,T},
 ) where {d,T<:Number}
     Ke = stiffness_operator(h, C)
     K = zeros(T, d, N..., d, N...)

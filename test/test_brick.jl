@@ -1577,7 +1577,7 @@ end
                 # Note: reference values where computed with maxima
                 # (see `ref/nd_brick_elasticity.mac`).
                 h = Tuple([1.1, 1.2, 1.3][1:d])
-                C = Hooke{Float64,d}(5.6, 0.3)
+                C = Hooke{d,Float64}(5.6, 0.3)
 
                 @testset "Average gradient_operator, $(d)d" begin
                     D_act = avg_gradient_operator(h)

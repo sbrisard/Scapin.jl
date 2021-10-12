@@ -18,24 +18,24 @@ for d = 2:3
     @testset "Hooke $(d)D" begin
         T = Float64
         (I₄, J₄, K₄) = isotropic_tensors(T, d)
-        C = Hooke{T,d}(1.0, 0.3)
+        C = Hooke{d,T}(1.0, 0.3)
         C_exp = d * bulk_modulus(C) * J₄ + 2C.μ * K₄
         C_act = convert(Array, C)
         @test isapprox(C_act, C_exp, rtol = 1e-15)
     end
 end
 
-function block_matrix_ref(hooke::Hooke{T,DIM}, k::SVector{DIM,T}) where {T,DIM}
-    if DIM == 2
+function block_matrix_ref(hooke::Hooke{d,T}, k::SVector{d,T}) where {d,T}
+    if d == 2
         sym = 3
         ij2i = [1, 2, 1]
         ij2j = [1, 2, 2]
-    elseif DIM == 3
+    elseif d == 3
         sym = 6
         ij2i = [1, 2, 3, 2, 3, 1]
         ij2j = [1, 2, 3, 3, 1, 2]
     else
-        throw(ArgumentError("DIM must be 2 or 3 (was $DIM)"))
+        throw(ArgumentError("d must be 2 or 3 (was $d)"))
     end
 
     mat = zeros(T, sym, sym)
@@ -43,11 +43,11 @@ function block_matrix_ref(hooke::Hooke{T,DIM}, k::SVector{DIM,T}) where {T,DIM}
     for ij = 1:sym
         i = ij2i[ij]
         j = ij2j[ij]
-        w_ij = ij <= DIM ? one(T) : sqrt(2 * one(T))
+        w_ij = ij <= d ? one(T) : sqrt(2 * one(T))
         for kl = 1:sym
             k = ij2i[kl]
             l = ij2j[kl]
-            w_kl = kl <= DIM ? one(T) : sqrt(2 * one(T))
+            w_kl = kl <= d ? one(T) : sqrt(2 * one(T))
             δik_nj_nl = i == k ? n[j] * n[l] : zero(T)
             δil_nj_nk = i == l ? n[j] * n[k] : zero(T)
             δjk_ni_nl = j == k ? n[i] * n[l] : zero(T)
@@ -61,7 +61,7 @@ function block_matrix_ref(hooke::Hooke{T,DIM}, k::SVector{DIM,T}) where {T,DIM}
 end
 
 @testset "Green operator, Hooke 2D" begin
-    hooke = Hooke{Float64,2}(5.6, 0.3)
+    hooke = Hooke{2,Float64}(5.6, 0.3)
     for k_norm ∈ [0.12, 2.3, 14.5]
         for θ ∈ LinRange(0.0, 2 * π, 21)[1:end-1]
             k = @SVector [k_norm * cos(θ), k_norm * sin(θ)]
@@ -74,7 +74,7 @@ end
 end
 
 @testset "Green operator, Hooke 3D" begin
-    hooke = Hooke{Float64,3}(5.6, 0.3)
+    hooke = Hooke{3,Float64}(5.6, 0.3)
     for k_norm ∈ [0.12, 2.3, 14.5]
         for φ ∈ LinRange(0.0, 2 * π, 21)[1:end-1]
             for θ ∈ LinRange(0.0, π, 11)

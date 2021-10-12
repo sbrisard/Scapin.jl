@@ -93,7 +93,7 @@ function modal_stiffness!(
     n::CartesianIndex{d},
     N::NTuple{d,Int},
     h::NTuple{d,T},
-    C::Hooke{T,d},
+    C::Hooke{d,T},
 ) where {d,T<:Number}
     # In the notation of [Bri17, see Eq. (B.17)]
     #
@@ -156,13 +156,13 @@ function modal_stiffness(
     n::CartesianIndex{d},
     N::NTuple{d,Int},
     h::NTuple{d,T},
-    C::Hooke{T,d},
+    C::Hooke{d,T},
 ) where {T<:Number,d}
     return modal_stiffness!(Array{Complex{T}}(undef, d, d), n, N, h, C)
 end
 
 struct DiscreteGreenOperatorBri17{d,T}
-    C::Hooke{T,d}
+    C::Hooke{d,T}
     N::NTuple{d,Int}
     h::NTuple{d,T}
 end

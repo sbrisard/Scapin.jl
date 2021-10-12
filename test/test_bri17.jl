@@ -35,7 +35,7 @@ using Test
             @testset "Modal stiffness matrix, $(d)d" begin
                 N = (3, 4, 5)[1:d]
                 h = (1.1, 1.2, 1.3)[1:d]
-                C = Hooke{Float64,d}(5.6, 0.3)
+                C = Hooke{d,Float64}(5.6, 0.3)
                 K = global_stiffness_operator(N, h, C)
                 K̂_exp = fft(K[fill(:, d + 2)..., fill(1, d)...], 2:(d+1))
                 K̂_act = zeros(Complex{Float64}, d, N..., d)
