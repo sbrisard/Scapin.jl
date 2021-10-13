@@ -1,11 +1,18 @@
 module Elasticity
 """
+    Hooke{d,T}
+
 Isotropic, linear elastic material.
 
-    Hooke{d,T}(μ::T, ν::T)
+- `d` — number of spatial dimensions
+- `T` — scalar type
+- `μ::T` — shear modulus
+- `ν::T` — Poisson ratio
+- `λ::T` — first Lamé coefficient
 
-Create a new instance with shear modulus `μ` and Poisson ratio `ν`. `d` is the number of
-spatial dimensions, `T` is the scalar type.
+Regardless of the number of space dimensions, `d`, the stress-strain relationship reads
+
+    σ = λ⋅tr(ε)I + 2μ⋅ε.
 
 !!! note "Material stability"
 
@@ -19,21 +26,17 @@ spatial dimensions, `T` is the scalar type.
     `ν̃ = ν / (1 + ν)`.
 """
 struct Hooke{d,T}
-    "The shear modulus."
     μ::T
-    "The Poisson ratio."
     ν::T
-    """
-    Lamé I coefficient, such that the constitutive law reads
-
-        σ = λ⋅tr(ε) + 2μ⋅ε,
-
-    regardless of the number of space dimensions, `d`.
-    """
     λ::Float64
     Hooke{d, T}(μ::T, ν::T) where {d, T} = new(μ, ν, 2μ * ν / (1 - 2ν))
 end
 
+"""
+    Hooke{d,T}(μ::T, ν::T)
+
+Create a new instance of `Hooke{d,T}` with shear modulus `μ` and Poisson ratio `ν`.
+"""
 Hooke{d}(μ::T, ν::T) where {d, T} = Hooke{d, T}(μ, ν)
 
 Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
