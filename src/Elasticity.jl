@@ -61,17 +61,9 @@ end
 
 Return the bulk modulus `κ` for the specified Hooke material.
 
-For plane strain elasticity
+For plane strain elasticity, `κ = μ / (1 - 2ν)` and, for 3d elasticity
+`κ = 2/3 μ (1 + ν) / (1 - 2ν)`.
 
-```
-κ = μ / (1 - 2ν),
-```
-
-and, for 3D elasticity
-
-```
-κ = 2/3 μ (1 + ν) / (1 - 2ν).
-```
 """
 function bulk_modulus(::Hooke) end
 
