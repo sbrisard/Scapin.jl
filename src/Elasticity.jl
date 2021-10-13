@@ -49,11 +49,15 @@ function Base.getindex(C::Hooke{d,T}, i::Int, j::Int) where {d,T}
     return value
 end
 
-function Base.:*(C::Hooke{d,T}, ε::AbstractVector{T}) where {d,T}
+function mul!(σ::AbstractVector{T}, C::Hooke{d,T}, ε::AbstractVector{T}) where {d, T}
     tr_ε = sum(ε[1:d])
     σ = 2C.μ * ε
     σ[1:d] .+= C.λ * tr_ε
     return σ
+end
+
+function Base.:*(C::Hooke{d,T}, ε::AbstractVector{T}) where {d,T}
+    return mul!(AbstractVector{T}(undef, size(C, 1)), C, ε)
 end
 
 """
