@@ -1,4 +1,7 @@
 module Elasticity
+
+using LinearAlgebra
+
 """
     Hooke{d,T}
 
@@ -28,7 +31,7 @@ Regardless of the number of space dimensions, `d`, the stress-strain relationshi
 struct Hooke{d,T}
     μ::T
     ν::T
-    λ::Float64
+    λ::T
     Hooke{d, T}(μ::T, ν::T) where {d, T} = new(μ, ν, 2μ * ν / (1 - 2ν))
 end
 
@@ -40,11 +43,32 @@ Create a new instance of `Hooke{d,T}` with shear modulus `μ` and Poisson ratio 
 Hooke{d}(μ::T, ν::T) where {d, T} = Hooke{d, T}(μ, ν)
 
 Base.eltype(::Type{Hooke{d,T}}) where {d,T} = T
+
 Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
+
 function Base.size(::Hooke{d, T}, n::Int) where {d, T}
     ((n<=0) || (n>2)) && throw(ErrorException("dimension must be 1 or 2 (got $n)"))
     (d * (d + 1)) ÷ 2
 end
+
+function Base.convert(::Type{Array}, C::Hooke{d, T}) where {d, T}
+    C₆₆ = 2C.μ
+    C₁₁ = C.λ+C₆₆
+    C₁₂ = C.λ
+    if d == 2
+        return [C₁₁ C₁₂ 0
+                C₁₂ C₁₁ 0
+                0 0 C₆₆]
+    elseif d == 3
+        return [C₁₁ C₁₂ C₁₂ 0 0 0
+                C₁₂ C₁₁ C₁₂ 0 0 0
+                C₁₂ C₁₂ C₁₁ 0 0 0
+                0 0 0 C₆₆ 0 0
+                0 0 0 0 C₆₆ 0
+                0 0 0 0 0 C₆₆]
+    end
+end
+
 
 function Base.getindex(C::Hooke{d,T}, i::Int, j::Int) where {d,T}
     value = zero(T)
