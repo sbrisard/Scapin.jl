@@ -39,8 +39,12 @@ Create a new instance of `Hooke{d,T}` with shear modulus `μ` and Poisson ratio 
 """
 Hooke{d}(μ::T, ν::T) where {d, T} = Hooke{d, T}(μ, ν)
 
-Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 Base.eltype(::Type{Hooke{d,T}}) where {d,T} = T
+Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
+function Base.size(::Hooke{d, T}, n::Int) where {d, T}
+    ((n<=0) || (n>2)) && throw(ErrorException("dimension must be 1 or 2 (got $n)"))
+    (d * (d + 1)) ÷ 2
+end
 
 function Base.getindex(C::Hooke{d,T}, i::Int, j::Int) where {d,T}
     value = zero(T)
