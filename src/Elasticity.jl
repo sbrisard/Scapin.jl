@@ -34,6 +34,8 @@ struct Hooke{d,T}
     Hooke{d, T}(μ::T, ν::T) where {d, T} = new(μ, ν, 2μ * ν / (1 - 2ν))
 end
 
+Hooke{d}(μ::T, ν::T) where {d, T} = Hooke{d, T}(μ, ν)
+
 Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 Base.eltype(::Type{Hooke{d,T}}) where {d,T} = T
 
