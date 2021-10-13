@@ -2,9 +2,10 @@ module Elasticity
 """
 Isotropic, linear elastic material.
 
-    Hooke{T, DIM}(μ::T, ν::T)
+    Hooke{d,T}(μ::T, ν::T)
 
-Create a new instance with shear modulus `μ` and Poisson ratio `ν`.
+Create a new instance with shear modulus `μ` and Poisson ratio `ν`. `d` is the number of
+spatial dimensions, `T` is the scalar type.
 
 !!! note "Material stability"
 
@@ -13,11 +14,11 @@ Create a new instance with shear modulus `μ` and Poisson ratio `ν`.
 
 !!! tip "Plane stresses vs. plane strains"
 
-    In the current implementation, `DIM = 2` refers to plane strain elasticity. For plane
+    In the current implementation, `d = 2` refers to plane strain elasticity. For plane
     stresses, the *true* Poisson ratio `ν` should be replaced with the *fictitious* ratio
     `ν̃ = ν / (1 + ν)`.
 """
-struct Hooke{d,T} <: AbstractMatrix{T}
+struct Hooke{d,T}
     "The shear modulus."
     μ::T
     "The Poisson ratio."
@@ -34,6 +35,7 @@ struct Hooke{d,T} <: AbstractMatrix{T}
 end
 
 Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
+Base.eltype(::Type{Hooke{d,T}}) where {d,T} = T
 
 function Base.getindex(C::Hooke{d,T}, i::Int, j::Int) where {d,T}
     value = zero(T)
