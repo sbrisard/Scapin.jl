@@ -32,7 +32,7 @@ struct Hooke{d,T}
     μ::T
     ν::T
     λ::T
-    Hooke{d, T}(μ::T, ν::T) where {d, T} = new(μ, ν, 2μ * ν / (1 - 2ν))
+    Hooke{d,T}(μ::T, ν::T) where {d,T} = new(μ, ν, 2μ * ν / (1 - 2ν))
 end
 
 """
@@ -40,35 +40,38 @@ end
 
 Create a new instance of `Hooke{d,T}` with shear modulus `μ` and Poisson ratio `ν`.
 """
-Hooke{d}(μ::T, ν::T) where {d, T} = Hooke{d, T}(μ, ν)
+Hooke{d}(μ::T, ν::T) where {d,T} = Hooke{d,T}(μ, ν)
 
 Base.eltype(::Type{Hooke{d,T}}) where {d,T} = T
 
 Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 
-function Base.size(::Hooke{d, T}, n::Int) where {d, T}
-    ((n<=0) || (n>2)) && throw(ErrorException("dimension must be 1 or 2 (got $n)"))
+function Base.size(::Hooke{d,T}, n::Int) where {d,T}
+    ((n <= 0) || (n > 2)) && throw(ErrorException("dimension must be 1 or 2 (got $n)"))
     (d * (d + 1)) ÷ 2
 end
 
-function Base.convert(::Type{Array}, C::Hooke{d, T}) where {d, T}
+function Base.convert(::Type{Array}, C::Hooke{d,T}) where {d,T}
     C₆₆ = 2C.μ
-    C₁₁ = C.λ+C₆₆
+    C₁₁ = C.λ + C₆₆
     C₁₂ = C.λ
     if d == 2
-        return [C₁₁ C₁₂ 0
-                C₁₂ C₁₁ 0
-                0 0 C₆₆]
+        return [
+            C₁₁ C₁₂ 0
+            C₁₂ C₁₁ 0
+            0 0 C₆₆
+        ]
     elseif d == 3
-        return [C₁₁ C₁₂ C₁₂ 0 0 0
-                C₁₂ C₁₁ C₁₂ 0 0 0
-                C₁₂ C₁₂ C₁₁ 0 0 0
-                0 0 0 C₆₆ 0 0
-                0 0 0 0 C₆₆ 0
-                0 0 0 0 0 C₆₆]
+        return [
+            C₁₁ C₁₂ C₁₂ 0 0 0
+            C₁₂ C₁₁ C₁₂ 0 0 0
+            C₁₂ C₁₂ C₁₁ 0 0 0
+            0 0 0 C₆₆ 0 0
+            0 0 0 0 C₆₆ 0
+            0 0 0 0 0 C₆₆
+        ]
     end
 end
-
 
 function Base.getindex(C::Hooke{d,T}, i::Int, j::Int) where {d,T}
     value = zero(T)
@@ -77,7 +80,7 @@ function Base.getindex(C::Hooke{d,T}, i::Int, j::Int) where {d,T}
     return value
 end
 
-function mul!(σ::AbstractVector{T}, C::Hooke{d,T}, ε::AbstractVector{T}) where {d, T}
+function mul!(σ::AbstractVector{T}, C::Hooke{d,T}, ε::AbstractVector{T}) where {d,T}
     tr_ε = sum(ε[1:d])
     σ = 2C.μ * ε
     σ[1:d] .+= C.λ * tr_ε
@@ -99,10 +102,10 @@ For plane strain elasticity, `κ = μ / (1 - 2ν)` and, for 3d elasticity
 """
 function bulk_modulus(::Hooke) end
 
-bulk_modulus(C::Hooke{2, T}) where {T} = C.μ / (1 - 2C.ν)
-bulk_modulus(C::Hooke{3, T}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
+bulk_modulus(C::Hooke{2,T}) where {T} = C.μ / (1 - 2C.ν)
+bulk_modulus(C::Hooke{3,T}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
 
-function block_apply!(out, hooke::Hooke{2, T}, k, τ) where {T}
+function block_apply!(out, hooke::Hooke{2,T}, k, τ) where {T}
     k² = sum(abs2, k)
     τk₁ = τ[1] * k[1] + τ[3] * k[2] / sqrt(2 * one(T))
     τk₂ = τ[2] * k[2] + τ[3] * k[1] / sqrt(2 * one(T))
@@ -116,7 +119,7 @@ function block_apply!(out, hooke::Hooke{2, T}, k, τ) where {T}
     return out
 end
 
-function block_apply!(out, hooke::Hooke{3, T}, k, τ) where {T}
+function block_apply!(out, hooke::Hooke{3,T}, k, τ) where {T}
     k² = sum(abs2, k)
     τk₁ = τ[1] * k[1] + (τ[6] * k[2] + τ[5] * k[3]) / sqrt(2 * one(T))
     τk₂ = τ[2] * k[2] + (τ[6] * k[1] + τ[4] * k[3]) / sqrt(2 * one(T))
@@ -134,7 +137,7 @@ function block_apply!(out, hooke::Hooke{3, T}, k, τ) where {T}
     return out
 end
 
-function block_matrix(op::Hooke{d, T}, k::AbstractVector{T}) where {d, T}
+function block_matrix(op::Hooke{d,T}, k::AbstractVector{T}) where {d,T}
     nrows, ncols = size(op)
     mat = zeros(T, nrows, ncols)
     τ = zeros(T, ncols)
