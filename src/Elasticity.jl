@@ -138,7 +138,7 @@ end
 
 Scapin.dimensionality(::Hooke{d, T}) where {d,T} = d
 
-function block_apply!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
+function apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
     τ̂k₁ = τ̂[1] * k[1] + τ̂[3] * k[2] / sqrt(2 * one(T))
     τ̂k₂ = τ̂[2] * k[2] + τ̂[3] * k[1] / sqrt(2 * one(T))
@@ -152,7 +152,7 @@ function block_apply!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     return ε̂
 end
 
-function block_apply!(ε̂, Γ::GreenOperatorHooke{3,T}, k, τ̂) where {T}
+function apply_fourier!(ε̂, Γ::GreenOperatorHooke{3,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
     τ̂k₁ = τ̂[1] * k[1] + (τ̂[6] * k[2] + τ̂[5] * k[3]) / sqrt(2 * one(T))
     τ̂k₂ = τ̂[2] * k[2] + (τ̂[6] * k[1] + τ̂[4] * k[3]) / sqrt(2 * one(T))
@@ -176,7 +176,7 @@ function block_matrix(Γ::GreenOperatorHooke{d,T}, k::AbstractVector{T}) where {
     τ̂ = zeros(T, ncols)
     for i = 1:ncols
         τ̂[i] = one(T)
-        block_apply!(view(mat, :, i), Γ, k, τ̂)
+        apply_fourier!(view(mat, :, i), Γ, k, τ̂)
         τ̂[i] = zero(T)
     end
     return mat
@@ -212,6 +212,6 @@ end
 # function apply(out::AbstractArray{T, DIM+1}, Γ_h::TruncatedGreenOperator{T, DIM}, τ::AbstractArray{T, DIM+1}) where {T, DIM}
 # end
 
-export Hooke, bulk_modulus, GreenOperatorHooke, block_apply!, block_matrix
+export Hooke, bulk_modulus, GreenOperatorHooke, apply_fourier!, block_matrix
 
 end
