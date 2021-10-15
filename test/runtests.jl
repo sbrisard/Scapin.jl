@@ -61,12 +61,13 @@ function block_matrix_ref(hooke::Hooke{d,T}, k::SVector{d,T}) where {d,T}
 end
 
 @testset "Green operator, Hooke 2D" begin
-    hooke = Hooke{2,Float64}(5.6, 0.3)
+    C = Hooke{2,Float64}(5.6, 0.3)
+    Γ = GreenOperatorHooke(C)
     for k_norm ∈ [0.12, 2.3, 14.5]
         for θ ∈ LinRange(0.0, 2 * π, 21)[1:end-1]
             k = @SVector [k_norm * cos(θ), k_norm * sin(θ)]
-            act = block_matrix(hooke, k)
-            exp = block_matrix_ref(hooke, k)
+            act = block_matrix(Γ, k)
+            exp = block_matrix_ref(C, k)
 
             @test all(isapprox.(act, exp, atol = 1e-15))
         end
@@ -74,13 +75,14 @@ end
 end
 
 @testset "Green operator, Hooke 3D" begin
-    hooke = Hooke{3,Float64}(5.6, 0.3)
+    C = Hooke{3,Float64}(5.6, 0.3)
+    Γ = GreenOperatorHooke(C)
     for k_norm ∈ [0.12, 2.3, 14.5]
         for φ ∈ LinRange(0.0, 2 * π, 21)[1:end-1]
             for θ ∈ LinRange(0.0, π, 11)
                 k = k_norm * (@SVector [sin(θ) * cos(φ), sin(θ) * sin(φ), cos(θ)])
-                act = block_matrix(hooke, k)
-                exp = block_matrix_ref(hooke, k)
+                act = block_matrix(Γ, k)
+                exp = block_matrix_ref(C, k)
 
                 @test all(isapprox.(act, exp, atol = 1e-15))
             end

@@ -1,6 +1,7 @@
 module Elasticity
 
 using LinearAlgebra
+using Scapin
 
 """
     Hooke{d,T}
@@ -109,13 +110,41 @@ function bulk_modulus(::Hooke) end
 bulk_modulus(C::Hooke{2,T}) where {T} = C.μ / (1 - 2C.ν)
 bulk_modulus(C::Hooke{3,T}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
 
-function block_apply!(out, hooke::Hooke{2,T}, k, τ) where {T}
+"""
+Continuous Green operator related to [Hooke](@ref) materials.
+
+"""
+struct GreenOperatorHooke{d,T}
+    C::Hooke{d,T}
+end
+
+"""
+    GreenOperatorHooke(C)
+
+Return the Green operator associated with the specified [Hooke](@ref) material.
+"""
+GreenOperatorHooke(C::Hooke{d, T}) where {d,T} = GreenOperatorHooke{d,T}(C)
+
+Base.eltype(::Type{GreenOperatorHooke{d,T}}) where {d,T} = T
+
+Base.ndims(::GreenOperatorHooke{d,T}) where {d,T} = 2
+
+Base.size(::GreenOperatorHooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
+
+function Base.size(::GreenOperatorHooke{d,T}, n::Int) where {d,T}
+    ((n <= 0) || (n > 2)) && throw(ErrorException("dimension must be 1 or 2 (got $n)"))
+    (d * (d + 1)) ÷ 2
+end
+
+Scapin.dimensionality(::Hooke{d, T}) where {d,T} = d
+
+function block_apply!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
     τ̂k₁ = τ̂[1] * k[1] + τ̂[3] * k[2] / sqrt(2 * one(T))
     τ̂k₂ = τ̂[2] * k[2] + τ̂[3] * k[1] / sqrt(2 * one(T))
     nτ̂n = (k[1] * τ̂k₁ + k[2] * τ̂k₂) / k²
-    const1 = nτ̂n / (1 - C.ν)
-    const2 = 1 / (2 * C.μ * k²)
+    const1 = nτ̂n / (1 - Γ.C.ν)
+    const2 = 1 / (2 * Γ.C.μ * k²)
     ε̂[1] = const2 * (k[1] * (2 * τ̂k₁ - const1 * k[1]))
     ε̂[2] = const2 * (k[2] * (2 * τ̂k₂ - const1 * k[2]))
     const3 = sqrt(2 * one(T)) * const2
@@ -123,14 +152,14 @@ function block_apply!(out, hooke::Hooke{2,T}, k, τ) where {T}
     return ε̂
 end
 
-function block_apply!(ε̂, C::Hooke{3,T}, k, τ̂) where {T}
+function block_apply!(ε̂, Γ::GreenOperatorHooke{3,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
     τ̂k₁ = τ̂[1] * k[1] + (τ̂[6] * k[2] + τ̂[5] * k[3]) / sqrt(2 * one(T))
     τ̂k₂ = τ̂[2] * k[2] + (τ̂[6] * k[1] + τ̂[4] * k[3]) / sqrt(2 * one(T))
     τ̂k₃ = τ̂[3] * k[3] + (τ̂[5] * k[1] + τ̂[4] * k[2]) / sqrt(2 * one(T))
     nτ̂n = (k[1] * τ̂k₁ + k[2] * τ̂k₂ + k[3] * τ̂k₃) / k²
-    const1 = nτ̂n / (1 - C.ν)
-    const2 = 1 / (2 * C.μ * k²)
+    const1 = nτ̂n / (1 - Γ.C.ν)
+    const2 = 1 / (2 * Γ.C.μ * k²)
     ε̂[1] = const2 * (k[1] * (2 * τ̂k₁ - const1 * k[1]))
     ε̂[2] = const2 * (k[2] * (2 * τ̂k₂ - const1 * k[2]))
     ε̂[3] = const2 * (k[3] * (2 * τ̂k₃ - const1 * k[3]))
@@ -141,16 +170,16 @@ function block_apply!(ε̂, C::Hooke{3,T}, k, τ̂) where {T}
     return ε̂
 end
 
-function block_matrix(op::Hooke{d,T}, k::AbstractVector{T}) where {d,T}
-    nrows, ncols = size(op)
+function block_matrix(Γ::GreenOperatorHooke{d,T}, k::AbstractVector{T}) where {d,T}
+    nrows, ncols = size(Γ)
     mat = zeros(T, nrows, ncols)
-    τ = zeros(T, ncols)
+    τ̂ = zeros(T, ncols)
     for i = 1:ncols
-        τ[i] = one(T)
-        block_apply!(view(mat, :, i), op, k, τ)
-        τ[i] = zero(T)
+        τ̂[i] = one(T)
+        block_apply!(view(mat, :, i), Γ, k, τ̂)
+        τ̂[i] = zero(T)
     end
-    mat
+    return mat
 end
 
 # function ms94_frequencies(N, L) where {T}
@@ -183,6 +212,6 @@ end
 # function apply(out::AbstractArray{T, DIM+1}, Γ_h::TruncatedGreenOperator{T, DIM}, τ::AbstractArray{T, DIM+1}) where {T, DIM}
 # end
 
-export Hooke, bulk_modulus, block_apply!, block_matrix
+export Hooke, bulk_modulus, GreenOperatorHooke, block_apply!, block_matrix
 
 end
