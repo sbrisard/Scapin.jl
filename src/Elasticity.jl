@@ -138,7 +138,7 @@ end
 
 Scapin.dimensionality(::Hooke{d, T}) where {d,T} = d
 
-function apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
+function Scapin.apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
     τ̂k₁ = τ̂[1] * k[1] + τ̂[3] * k[2] / sqrt(2 * one(T))
     τ̂k₂ = τ̂[2] * k[2] + τ̂[3] * k[1] / sqrt(2 * one(T))
@@ -152,7 +152,7 @@ function apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     return ε̂
 end
 
-function apply_fourier!(ε̂, Γ::GreenOperatorHooke{3,T}, k, τ̂) where {T}
+function Scapin.apply_fourier!(ε̂, Γ::GreenOperatorHooke{3,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
     τ̂k₁ = τ̂[1] * k[1] + (τ̂[6] * k[2] + τ̂[5] * k[3]) / sqrt(2 * one(T))
     τ̂k₂ = τ̂[2] * k[2] + (τ̂[6] * k[1] + τ̂[4] * k[3]) / sqrt(2 * one(T))
@@ -212,6 +212,6 @@ end
 # function apply(out::AbstractArray{T, DIM+1}, Γ_h::TruncatedGreenOperator{T, DIM}, τ::AbstractArray{T, DIM+1}) where {T, DIM}
 # end
 
-export Hooke, bulk_modulus, GreenOperatorHooke, apply_fourier!, block_matrix
+export Hooke, bulk_modulus, GreenOperatorHooke, block_matrix
 
 end
