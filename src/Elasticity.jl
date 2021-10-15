@@ -111,34 +111,34 @@ bulk_modulus(C::Hooke{3,T}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
 
 function block_apply!(out, hooke::Hooke{2,T}, k, τ) where {T}
     k² = sum(abs2, k)
-    τk₁ = τ[1] * k[1] + τ[3] * k[2] / sqrt(2 * one(T))
-    τk₂ = τ[2] * k[2] + τ[3] * k[1] / sqrt(2 * one(T))
-    nτn = (k[1] * τk₁ + k[2] * τk₂) / k²
-    const1 = nτn / (1 - hooke.ν)
-    const2 = 1 / (2 * hooke.μ * k²)
-    out[1] = const2 * (k[1] * (2 * τk₁ - const1 * k[1]))
-    out[2] = const2 * (k[2] * (2 * τk₂ - const1 * k[2]))
+    τ̂k₁ = τ̂[1] * k[1] + τ̂[3] * k[2] / sqrt(2 * one(T))
+    τ̂k₂ = τ̂[2] * k[2] + τ̂[3] * k[1] / sqrt(2 * one(T))
+    nτ̂n = (k[1] * τ̂k₁ + k[2] * τ̂k₂) / k²
+    const1 = nτ̂n / (1 - C.ν)
+    const2 = 1 / (2 * C.μ * k²)
+    ε̂[1] = const2 * (k[1] * (2 * τ̂k₁ - const1 * k[1]))
+    ε̂[2] = const2 * (k[2] * (2 * τ̂k₂ - const1 * k[2]))
     const3 = sqrt(2 * one(T)) * const2
-    out[3] = const3 * (k[1] * τk₂ + k[2] * τk₁ - const1 * k[1] * k[2])
-    return out
+    ε̂[3] = const3 * (k[1] * τ̂k₂ + k[2] * τ̂k₁ - const1 * k[1] * k[2])
+    return ε̂
 end
 
-function block_apply!(out, hooke::Hooke{3,T}, k, τ) where {T}
+function block_apply!(ε̂, C::Hooke{3,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
-    τk₁ = τ[1] * k[1] + (τ[6] * k[2] + τ[5] * k[3]) / sqrt(2 * one(T))
-    τk₂ = τ[2] * k[2] + (τ[6] * k[1] + τ[4] * k[3]) / sqrt(2 * one(T))
-    τk₃ = τ[3] * k[3] + (τ[5] * k[1] + τ[4] * k[2]) / sqrt(2 * one(T))
-    nτn = (k[1] * τk₁ + k[2] * τk₂ + k[3] * τk₃) / k²
-    const1 = nτn / (1 - hooke.ν)
-    const2 = 1 / (2 * hooke.μ * k²)
-    out[1] = const2 * (k[1] * (2 * τk₁ - const1 * k[1]))
-    out[2] = const2 * (k[2] * (2 * τk₂ - const1 * k[2]))
-    out[3] = const2 * (k[3] * (2 * τk₃ - const1 * k[3]))
+    τ̂k₁ = τ̂[1] * k[1] + (τ̂[6] * k[2] + τ̂[5] * k[3]) / sqrt(2 * one(T))
+    τ̂k₂ = τ̂[2] * k[2] + (τ̂[6] * k[1] + τ̂[4] * k[3]) / sqrt(2 * one(T))
+    τ̂k₃ = τ̂[3] * k[3] + (τ̂[5] * k[1] + τ̂[4] * k[2]) / sqrt(2 * one(T))
+    nτ̂n = (k[1] * τ̂k₁ + k[2] * τ̂k₂ + k[3] * τ̂k₃) / k²
+    const1 = nτ̂n / (1 - C.ν)
+    const2 = 1 / (2 * C.μ * k²)
+    ε̂[1] = const2 * (k[1] * (2 * τ̂k₁ - const1 * k[1]))
+    ε̂[2] = const2 * (k[2] * (2 * τ̂k₂ - const1 * k[2]))
+    ε̂[3] = const2 * (k[3] * (2 * τ̂k₃ - const1 * k[3]))
     const3 = sqrt(2 * one(T)) * const2
-    out[4] = const3 * (k[2] * τk₃ + k[3] * τk₂ - const1 * k[2] * k[3])
-    out[5] = const3 * (k[3] * τk₁ + k[1] * τk₃ - const1 * k[3] * k[1])
-    out[6] = const3 * (k[1] * τk₂ + k[2] * τk₁ - const1 * k[1] * k[2])
-    return out
+    ε̂[4] = const3 * (k[2] * τ̂k₃ + k[3] * τ̂k₂ - const1 * k[2] * k[3])
+    ε̂[5] = const3 * (k[3] * τ̂k₁ + k[1] * τ̂k₃ - const1 * k[3] * k[1])
+    ε̂[6] = const3 * (k[1] * τ̂k₂ + k[2] * τ̂k₁ - const1 * k[1] * k[2])
+    return ε̂
 end
 
 function block_matrix(op::Hooke{d,T}, k::AbstractVector{T}) where {d,T}
