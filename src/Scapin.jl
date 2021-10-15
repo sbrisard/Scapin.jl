@@ -12,9 +12,10 @@ function dimensionality end
 
 
 """
-    apply_fourier!(ŷ, ℱ, x̂, k)
+    apply_fourier!(ŷ, ℱ, k, x̂) -> ŷ
 
-Apply in-place the specified operator `ℱ` in Fourier space. More specifically,
+Apply in-place operator `ℱ` to `x̂` in Fourier space and return the modified array `ŷ`.
+More specifically,
 
     ŷ[:] = ℱ̂(k)⋅x̂,
 
@@ -43,6 +44,22 @@ where `T = eltype(ℱ)`.
 
 """
 function apply_fourier! end
+
+
+"""
+    apply_fourier(ℱ, x̂, k)
+
+Apply in-place operator `ℱ` to `x̂` in Fourier space and return the result.
+
+See [apply_fourier!](@ref)
+
+"""
+function apply_fourier(ℱ, x̂, k)
+    T = promote_type(eltype(ℱ), eltype(x̂), eltype(k))
+    ŷ = Array{T}(undef, size(ℱ, 1))
+    return apply_fourier!(ŷ, ℱ, x̂, k)
+end
+
 
 export dimensionality, apply_fourier!
 
