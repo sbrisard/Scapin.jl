@@ -44,6 +44,8 @@ Hooke{d}(μ::T, ν::T) where {d,T} = Hooke{d,T}(μ, ν)
 
 Base.eltype(::Type{Hooke{d,T}}) where {d,T} = T
 
+Base.ndims(::Hooke{d,T}) where {d,T} = 2
+
 Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 
 function Base.size(::Hooke{d,T}, n::Int) where {d,T}
