@@ -53,6 +53,8 @@ function Base.size(::Hooke{d,T}, n::Int) where {d,T}
     (d * (d + 1)) ÷ 2
 end
 
+Scapin.dimensionality(::Hooke{d, T}) where {d,T} = d
+
 function Base.convert(::Type{Array}, C::Hooke{d,T}) where {d,T}
     C₆₆ = 2C.μ
     C₁₁ = C.λ + C₆₆
