@@ -25,7 +25,7 @@ for d = 2:3
     end
 end
 
-function block_matrix_ref(hooke::Hooke{d,T}, k::SVector{d,T}) where {d,T}
+function fourier_matrix_ref(Γ::GreenOperatorHooke{d,T}, k) where {d,T}
     if d == 2
         sym = 3
         ij2i = [1, 2, 1]
@@ -53,8 +53,8 @@ function block_matrix_ref(hooke::Hooke{d,T}, k::SVector{d,T}) where {d,T}
             δjk_ni_nl = j == k ? n[i] * n[l] : zero(T)
             δjl_ni_nk = j == l ? n[i] * n[k] : zero(T)
             aux1 = (δik_nj_nl + δil_nj_nk + δjk_ni_nl + δjl_ni_nk) / 4
-            aux2 = n[i] * n[j] * n[k] * n[l] / (2 * (1 - hooke.ν))
-            mat[ij, kl] = w_ij * w_kl * (aux1 - aux2) / hooke.μ
+            aux2 = n[i] * n[j] * n[k] * n[l] / (2 * (1 - Γ.C.ν))
+            mat[ij, kl] = w_ij * w_kl * (aux1 - aux2) / Γ.C.μ
         end
     end
     mat
@@ -66,8 +66,8 @@ end
     for k_norm ∈ [0.12, 2.3, 14.5]
         for θ ∈ LinRange(0.0, 2 * π, 21)[1:end-1]
             k = @SVector [k_norm * cos(θ), k_norm * sin(θ)]
-            act = block_matrix(Γ, k)
-            exp = block_matrix_ref(C, k)
+            act = fourier_matrix(Γ, k)
+            exp = fourier_matrix_ref(Γ, k)
 
             @test all(isapprox.(act, exp, atol = 1e-15))
         end
@@ -81,8 +81,8 @@ end
         for φ ∈ LinRange(0.0, 2 * π, 21)[1:end-1]
             for θ ∈ LinRange(0.0, π, 11)
                 k = k_norm * (@SVector [sin(θ) * cos(φ), sin(θ) * sin(φ), cos(θ)])
-                act = block_matrix(Γ, k)
-                exp = block_matrix_ref(C, k)
+                act = fourier_matrix(Γ, k)
+                exp = fourier_matrix_ref(Γ, k)
 
                 @test all(isapprox.(act, exp, atol = 1e-15))
             end

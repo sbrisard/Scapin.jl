@@ -170,17 +170,6 @@ function Scapin.apply_fourier!(ε̂, Γ::GreenOperatorHooke{3,T}, k, τ̂) where
     return ε̂
 end
 
-function block_matrix(Γ::GreenOperatorHooke{d,T}, k::AbstractVector{T}) where {d,T}
-    nrows, ncols = size(Γ)
-    mat = zeros(T, nrows, ncols)
-    τ̂ = zeros(T, ncols)
-    for i = 1:ncols
-        τ̂[i] = one(T)
-        apply_fourier!(view(mat, :, i), Γ, k, τ̂)
-        τ̂[i] = zero(T)
-    end
-    return mat
-end
 
 # function ms94_frequencies(N, L) where {T}
 #     # TODO Ensure that π and L are of the same type
@@ -212,6 +201,6 @@ end
 # function apply(out::AbstractArray{T, DIM+1}, Γ_h::TruncatedGreenOperator{T, DIM}, τ::AbstractArray{T, DIM+1}) where {T, DIM}
 # end
 
-export Hooke, bulk_modulus, GreenOperatorHooke, block_matrix
+export Hooke, bulk_modulus, GreenOperatorHooke
 
 end

@@ -60,8 +60,32 @@ function apply_fourier(ℱ, x̂, k)
     return apply_fourier!(ŷ, ℱ, x̂, k)
 end
 
+"""
+    fourier_matrix(ℱ, k)
 
-export dimensionality, apply_fourier!
+Return the `k`-th mode of `ℱ`, `ℱ̂(k)`, as a matrix.
+
+!!! note "Performance of the default implementation"
+
+    The default implementation relies on [apply_fourier!](@ref) to build the
+    matrix column-by-column. It might be inefficient.
+"""
+function fourier_matrix(ℱ, k)
+    nrows, ncols = size(ℱ)
+    T = eltype(ℱ)
+    mat = zeros(T, nrows, ncols)
+    x̂ = zeros(eltype(ℱ), ncols)
+    for i = 1:ncols
+        x̂[i] = one(T)
+        apply_fourier!(view(mat, :, i), ℱ, k, x̂)
+        x̂[i] = zero(T)
+    end
+    return mat
+
+end
+
+
+export dimensionality, apply_fourier!, apply_fourier, fourier_matrix
 
 include("Elasticity.jl")
 include("Grid.jl")
