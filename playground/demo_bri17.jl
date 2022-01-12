@@ -1,4 +1,5 @@
 using CairoMakie
+using ElectronDisplay
 using FFTW
 using LinearAlgebra
 using Scapin.Elasticity
@@ -7,7 +8,7 @@ using Scapin.Bri17
 const T = Float64
 const d = 2
 
-C = Hooke{T,d}(1.0, 0.3)
+C = Hooke{d,T}(1.0, 0.3)
 α = (0.25, 0.25) # Fraction of the domained that is polarized
 N_coarse = (4, 4)
 r_max = 9
@@ -57,4 +58,5 @@ end
 C = x[end] * y[end]
 fig = scatter(x, y,  axis = (xscale=log10, yscale = log10))
 lines!(x, C ./ x)
-save("convergence.png", fig)
+#save("convergence.png", fig)
+electrondisplay(fig)
