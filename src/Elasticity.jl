@@ -114,18 +114,26 @@ bulk_modulus(C::Hooke{3,T}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
 Continuous Green operator related to [Hooke](@ref) materials.
 
 """
-struct GreenOperatorHooke{d,T}
-    C::Hooke{d,T}
+struct GreenOperatorHooke{d,Real,Fourier}
+    C::Hooke{d,Real}
 end
 
 """
     GreenOperatorHooke(C)
 
 Return the Green operator associated with the specified [Hooke](@ref) material.
-"""
-GreenOperatorHooke(C::Hooke{d, T}) where {d,T} = GreenOperatorHooke{d,T}(C)
 
-Base.eltype(::Type{GreenOperatorHooke{d,T}}) where {d,T} = T
+The returned object, `Γ`, is such that
+
+```julia
+   eltype_real(Γ) == eltype(C)
+eltype_fourier(Γ) == Complex{eltype(C)}
+```
+"""
+GreenOperatorHooke(C::Hooke{d, Real}) where {d,Real} = GreenOperatorHooke{d,Real,Complex{Real}}(C)
+
+Scapin.eltype_real(::Type{GreenOperatorHooke{d,Real,Fourier}}) where {d,Real,Fourier} = Real
+Scapin.eltype_fourier(::Type{GreenOperatorHooke{d,Real,Fourier}}) where {d,Real,Fourier} = Fourier
 
 Base.ndims(::GreenOperatorHooke{d,T}) where {d,T} = 2
 
