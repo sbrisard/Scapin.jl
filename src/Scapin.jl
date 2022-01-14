@@ -25,7 +25,7 @@ function eltype_real end
 eltype_real(op) = eltype_real(typeof(op))
 
 """
-   eltype_real(type)
+   eltype_fourier(type)
 
 Return the type of the (scalar) elements the operator of given `type` operates
 on in the *Fourier* space (as opposed to the *real* space). Note that this type
