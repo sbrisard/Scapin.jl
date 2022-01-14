@@ -10,6 +10,33 @@ Return the number of dimensions of the physical space that `op` operates on.
 """
 function dimensionality end
 
+"""
+   eltype_real(type)
+
+Return the type of the (scalar) elements the operator of given `type` operates
+on in the *real* space (as opposed to the *Fourier* space). Note that this type
+may be complex!
+
+The definition `eltype_real(x) = eltype_real(typeof(x))` is provided for
+convenience so that instances can be passed instead of types. However the form
+that accepts a type argument should be defined for new types.
+"""
+function eltype_real end
+eltype_real(op) = eltype_real(typeof(op))
+
+"""
+   eltype_real(type)
+
+Return the type of the (scalar) elements the operator of given `type` operates
+on in the *Fourier* space (as opposed to the *real* space). Note that this type
+may be real!
+
+The definition `eltype_fourier(x) = eltype_fourier(typeof(x))` is provided for
+convenience so that instances can be passed instead of types. However the form
+that accepts a type argument should be defined for new types.
+"""
+function eltype_fourier end
+eltype_fourier(op) = eltype_fourier(typeof(op))
 
 """
     apply_fourier!(ŷ, ℱ, k, x̂) -> ŷ
@@ -72,9 +99,9 @@ Return the `k`-th mode of `ℱ`, `ℱ̂(k)`, as a matrix.
 """
 function fourier_matrix(ℱ, k)
     nrows, ncols = size(ℱ)
-    T = eltype(ℱ)
+    T = eltype_fourier(ℱ)
     mat = zeros(T, nrows, ncols)
-    x̂ = zeros(eltype(ℱ), ncols)
+    x̂ = zeros(T, ncols)
     for i = 1:ncols
         x̂[i] = one(T)
         apply_fourier!(view(mat, :, i), ℱ, k, x̂)
@@ -85,7 +112,7 @@ function fourier_matrix(ℱ, k)
 end
 
 
-export dimensionality, apply_fourier!, apply_fourier, fourier_matrix
+export dimensionality, eltype_real, eltype_fourier, apply_fourier!, apply_fourier, fourier_matrix
 
 include("Elasticity.jl")
 include("Grid.jl")
