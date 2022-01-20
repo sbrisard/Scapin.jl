@@ -114,23 +114,16 @@ bulk_modulus(C::Hooke{3,T}) where {T} = 2C.μ * (1 + C.ν) / 3 / (1 - 2C.ν)
 Continuous Green operator related to [Hooke](@ref) materials.
 
 """
-struct GreenOperatorHooke{d,Real,Fourier}
-    C::Hooke{d,Real}
+struct GreenOperatorHooke{d,T}
+    C::Hooke{d,T}
 end
 
 """
     GreenOperatorHooke(C)
 
 Return the Green operator associated with the specified [Hooke](@ref) material.
-
-The returned object, `Γ`, is such that
-
-```julia
-   eltype_real(Γ) == eltype(C)
-eltype_fourier(Γ) == Complex{eltype(C)}
-```
 """
-GreenOperatorHooke(C::Hooke{d, Real}) where {d,Real} = GreenOperatorHooke{d,Real,Complex{Real}}(C)
+GreenOperatorHooke(C::Hooke{d, T}) where {d, T} = GreenOperatorHooke{d,T}(C)
 
 """
    eltype(type)
@@ -139,7 +132,7 @@ Return the type of the (scalar) elements the operator of given `type` operates
 on in the *real* space (as opposed to the *Fourier* space). Note that this type
 may be complex!
 """
-Base.eltype(::Type{GreenOperatorHooke{d,Real,Fourier}}) where {d,Real,Fourier} = Real
+Base.eltype(::Type{GreenOperatorHooke{d,T}}) where {d,T} = T
 
 Base.ndims(::GreenOperatorHooke{d,T}) where {d,T} = 2
 
@@ -150,7 +143,7 @@ function Base.size(::GreenOperatorHooke{d,T}, n::Int) where {d,T}
     (d * (d + 1)) ÷ 2
 end
 
-Scapin.dimensionality(::Hooke{d, T}) where {d,T} = d
+Scapin.dimensionality(::GreenOperatorHooke{d, T}) where {d,T} = d
 
 function Scapin.apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     k² = sum(abs2, k)

@@ -69,6 +69,7 @@ end
             act = fourier_matrix(Γ, k)
             exp = fourier_matrix_ref(Γ, k)
 
+            @test eltype(act) == complex(eltype(C))
             @test all(isapprox.(act, exp, atol = 1e-15))
         end
     end
@@ -84,6 +85,7 @@ end
                 act = fourier_matrix(Γ, k)
                 exp = fourier_matrix_ref(Γ, k)
 
+                @test eltype(act) == complex(eltype(C))
                 @test all(isapprox.(act, exp, atol = 1e-15))
             end
         end
