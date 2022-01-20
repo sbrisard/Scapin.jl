@@ -11,34 +11,6 @@ Return the number of dimensions of the physical space that `op` operates on.
 function dimensionality end
 
 """
-   eltype_real(type)
-
-Return the type of the (scalar) elements the operator of given `type` operates
-on in the *real* space (as opposed to the *Fourier* space). Note that this type
-may be complex!
-
-The definition `eltype_real(x) = eltype_real(typeof(x))` is provided for
-convenience so that instances can be passed instead of types. However the form
-that accepts a type argument should be defined for new types.
-"""
-function eltype_real end
-eltype_real(op) = eltype_real(typeof(op))
-
-"""
-   eltype_fourier(type)
-
-Return the type of the (scalar) elements the operator of given `type` operates
-on in the *Fourier* space (as opposed to the *real* space). Note that this type
-may be real!
-
-The definition `eltype_fourier(x) = eltype_fourier(typeof(x))` is provided for
-convenience so that instances can be passed instead of types. However the form
-that accepts a type argument should be defined for new types.
-"""
-function eltype_fourier end
-eltype_fourier(op) = eltype_fourier(typeof(op))
-
-"""
     apply_fourier!(ŷ, ℱ, k, x̂) -> ŷ
 
 Apply in-place operator `ℱ` to `x̂` in Fourier space and return the modified array `ŷ`.
@@ -54,8 +26,11 @@ for the spatial frequency `k`. The following must hold
     size(x̂, 1) == size(ℱ, 2),
     size(ŷ, 1) == size(ℱ, 1).
 
-The input and output vectors `x̂` and `ŷ`  are arrays of type `T` or `Complex{T}`,
-where `T = eltype(ℱ)`.
+The input vector `x̂` is an array of type `T` or `complex(T)`, where
+`T == eltype(ℱ)`. The output vector `ŷ` can always be of type `complex(T)`. When
+the Fourier coefficient `ℱ̂(k)` of the operator is real, it might make sense to
+allow for `ŷ` to be of type `real(T)`. If this is disallowed, calling this
+function should raise an exception.
 
 !!! note "Continuous and discrete operators"
 
@@ -65,9 +40,10 @@ where `T = eltype(ℱ)`.
 
 !!! danger "Overriding the input vector"
 
-    The present method *must* be implemented in such a way that aliasing `ŷ` with
-    `x̂` is permitted. In other words, calling `apply_fourier!(x̂, ℱ, x̂, k)` *must*
-    always deliver the correct answer.
+    The present method *must* be implemented in such a way that aliasing `ŷ`
+    with `x̂` is permitted. In other words, calling `apply_fourier!(x̂, ℱ, k, x̂)`
+    *must* always deliver the correct answer, provided that this operation is
+    allowed type-wise (when `x̂` is of type `real(T)`.
 
 """
 function apply_fourier! end
@@ -76,7 +52,8 @@ function apply_fourier! end
 """
     apply_fourier(ℱ, x̂, k)
 
-Apply in-place operator `ℱ` to `x̂` in Fourier space and return the result.
+Apply operator `ℱ` to `x̂` in Fourier space and return the result. The returned
+vector is promoted from `complex(T)`.
 
 See [apply_fourier!](@ref)
 
@@ -84,35 +61,52 @@ See [apply_fourier!](@ref)
 function apply_fourier(ℱ, x̂, k)
     T = promote_type(eltype(ℱ), eltype(x̂), eltype(k))
     ŷ = Array{T}(undef, size(ℱ, 1))
-    return apply_fourier!(ŷ, ℱ, x̂, k)
+    return apply_fourier!(ŷ, ℱ, k, x̂)
 end
+
+"""
+    fourier_matrix!(F̂, ℱ, k) -> F̂
+
+
+Compute in-place the `k`-th mode of `ℱ`, `ℱ̂(k)`, as a matrix `F̂`.
+
+In general, the coefficients of `F̂` should be s of type
+`complex(eltype(ℱ))`. However, the Fourier coefficients of the operator ℱ might
+be real, in which case, `eltype(F̂) == real(eltype(ℱ))` might be allowed.
+
+!!! note "Performance of the default implementation"
+
+    The default implementation relies on [apply_fourier!](@ref) to build the
+    matrix column-by-column. It might be inefficient.
+
+"""
+function fourier_matrix!(F̂, ℱ, k)
+    nrows, ncols = size(ℱ)
+    T = eltype(F̂)
+    x̂ = zeros(T, ncols)
+    for i = 1:ncols
+        x̂[i] = one(T)
+        apply_fourier!(view(F̂, :, i), ℱ, k, x̂)
+        x̂[i] = zero(T)
+    end
+    return F̂
+end
+
 
 """
     fourier_matrix(ℱ, k)
 
 Return the `k`-th mode of `ℱ`, `ℱ̂(k)`, as a matrix.
 
-!!! note "Performance of the default implementation"
-
-    The default implementation relies on [apply_fourier!](@ref) to build the
-    matrix column-by-column. It might be inefficient.
+The coefficients of the returned matrix are of type `complex(eltype(ℱ))`. For a
+different output type, use [fourier_matrix!](@ref).
 """
 function fourier_matrix(ℱ, k)
-    nrows, ncols = size(ℱ)
-    T = eltype_fourier(ℱ)
-    mat = zeros(T, nrows, ncols)
-    x̂ = zeros(T, ncols)
-    for i = 1:ncols
-        x̂[i] = one(T)
-        apply_fourier!(view(mat, :, i), ℱ, k, x̂)
-        x̂[i] = zero(T)
-    end
-    return mat
-
+    return fourier_matrix!(zeros(complex(eltype(ℱ)), size(ℱ)...), ℱ, k)
 end
 
 
-export dimensionality, eltype_real, eltype_fourier, apply_fourier!, apply_fourier, fourier_matrix
+export dimensionality, apply_fourier!, apply_fourier, fourier_matrix!, fourier_matrix
 
 include("Elasticity.jl")
 include("Grid.jl")

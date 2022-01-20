@@ -132,8 +132,14 @@ eltype_fourier(Γ) == Complex{eltype(C)}
 """
 GreenOperatorHooke(C::Hooke{d, Real}) where {d,Real} = GreenOperatorHooke{d,Real,Complex{Real}}(C)
 
-Scapin.eltype_real(::Type{GreenOperatorHooke{d,Real,Fourier}}) where {d,Real,Fourier} = Real
-Scapin.eltype_fourier(::Type{GreenOperatorHooke{d,Real,Fourier}}) where {d,Real,Fourier} = Fourier
+"""
+   eltype(type)
+
+Return the type of the (scalar) elements the operator of given `type` operates
+on in the *real* space (as opposed to the *Fourier* space). Note that this type
+may be complex!
+"""
+Base.eltype(::Type{GreenOperatorHooke{d,Real,Fourier}}) where {d,Real,Fourier} = Real
 
 Base.ndims(::GreenOperatorHooke{d,T}) where {d,T} = 2
 
