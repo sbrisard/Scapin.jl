@@ -119,13 +119,6 @@ struct GreenOperatorHooke{d,T}
 end
 
 """
-    GreenOperatorHooke(C)
-
-Return the Green operator associated with the specified [Hooke](@ref) material.
-"""
-GreenOperatorHooke(C::Hooke{d, T}) where {d, T} = GreenOperatorHooke{d,T}(C)
-
-"""
    eltype(type)
 
 Return the type of the (scalar) elements the operator of given `type` operates
