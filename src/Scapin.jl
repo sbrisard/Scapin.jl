@@ -1,6 +1,7 @@
 module Scapin
 
 using Base.Iterators
+using FFTW
 using LinearAlgebra
 
 """
@@ -9,6 +10,15 @@ using LinearAlgebra
 Return the number of dimensions of the physical space that `op` operates on.
 """
 function dimensionality end
+
+
+"""
+    grid_size(ℱ)
+
+Return the size of the grid the discrete operator `ℱ` operates on.
+"""
+function grid_size(ℱ) end
+
 
 """
     apply_fourier!(ŷ, ℱ, k, x̂) -> ŷ
@@ -106,7 +116,38 @@ function fourier_matrix(ℱ, k)
 end
 
 
-export dimensionality, apply_fourier!, apply_fourier, fourier_matrix!, fourier_matrix
+"""
+    apply(ℱ, x)
+
+Return the grid `y` that results from applying the convolution operator `ℱ` to
+the input grid `x`.
+
+The sizes of `x` and `y` are
+
+    size(x) == (N..., ncols)
+    size(y) == (N..., nrows)
+
+where
+
+    N = grid_size(ℱ)
+
+and
+
+    (nrows, ncols) == size(ℱ).
+
+"""
+function apply(ℱ, x)
+    𝒩 = CartesianIndices(grid_size(ℱ))
+    d = dimensionality(ℱ)
+    y = fft(x, 2:(d+1))
+    for n ∈ 𝒩
+        apply_fourier!(view(y, :, n), ℱ, n, y[:, n])
+    end
+    return ifft(y, 2:(d+1))
+end
+
+
+export dimensionality, grid_size, apply_fourier!, apply_fourier, fourier_matrix!, fourier_matrix, apply
 
 include("Elasticity.jl")
 include("Grid.jl")

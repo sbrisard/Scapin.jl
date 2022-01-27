@@ -177,9 +177,12 @@ Base.size(::DiscreteGreenOperatorBri17{d,T}) where {d,T} =
     ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 Base.eltype(::Type{DiscreteGreenOperatorBri17{d,T}}) where {d,T} = T
 
+Scapin.dimensionality(::DiscreteGreenOperatorBri17{d,T}) where {d,T} = d
+Scapin.grid_size(Γ::DiscreteGreenOperatorBri17{d,T}) where {d,T} = Γ.N
+
 function Scapin.apply_fourier!(
     ε̂::AbstractVector{Complex{T}},
-    Γ̂::DiscreteGreenOperatorBri17{d,T},
+    Γ::DiscreteGreenOperatorBri17{d,T},
     n::CartesianIndex{d},
     τ̂::AbstractVector{Complex{T}},
 ) where {T<:Number,d}
@@ -188,9 +191,9 @@ function Scapin.apply_fourier!(
         return
     end
     s = one(T) / √(2 * one(T))
-    b̂ = modal_strain_displacement(n, Γ̂.N, Γ̂.h)
+    b̂ = modal_strain_displacement(n, Γ.N, Γ.h)
     conj_b̂ = conj.(b̂)
-    K̂ = modal_stiffness(n, Γ̂.N, Γ̂.h, Γ̂.C)
+    K̂ = modal_stiffness(n, Γ.N, Γ.h, Γ.C)
     # TODO: use static arrays here!
     τ̂_conj_b̂ = Vector{Complex{T}}(undef, d)
     if d == 2
@@ -211,7 +214,7 @@ function Scapin.apply_fourier!(
         τ̂_conj_b̂[3] = τ̂[3] * conj_b̂[3] + s * (τ̂[5] * conj_b̂[1] + τ̂[4] * conj_b̂[2])
     end
     # Do not include the `-` sign!
-    û = prod(Γ̂.h) .* (K̂ \ τ̂_conj_b̂)
+    û = prod(Γ.h) .* (K̂ \ τ̂_conj_b̂)
     if d == 2
         ε̂[1] = û[1] * b̂[1]
         ε̂[2] = û[2] * b̂[2]
