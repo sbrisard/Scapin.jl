@@ -2,6 +2,7 @@ using CairoMakie
 using ElectronDisplay
 using FFTW
 using LinearAlgebra
+using Scapin
 using Scapin.Elasticity
 using Scapin.Bri17
 
@@ -28,7 +29,7 @@ for r ∈ 0:r_max
     ε̂ = Array{eltype(τ̂)}(undef, size(τ̂)...)
 
     for n ∈ 𝒩
-        apply!(view(ε̂, :, n), Γ̂, n, τ̂[:, n])
+        apply_fourier!(view(ε̂, :, n), Γ̂, n, τ̂[:, n])
     end
 
     ε = real.(ifft(ε̂, 2:(d+1)))
