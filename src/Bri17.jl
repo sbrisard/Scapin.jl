@@ -1,6 +1,7 @@
 module Bri17
 
 using LinearAlgebra
+using Scapin
 using Scapin.Grid
 using Scapin.Elasticity
 
@@ -161,6 +162,11 @@ function modal_stiffness(
     return modal_stiffness!(Array{Complex{T}}(undef, d, d), n, N, h, C)
 end
 
+"""
+Fourier representation of the discrete Green operator introduced in [Bri17].
+
+
+"""
 struct DiscreteGreenOperatorBri17{d,T}
     C::Hooke{d,T}
     N::NTuple{d,Int}
@@ -171,7 +177,7 @@ Base.size(::DiscreteGreenOperatorBri17{d,T}) where {d,T} =
     ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
 Base.eltype(::Type{DiscreteGreenOperatorBri17{d,T}}) where {d,T} = T
 
-function apply!(
+function Scapin.apply_fourier!(
     ε̂::AbstractVector{Complex{T}},
     Γ̂::DiscreteGreenOperatorBri17{d,T},
     n::CartesianIndex{d},
@@ -221,19 +227,9 @@ function apply!(
     return ε̂
 end
 
-function apply(
-    Γ̂::DiscreteGreenOperatorBri17{d,T},
-    n::CartesianIndex{d},
-    τ̂::AbstractVector{Complex{T}},
-) where {T<:Number,d}
-    return apply!(Array{Complex{T}}(undef, size(Γ̂, 1)), n, τ̂)
-end
-
 export modal_strain_displacement!,
     modal_strain_displacement,
     modal_stiffness!,
     modal_stiffness,
-    DiscreteGreenOperatorBri17,
-    apply!,
-    apply
+    DiscreteGreenOperatorBri17
 end
