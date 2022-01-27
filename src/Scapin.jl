@@ -50,7 +50,7 @@ function apply_fourier! end
 
 
 """
-    apply_fourier(ℱ, x̂, k)
+    apply_fourier(ℱ, k, x̂)
 
 Apply operator `ℱ` to `x̂` in Fourier space and return the result. The returned
 vector is promoted from `complex(T)`.
@@ -58,7 +58,7 @@ vector is promoted from `complex(T)`.
 See [apply_fourier!](@ref)
 
 """
-function apply_fourier(ℱ, x̂, k)
+function apply_fourier(ℱ, k, x̂)
     T = promote_type(eltype(ℱ), eltype(x̂), eltype(k))
     ŷ = Array{T}(undef, size(ℱ, 1))
     return apply_fourier!(ŷ, ℱ, k, x̂)
