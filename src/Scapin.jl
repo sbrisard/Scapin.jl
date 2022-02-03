@@ -143,7 +143,18 @@ function apply(ℱ, x)
     for n ∈ 𝒩
         apply_fourier!(view(y, :, n), ℱ, n, y[:, n])
     end
+    # TODO: use in-place FFT
     return ifft(y, 2:(d+1))
+end
+
+
+function apply(ℱ, x, plan)
+    y = plan * x
+    for n ∈ CartesianIndices(size(y)[2:end])
+        apply_fourier!(view(y, :, n), ℱ, n, y[:, n])
+    end
+    # TODO: Use in-place FFT
+    return plan \ y
 end
 
 
