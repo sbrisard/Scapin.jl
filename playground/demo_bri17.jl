@@ -1,6 +1,5 @@
 using CairoMakie
 using ElectronDisplay
-using FFTW
 using LinearAlgebra
 using Scapin
 using Scapin.Elasticity
@@ -21,25 +20,19 @@ for r ∈ 0:r_max
     N = (2^r) .* N_coarse
     𝒩 = CartesianIndices(N)
     h = 1.0 ./ N
-    Γ̂ = DiscreteGreenOperatorBri17{d,T}(C, N, h)
 
     τ = zeros(T, 3, N...)
     τ[3, fill(1:2^r, d)...] .= 1
-    τ̂ = fft(τ, 2:(d+1))
-    ε̂ = Array{eltype(τ̂)}(undef, size(τ̂)...)
 
-    for n ∈ 𝒩
-        apply_fourier!(view(ε̂, :, n), Γ̂, n, τ̂[:, n])
-    end
-
-    ε = real.(ifft(ε̂, 2:(d+1)))
+    Γ = DiscreteGreenOperatorBri17{d,T}(C, N, h)
+    ε = apply(Γ, τ)
 
     ε_fine = zeros(T, 3, N_fine...)
     s = 2^(r_max - r)
     for n ∈ map(Tuple, 𝒩)
         n₁ = CartesianIndex(s .* (n .- 1) .+ 1)
         n₂ = CartesianIndex(s .* n)
-        ε_fine[:, n₁:n₂] .= ε[:, n...]
+        ε_fine[:, n₁:n₂] .= real(ε[:, n...])
     end
 
     # fig, ax, hm = heatmap(ε_fine[3, :, :])
