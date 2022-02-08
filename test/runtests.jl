@@ -1,4 +1,5 @@
 using LinearAlgebra
+using Random
 using Scapin
 using Scapin.Elasticity
 using StaticArrays
@@ -122,6 +123,7 @@ end
 #     @test Γ_h.k == k
 # end
 
+include("test_scapin.jl")
 include("test_grid.jl")
 include("test_brick.jl")
 include("test_bri17.jl")
