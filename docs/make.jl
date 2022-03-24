@@ -99,6 +99,7 @@ makedocs(;
         "Home" => "index.md",
         "Tutorials" => [],
         "Library" => "api.md",
+        "Design" => "design.md",
     ],
 )
 

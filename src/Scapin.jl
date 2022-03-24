@@ -160,6 +160,7 @@ end
 
 export dimensionality, grid_size, apply_fourier!, apply_fourier, fourier_matrix!, fourier_matrix, apply
 
+include("Conductivity.jl")
 include("Elasticity.jl")
 include("Grid.jl")
 include("Brick.jl")
