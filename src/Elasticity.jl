@@ -54,6 +54,7 @@ function Base.size(::Hooke{d,T}, n::Int) where {d,T}
     (d * (d + 1)) ÷ 2
 end
 
+Scapin.dimensionality(::Type{Hooke{d, T}}) where {d, T} = d
 Scapin.dimensionality(::Hooke{d, T}) where {d,T} = d
 
 function Base.convert(::Type{Array}, C::Hooke{d,T}) where {d,T}
@@ -137,6 +138,7 @@ function Base.size(::GreenOperatorHooke{d,T}, n::Int) where {d,T}
 end
 
 Scapin.dimensionality(::GreenOperatorHooke{d, T}) where {d,T} = d
+Scapin.dimensionality(::Type{GreenOperatorHooke{d, T}}) where {d, T} = d
 
 function Scapin.apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
