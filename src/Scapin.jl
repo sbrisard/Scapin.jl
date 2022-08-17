@@ -11,6 +11,7 @@ Return the number of dimensions of the physical space that `op` operates on.
 """
 function dimensionality end
 
+dimensionality(x) = dimensionality(typeof(x))
 
 """
     grid_size(ℱ)
@@ -165,5 +166,6 @@ include("Elasticity.jl")
 include("Grid.jl")
 include("Brick.jl")
 include("Bri17.jl")
+include("BD12.jl")
 
 end
