@@ -45,6 +45,7 @@ Hooke{d}(μ::T, ν::T) where {d,T} = Hooke{d,T}(μ, ν)
 
 Base.eltype(::Type{Hooke{d,T}}) where {d,T} = T
 
+Base.ndims(::Type{Hooke{d,T}}) where {d,T} = 2
 Base.ndims(::Hooke{d,T}) where {d,T} = 2
 
 Base.size(::Hooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
@@ -127,6 +128,7 @@ may be complex!
 """
 Base.eltype(::Type{GreenOperatorHooke{d,T}}) where {d,T} = T
 
+Base.ndims(::Type{GreenOperatorHooke{d,T}}) where {d,T} = 2
 Base.ndims(::GreenOperatorHooke{d,T}) where {d,T} = 2
 
 Base.size(::GreenOperatorHooke{d,T}) where {d,T} = ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
