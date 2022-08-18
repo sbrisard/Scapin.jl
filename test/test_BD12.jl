@@ -26,6 +26,8 @@ using Test
 
                 @test dimensionality(typeof(Γ_N)) == d
                 @test dimensionality(Γ_N) == d
+
+                @test grid_size(Γ_N) == N
             end
         end
     end

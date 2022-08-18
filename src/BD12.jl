@@ -33,6 +33,8 @@ Base.size(F_N::BrisardDormieux2012{CONT_OP, d, T}, n::Int) where {CONT_OP, d, T}
 
 Scapin.dimensionality(::Type{BrisardDormieux2012{CONT_OP, d, T}}) where {CONT_OP, d, T} = d
 
+Scapin.grid_size(F_N::BrisardDormieux2012{CONT_OP, d, T}) where {CONT_OP, d, T} = F_N.N
+
 # function Scapin.apply_fourier!(ŷ, 𝔽::BrisardDormieux2012{d, CONT_OP}, n, x̂) where{d, CONT_OP}
 #     # d = dimensionality(𝔽)
 #     N = grid_size(𝔽)
