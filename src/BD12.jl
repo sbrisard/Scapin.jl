@@ -35,20 +35,17 @@ Scapin.dimensionality(::Type{BrisardDormieux2012{CONT_OP, d, T}}) where {CONT_OP
 
 Scapin.grid_size(F_N::BrisardDormieux2012{CONT_OP, d, T}) where {CONT_OP, d, T} = F_N.N
 
-# function Scapin.apply_fourier!(ŷ, 𝔽::BrisardDormieux2012{d, CONT_OP}, n, x̂) where{d, CONT_OP}
-#     # d = dimensionality(𝔽)
-#     N = grid_size(𝔽)
-#     ŷ[:] = zero(eltype(𝔽))
-#     for i in 1:d
-#     end
+function Scapin.apply_fourier!(ŷ, F_N::BrisardDormieux2012{CONT_OP, d, T}, n, x̂) where{CONT_OP, d, T}
+    N = grid_size(F_N)
+    ŷ[:] .= zero(T)
 
-#     for m ∈ product(repeated(-1:0, d))
-#         k = 2π .* ((n .- 1) .+ m .* N) ./ N
-#         C = cos.(k ./ 4)
-#         ŷ += C^2 * apply_fourier(𝔽.ℱ, k, x̂)
-#     end
-#     return ŷ
-# end
+    for m ∈ product(repeated(-1:0, d)...)
+        k = 2π .* ((Tuple(n) .- 1) .+ m .* N) ./ N
+        C = prod(cos, k ./ 4)
+        ŷ[:] .+= C^2 .* apply_fourier(F_N.F, k, x̂)
+    end
+    return ŷ
+end
 
 export BrisardDormieux2012
 
