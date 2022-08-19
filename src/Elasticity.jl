@@ -142,6 +142,10 @@ Scapin.dimensionality(::Type{GreenOperatorHooke{d, T}}) where {d, T} = d
 
 function Scapin.apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where {T}
     k² = sum(abs2, k)
+    if iszero(k²)
+        # TODO: improve robustness of test
+        ε̂[:] .= zero(eltype(ε̂))
+    else
     τ̂k₁ = τ̂[1] * k[1] + τ̂[3] * k[2] / sqrt(2 * one(T))
     τ̂k₂ = τ̂[2] * k[2] + τ̂[3] * k[1] / sqrt(2 * one(T))
     nτ̂n = (k[1] * τ̂k₁ + k[2] * τ̂k₂) / k²
@@ -151,6 +155,7 @@ function Scapin.apply_fourier!(ε̂, Γ::GreenOperatorHooke{2,T}, k, τ̂) where
     ε̂[2] = const2 * (k[2] * (2 * τ̂k₂ - const1 * k[2]))
     const3 = sqrt(2 * one(T)) * const2
     ε̂[3] = const3 * (k[1] * τ̂k₂ + k[2] * τ̂k₁ - const1 * k[1] * k[2])
+    end
     return ε̂
 end
 
