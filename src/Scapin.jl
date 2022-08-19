@@ -138,11 +138,15 @@ and
 
 """
 function apply(ℱ, x)
-    𝒩 = CartesianIndices(grid_size(ℱ))
     d = dimensionality(ℱ)
     y = fft(x, 2:(d+1))
-    for n ∈ 𝒩
-        apply_fourier!(view(y, :, n), ℱ, n, x[:, n])
+    for n ∈ CartesianIndices(grid_size(ℱ))
+        # NOTE: `y[:, n]` as the last argument is not a mistake, since `y`
+        # temporarily stores the DFT of `x`. Since `y[:, n]` is not passed as a
+        # view, a copy of `y[:, n]` is passed as an argument, which means that
+        # `apply_fourier!` does not operate on the same first and last 
+        # arguments.
+        apply_fourier!(view(y, :, n), ℱ, n, y[:, n])
     end
     # TODO: use in-place FFT
     return ifft(y, 2:(d+1))
