@@ -8,6 +8,7 @@ using Scapin
 # T: type of scalars for CONT_OP
 # We must have: T == eltype(CONT_OP)
 
+# TODO Specify cell-size, h
 struct BrisardDormieux2012{CONT_OP,d,T}
     F::CONT_OP
     N::NTuple{d,Int}
@@ -16,6 +17,7 @@ struct BrisardDormieux2012{CONT_OP,d,T}
         # TODO Check that d == dimensionality(F) == ndims(N)
         # TODO Check that T == eltype(CONT_OP)
         # TODO Check that ndims(F) == 2
+        # TODO These cached values are not used yet
         C = Tuple([cos(π * nᵢ / (2Nᵢ)) for nᵢ = 0:Nᵢ] for Nᵢ in N)
         new{CONT_OP,d,T}(F, N, C)
     end
