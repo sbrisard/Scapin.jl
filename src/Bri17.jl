@@ -175,6 +175,8 @@ end
 
 Base.size(::DiscreteGreenOperatorBri17{d,T}) where {d,T} =
     ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)
+Base.size(::DiscreteGreenOperatorBri17{d,T}, n) where {d,T} =
+    ((d * (d + 1)) ÷ 2, (d * (d + 1)) ÷ 2)[n]
 Base.eltype(::Type{DiscreteGreenOperatorBri17{d,T}}) where {d,T} = T
 
 Scapin.dimensionality(::DiscreteGreenOperatorBri17{d,T}) where {d,T} = d
