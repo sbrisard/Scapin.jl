@@ -144,7 +144,7 @@ function apply(ℱ, x)
         # NOTE: `y[:, n]` as the last argument is not a mistake, since `y`
         # temporarily stores the DFT of `x`. Since `y[:, n]` is not passed as a
         # view, a copy of `y[:, n]` is passed as an argument, which means that
-        # `apply_fourier!` does not operate on the same first and last 
+        # `apply_fourier!` does not operate on the same first and last
         # arguments.
         apply_fourier!(view(y, :, n), ℱ, n, y[:, n])
     end
@@ -171,5 +171,6 @@ include("Grid.jl")
 include("Brick.jl")
 include("Bri17.jl")
 include("BD12.jl")
+include("ConvergenceAnalysis.jl")
 
 end
