@@ -4,14 +4,41 @@ using Base.Iterators
 using FFTW
 using LinearAlgebra
 
-"""
-    dimensionality(op)
 
-Return the number of dimensions of the physical space that `op` operates on.
 """
-function dimensionality end
+   AbstractSpatialOperator
 
-dimensionality(x) = dimensionality(typeof(x))
+This is the root type of all operators defined in this library.
+
+Such an operator `F` operates on vector fields in `ℝᵈ` (`d`: number of
+spatial dimensions) that map vector fields `x : ℝᵈ ───→ ℝⁿ` to vector
+fields `y : ℝᵈ ───→ ℝᵐ`.
+
+The number of spatial dimensions, `d`, is referred to as the
+*dimensionality* of operator `F` – see [dimensionality](@ref).
+
+The pair `(m, n) == (dimension of the input vector field, dimension of
+the output vector field)` is referred to as the *size* of operator `F`
+– see [size](@ref). Consequently, `ndims(F) == 2` for all spatial
+operators.
+
+"""
+abstract type AbstractSpatialOperator end
+
+"""
+   ndims(F::AbstractSpatialOperator) -> 2
+"""
+Base.ndims(::AbstractSpatialOperator) = 2
+
+"""
+    dimensionality(F)
+
+Return the number of dimensions of the physical space that `F`
+operates on – see [AbstractSpatialOperator](@ref).
+
+The default implementation assumes that `dimensionality(typeof(F))`
+has been defined.  """
+dimensionality(F::AbstractSpatialOperator) = dimensionality(typeof(x))
 
 """
     grid_size(ℱ)
