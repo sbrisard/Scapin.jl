@@ -97,20 +97,20 @@ function grid_size(F::AbstractDiscreteSpatialOperator) end
 
 
 """
-    apply_fourier!(ŷ, ℱ, k, x̂) -> ŷ
+    apply_fourier!(ŷ, F, k, x̂) -> ŷ
 
-Apply in-place operator `ℱ` to `x̂` in Fourier space and return the modified array `ŷ`.
+Apply in-place operator `F` to `x̂` in Fourier space and return the modified array `ŷ`.
 More specifically,
 
-    ŷ[:] = ℱ̂(k)⋅x̂,
+    ŷ[:] = F̂(k) ⋅ x̂,
 
 where `k`, `x̂` and `ŷ` are column vectors: `k` is the vector of spatial
 frequencies and `x̂` (resp. `ŷ`) is the Fourier mode of the input (resp. output),
 for the spatial frequency `k`. The following must hold
 
-    size(k, 1) == dimensionality(ℱ),
-    size(x̂, 1) == size(ℱ, 2),
-    size(ŷ, 1) == size(ℱ, 1).
+    size(k, 1) == dimensionality(F),
+    size(x̂, 1) == size(F, 2),
+    size(ŷ, 1) == size(F, 1).
 
 The input vector `x̂` is an array of type `T` or `complex(T)`, where
 `T == eltype(ℱ)`. The output vector `ŷ` can always be of type `complex(T)`. When
@@ -120,34 +120,35 @@ function should raise an exception.
 
 !!! note "Continuous and discrete operators"
 
-    For continuous operators, `k` would typically be a real-valued vector of wave
-    numbers, while for discrete operators, `k` would be a integer-valued vector
-    of indices.
+    For `F::AbstractContinuousSpatialOperator, `k` would typically be
+    a real-valued vector of wave numbers, while for
+    `F::AbstractDiscreteSpatialOperator`, `k` would be a
+    integer-valued vector of indices.
 
 !!! danger "Overriding the input vector"
 
     The present method *must* be implemented in such a way that aliasing `ŷ`
     with `x̂` is permitted. In other words, calling `apply_fourier!(x̂, ℱ, k, x̂)`
     *must* always deliver the correct answer, provided that this operation is
-    allowed type-wise (when `x̂` is of type `real(T)`.
+    allowed type-wise [when `x̂` is of type `real(T)`].
 
 """
 function apply_fourier! end
 
 
 """
-    apply_fourier(ℱ, k, x̂)
+    apply_fourier(F, k, x̂)
 
-Apply operator `ℱ` to `x̂` in Fourier space and return the result. The returned
-vector is promoted from `complex(T)`.
+Apply operator `F` to `x̂` in Fourier space and return the result. The returned
+vector is promoted to a complex type if necessary.
 
 See [apply_fourier!](@ref)
 
 """
-function apply_fourier(ℱ, k, x̂)
-    T = promote_type(eltype(ℱ), eltype(x̂), eltype(k))
-    ŷ = Array{T}(undef, size(ℱ, 1))
-    return apply_fourier!(ŷ, ℱ, k, x̂)
+function apply_fourier(F::AbstractSpatialOperator, k, x̂)
+    T = promote_type(eltype(F), eltype(x̂), eltype(k))
+    ŷ = Array{T}(undef, size(F, 1))
+    return apply_fourier!(ŷ, F, k, x̂)
 end
 
 """
