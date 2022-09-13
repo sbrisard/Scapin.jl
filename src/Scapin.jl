@@ -10,23 +10,53 @@ using LinearAlgebra
 
 This is the root type of all operators defined in this library.
 
-Such an operator `F` operates on vector fields in `ℝᵈ` (`d`: number of
-spatial dimensions) that map vector fields `x : ℝᵈ ───→ ℝⁿ` to vector
-fields `y : ℝᵈ ───→ ℝᵐ`.
+Such operators map vector fields `x : ℝᵈ → ℝⁿ` to vector fields
+`y : ℝᵈ → ℝᵐ`.
 
 The number of spatial dimensions, `d`, is referred to as the
-*dimensionality* of operator `F` – see [dimensionality](@ref).
+*dimensionality* of the operator – see [dimensionality](@ref).
 
 The pair `(m, n) == (dimension of the input vector field, dimension of
-the output vector field)` is referred to as the *size* of operator `F`
-– see [size](@ref). Consequently, `ndims(F) == 2` for all spatial
-operators.
+the output vector field)` is referred to as the *size* of the operator
+– see [size](@ref). Consequently, `ndims(F) == 2` for all
+`F::AbstractSpatialOperator`.
 
 """
 abstract type AbstractSpatialOperator end
 
+
+"""
+   AbstractDiscreteSpatialOperator
+
+This abstract type defines operators that are spatially discretized.
+
+Such operators map vector fields `x : ℝᵈ → ℝⁿ` to vector fields
+`y : ℝᵈ → ℝᵐ`.
+
+This type extends [AbstractSpatialOperator](@ref). As such, it
+implements [dimensionality](@ref), [size](@ref) and [ndims](@ref).
+
+Discrete operators operate on discrete vector fields that are
+represented as arrays. The size of the *input* arrays is
+`(n, N[1], …, N[d])`, where `N[i]` is the number of grid cells in
+direction `i = 1, …, d`. Note that the first (fast) index of the array
+is the component of the vector field. Similarly, the size of the
+*output* arrays is `(m, N[1], …, N[d])`.
+
+The tuple `N` is referred to as the *grid size*, see
+[grid_size](@ref).
+
+"""
+abstract type AbstractDiscreteSpatialOperator <: AbstractSpatialOperator end
+
+
 """
    ndims(F::AbstractSpatialOperator) -> 2
+
+Return the number of dimensions of `F` – see
+[AbstractSpatialOperator](@ref). Since this is a linear operator that
+maps fields onto fields, the number of dimensions is always 2.
+
 """
 Base.ndims(::AbstractSpatialOperator) = 2
 
@@ -37,15 +67,21 @@ Return the number of dimensions of the physical space that `F`
 operates on – see [AbstractSpatialOperator](@ref).
 
 The default implementation assumes that `dimensionality(typeof(F))`
-has been defined.  """
-dimensionality(F::AbstractSpatialOperator) = dimensionality(typeof(x))
+has been defined.
 
 """
-    grid_size(ℱ)
+dimensionality(F::AbstractSpatialOperator) = dimensionality(typeof(F))
 
-Return the size of the grid the discrete operator `ℱ` operates on.
 """
-function grid_size(ℱ) end
+    grid_size(F)
+
+Return the size of the grid the discrete operator `F` operates on.
+
+- Size of *input* arrays of `F`: `(size(F, 2), grid_size(F)...)`,
+- Size of *output* arrays of `F`: `(size(F, 1), grid_size(F)...)`.
+
+"""
+function grid_size(F::AbstractDiscreteSpatialOperator) end
 
 
 """
