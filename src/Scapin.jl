@@ -34,7 +34,7 @@ spatially. Such operators map *continuous* spatial fields
 operators are defined for an infinite set of wave-numbers.
 
 """
-abstract type AbstractContinuousSpatialOperator<:AbstractSpatialOperator end
+abstract type AbstractContinuousSpatialOperator <: AbstractSpatialOperator end
 
 
 """
@@ -239,7 +239,8 @@ function apply(ℱ, x, plan)
 end
 
 
-export dimensionality, grid_size, apply_fourier!, apply_fourier, fourier_matrix!, fourier_matrix, apply
+export dimensionality,
+    grid_size, apply_fourier!, apply_fourier, fourier_matrix!, fourier_matrix, apply
 
 include("Conductivity.jl")
 include("Elasticity.jl")
