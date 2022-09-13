@@ -26,6 +26,18 @@ abstract type AbstractSpatialOperator end
 
 
 """
+   AbstractContinuousSpatialOperator
+
+This is the root type of all operators that have not been discretized
+spatially. Such operators map *continuous* spatial fields
+`x : ℝᵈ → ℝⁿ` to vector fields `y : ℝᵈ → ℝᵐ`. In Fourier space, these
+operators are defined for an infinite set of wave-numbers.
+
+"""
+abstract type AbstractContinuousSpatialOperator<:AbstractSpatialOperator end
+
+
+"""
    AbstractDiscreteSpatialOperator
 
 This abstract type defines operators that are spatially discretized.
