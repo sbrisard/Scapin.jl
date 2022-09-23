@@ -97,6 +97,7 @@ makedocs(;
     format = format,
     pages = [
         "Home" => "index.md",
+        "Convolution operators" => "convolution_operators.md",
         "Tutorials" => [],
         "Library" => "api.md",
         "Design" => "design.md",
