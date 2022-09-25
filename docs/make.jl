@@ -101,6 +101,7 @@ makedocs(;
         "Tutorials" => [],
         "Library" => "api.md",
         "Design" => "design.md",
+        "Appendix" => "appendix.md",
     ],
 )
 
