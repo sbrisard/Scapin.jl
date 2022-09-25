@@ -95,3 +95,40 @@ method is called as follows
 and computes *in-place*, for all `u ∈ ℂᵐ` and `k ∈ ℝᵈ`, the vector `v ∈ ℂⁿ` such
 that `v = F̂(k) ⋅ u`. Note that, in general, both `u` and `v` are complex-valued
 vectors. More on that below.
+
+
+### Discrete convolution operators
+
+We now consider the operator `F`, that maps the field `u: Ω → ℝᵐ` onto
+`v: Ω → ℝⁿ`, where `Ω = {1, 2, …, N[1]} × … × {1, 2, …, N[d]}` and `u` and `v`
+are both `N`-periodic; `F` is a continuous convolution operator if `v` can be
+expressed as follows
+
+    v(x) = ∑ F(x - y) ⋅ u(y)    for all    y ∈ Ω.
+
+Again, we have identified the operator and its kernel.
+
+
+
+The above expression is
+of course conveniently written in Fourier space as follows
+
+    v̂(k) = F̂(k) ⋅ û(k)    for all    k ∈ ℝᵈ,
+
+where `û(k)`, `v̂(k)` and `F̂(k)` are the Fourier coefficients of the fields `u`
+and `v` and the kernel `F`, respectively (see [On Fourier series](@ref)). Then,
+from the synthesis formula
+
+    v(x) = F(u)(x) =   ∑    F̂(kₚ) ⋅ û(kₚ) exp(i kₚ ⋅ x),
+	                 p ∈ ℤᵈ
+
+which shows that the operator `F` is fully defined by the Fourier coefficients
+of its kernel. In julia, we only need to define the method
+[`apply_fourier!`](@ref) to fully define a `ContinuousConvolutionOperator`. This
+method is called as follows
+
+    apply_fourier!(v, F, k, u)
+
+and computes *in-place*, for all `u ∈ ℂᵐ` and `k ∈ ℝᵈ`, the vector `v ∈ ℂⁿ` such
+that `v = F̂(k) ⋅ u`. Note that, in general, both `u` and `v` are complex-valued
+vectors. More on that below.
