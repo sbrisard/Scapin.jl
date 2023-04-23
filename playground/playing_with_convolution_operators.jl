@@ -1,10 +1,10 @@
 using BenchmarkTools
-using CairoMakie
 using FFTW
 using LinearAlgebra
 using LinearMaps
+using SciMLOperators
 
-struct LaplaceOperator{T} <: LinearMaps.LinearMap{T}
+struct LaplaceOperator <: LinearMaps.LinearMap{Float64}
     Lx::Float64
     Ly::Float64
     Nx::Int
@@ -12,9 +12,9 @@ struct LaplaceOperator{T} <: LinearMaps.LinearMap{T}
     size::Dims{2}
     Δx²::Float64
     Δy²::Float64
-    function LaplaceOperator{T}(Lx::Float64, Ly::Float64, Nx::Int, Ny::Int) where {T}
+    function LaplaceOperator(Lx::Float64, Ly::Float64, Nx::Int, Ny::Int)
         ncells = Nx * Ny
-        return new{T}(Lx, Ly, Nx, Ny, Dims([ncells, ncells]), (Lx / Nx)^2, (Ly / Ny)^2)
+        return new(Lx, Ly, Nx, Ny, Dims([ncells, ncells]), (Lx / Nx)^2, (Ly / Ny)^2)
     end
 end
 
@@ -36,6 +36,43 @@ function LinearMaps._unsafe_mul!(v, Δ::LaplaceOperator, u::AbstractVector)
         end
     end
     return v
+end
+
+struct LaplaceOperatorSciML
+    Lx::Float64
+    Ly::Float64
+    Nx::Int
+    Ny::Int
+    Δx²::Float64
+    Δy²::Float64
+    function LaplaceOperatorSciML(Lx::Float64, Ly::Float64, Nx::Int, Ny::Int)
+        return new(Lx, Ly, Nx, Ny, (Lx / Nx)^2, (Ly / Ny)^2)
+    end
+end
+
+function (Δ::LaplaceOperatorSciML)(v, u, p, t)
+    u_arr = reshape(u, Δ.Nx, Δ.Ny)
+    v_arr = reshape(v, Δ.Nx, Δ.Ny)
+    for j₀ ∈ 1:Δ.Ny
+        j₋₁ = j₀ == 1 ? Δ.Ny : j₀ - 1
+        j₊₁ = j₀ == Δ.Ny ? 1 : j₀ + 1
+        for i₀ ∈ 1:Δ.Nx
+            i₋₁ = i₀ == 1 ? Δ.Nx : i₀ - 1
+            i₊₁ = i₀ == Δ.Nx ? 1 : i₀ + 1
+            v_arr[i₀, j₀] = (
+                (u_arr[i₊₁, j₀] - 2 * u_arr[i₀, j₀] + u_arr[i₋₁, j₀]) / Δ.Δx² +
+                    (u_arr[i₀, j₊₁] - 2 * u_arr[i₀, j₀] + u_arr[i₀, j₋₁]) / Δ.Δy²
+            )
+        end
+    end
+    return v
+end
+
+function laplace_operator_SciML(Lx::Float64, Ly::Float64, Nx::Int, Ny::Int)
+    Δ = LaplaceOperatorSciML(Lx, Ly, Nx, Ny)
+    u = zeros(Float64, Nx * Ny)
+    v = similar(u)
+    return FunctionOperator(Δ, u, v; isinplace=true)
 end
 
 mutable struct ModalLaplaceOperator{T} <: LinearMaps.LinearMap{T}
@@ -81,9 +118,6 @@ u = ux .* uy'
 u_vec = reshape(u, :)
 v_ref = reshape(Δ_ref * u_vec, Nx, Ny)
 
-fig1, ax, hm = heatmap(u)
-fig2, _, _ = heatmap(v)
-
 Δ_hat = ModalLaplaceOperator{ComplexF64}(Lx, Ly, Nx, Ny)
 u_hat = reshape(fft(u), Nx, Ny, 1)
 v_hat = similar(u_hat)
@@ -97,3 +131,8 @@ end
 v = ifft(v_hat)
 
 @assert all(isapprox.(v, v_ref, atol = 1e-15, rtol = 1e-12))
+
+Δ_SciML = laplace_operator_SciML(Lx, Ly, Nx, Ny)
+v_SciML = reshape(Δ_SciML * u_vec, Nx, Ny)
+
+@assert all(isapprox.(v_SciML, v_ref, atol = 1e-15, rtol=1e-12))
