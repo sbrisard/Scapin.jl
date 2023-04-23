@@ -1,115 +1,99 @@
+using BenchmarkTools
 using CairoMakie
 using FFTW
 using LinearAlgebra
-using SciMLOperators
+using LinearMaps
 
-struct LaplaceOperatorAsFunction
+struct LaplaceOperator{T} <: LinearMaps.LinearMap{T}
     Lx::Float64
     Ly::Float64
     Nx::Int
     Ny::Int
-    dx::Float64
-    dy::Float64
-    ncells::Int
-    function LaplaceOperatorAsFunction(Lx, Ly, Nx, Ny)
-        dx = Lx / Nx
-        dy = Ly / Ny
+    size::Dims{2}
+    Δx²::Float64
+    Δy²::Float64
+    function LaplaceOperator{T}(Lx::Float64, Ly::Float64, Nx::Int, Ny::Int) where {T}
         ncells = Nx * Ny
-        new(Lx, Ly, Nx, Ny, dx, dy, ncells)
+        return new{T}(Lx, Ly, Nx, Ny, Dims([ncells, ncells]), (Lx / Nx)^2, (Ly / Ny)^2)
     end
 end
 
-function apply!(y, Δ::LaplaceOperatorAsFunction, x)
-    x_arr = reshape(x, Δ.Nx, Δ.Ny)
-    y = similar(x)
-    y_arr = reshape(y, Δ.Nx, Δ.Ny)
+Base.size(Δ::LaplaceOperator) = Δ.size
+
+function LinearMaps._unsafe_mul!(v, Δ::LaplaceOperator, u::AbstractVector)
+    u_arr = reshape(u, Δ.Nx, Δ.Ny)
+    v_arr = reshape(v, Δ.Nx, Δ.Ny)
     for j₀ ∈ 1:Δ.Ny
         j₋₁ = j₀ == 1 ? Δ.Ny : j₀ - 1
         j₊₁ = j₀ == Δ.Ny ? 1 : j₀ + 1
         for i₀ ∈ 1:Δ.Nx
             i₋₁ = i₀ == 1 ? Δ.Nx : i₀ - 1
             i₊₁ = i₀ == Δ.Nx ? 1 : i₀ + 1
-            y_arr[i₀, j₀] = (
-                (x_arr[i₊₁, j₀] - 2 * x_arr[i₀, j₀] + x_arr[i₋₁, j₀]) / Δ.dx^2 +
-                (x_arr[i₀, j₊₁] - 2 * x_arr[i₀, j₀] + x_arr[i₀, j₋₁]) / Δ.dy^2
+            v_arr[i₀, j₀] = (
+                (u_arr[i₊₁, j₀] - 2 * u_arr[i₀, j₀] + u_arr[i₋₁, j₀]) / Δ.Δx² +
+                    (u_arr[i₀, j₊₁] - 2 * u_arr[i₀, j₀] + u_arr[i₀, j₋₁]) / Δ.Δy²
             )
         end
     end
-    y
+    return v
 end
 
-struct LaplaceOperatorAsFunctionFourier
-    Lx::Float64
-    Ly::Float64
-    Nx::Int
-    Ny::Int
-    dx::Float64
-    dy::Float64
-    ncells::Int
-    kx²::Vector{Float64}
-    ky²::Vector{Float64}
-    function LaplaceOperatorAsFunctionFourier(Lx, Ly, Nx, Ny)
-        dx = Lx / Nx
-        dy = Ly / Ny
-        ncells = Nx * Ny
-        kx² = [(2 * sin(π * n / Nx) / dx)^2 for n = 0:(Nx-1)]
-        ky² = [(2 * sin(π * n / Ny) / dy)^2 for n = 0:(Ny-1)]
-        new(Lx, Ly, Nx, Ny, dx, dy, ncells, kx², ky²)
+mutable struct ModalLaplaceOperator{T} <: LinearMaps.LinearMap{T}
+    const Lx::Float64
+    const Ly::Float64
+    const Nx::Int
+    const Ny::Int
+    const kx²::Vector{Float64}
+    const ky²::Vector{Float64}
+    nx::Int
+    ny::Int
+    function ModalLaplaceOperator{T}(Lx, Ly, Nx, Ny) where {T}
+        kx₀ = 2Nx / Lx
+        ky₀ = 2Ny / Ly
+        kx² = [(kx₀ * sin(π * n / Nx))^2 for n = 0:(Nx-1)]
+        ky² = [(ky₀ * sin(π * n / Ny))^2 for n = 0:(Ny-1)]
+        new{T}(Lx, Ly, Nx, Ny, kx², ky²)
     end
 end
 
-function apply!(y, Δ::LaplaceOperatorAsFunctionFourier, x)
-    x_arr = fft(reshape(x, Δ.Nx, Δ.Ny))
-    for nx = 1:Δ.Nx
-        for ny = 1:Δ.Ny
-            x_arr[nx, ny] *= -(Δ.kx²[nx] + Δ.ky²[ny])
-        end
-    end
-    y_arr = reshape(y, Δ.Nx, Δ.Ny)
-    y_arr .= real.(ifft(x_arr))
-    reshape(y_arr, Δ.ncells)
+Base.size(Δ::ModalLaplaceOperator) = (1, 1)
+
+function update_frequency!(Δ_hat:: ModalLaplaceOperator, nx, ny)
+    Δ_hat.nx = nx
+    Δ_hat.ny = ny
 end
 
-laplace = LaplaceOperatorAsFunction(1.0, 2.0, 4, 8)
-m = n = laplace.Nx * laplace.Ny
+function LinearMaps._unsafe_mul!(v, Δ_hat::ModalLaplaceOperator, u)
+    v .= -(Δ_hat.kx²[Δ_hat.nx] + Δ_hat.ky²[Δ_hat.ny]) .* u
+    return v
+end
 
-ux = [sin(π * (n + 0.5) / laplace.Nx) for n = 0:(laplace.Nx-1)]
-uy = [sin(π * (n + 0.5) / laplace.Ny) for n = 0:(laplace.Ny-1)]
+Lx = 2.5
+Ly = 5.0
+Nx = 4
+Ny = 8
+
+Δ_ref = LaplaceOperator{Float64}(Lx, Ly, Nx, Ny)
+
+ux = [sin(π * (n + 0.5) / Nx) for n = 0:(Nx-1)]
+uy = [sin(π * (n + 0.5) / Ny) for n = 0:(Ny-1)]
 u = ux .* uy'
-u_vec = reshape(u, laplace.ncells)
+u_vec = reshape(u, :)
+v_ref = reshape(Δ_ref * u_vec, Nx, Ny)
 
-x = zeros(Float64, n)
-y = zeros(Float64, m)
-Δ = FunctionOperator(
-    (v, u, p, t) -> apply!(v, laplace, u),
-    u_vec,
-    u_vec;
-    isinplace = true,
-    issymmetric = true,
-    isposdef = true,
-)
+fig1, ax, hm = heatmap(u)
+fig2, _, _ = heatmap(v)
 
-laplace_fft =
-    LaplaceOperatorAsFunctionFourier(laplace.Lx, laplace.Ly, laplace.Nx, laplace.Ny)
-Δ = FunctionOperator(
-    (v, u, p, t) -> apply!(v, laplace, u),
-    u_vec,
-    u_vec;
-    isinplace = true,
-    issymmetric = true,
-    isposdef = true,
-)
+Δ_hat = ModalLaplaceOperator{ComplexF64}(Lx, Ly, Nx, Ny)
+u_hat = reshape(fft(u), Nx, Ny, 1)
+v_hat = similar(u_hat)
 
-Δ_fft = FunctionOperator(
-    (v, u, p, t) -> apply!(v, laplace_fft, u),
-    u_vec,
-    u_vec;
-    isinplace = true,
-    issymmetric = true,
-    isposdef = true,
-)
+for nx = 1:Nx
+    for ny = 1:Ny
+        update_frequency!(Δ_hat, nx, ny)
+        mul!(view(v_hat, nx, ny, :), Δ_hat, u_hat[nx, ny, :])
+    end
+end
+v = ifft(v_hat)
 
-Δu = reshape(Δ * u_vec, laplace.Nx, laplace.Ny)
-Δu_fft = reshape(Δ_fft * u_vec, laplace.Nx, laplace.Ny)
-
-@assert all(isapprox.(Δu, Δu_fft, atol = 1e-15, rtol = 1e-12))
+@assert all(isapprox.(v, v_ref, atol = 1e-15, rtol = 1e-12))
