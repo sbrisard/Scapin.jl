@@ -10,7 +10,6 @@ Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 LinearMaps = "7a12625a-238d-50fd-b39a-03d52299707e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-SciMLOperators = "c0aeaf25-5076-4817-a8d5-81caf7dfa961"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
