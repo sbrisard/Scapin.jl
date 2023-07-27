@@ -20,6 +20,8 @@ struct MinusLaplaceOperator{T,DIM} <: AbstractGridOperator{T,DIM}
         end
 end
 
+MinusLaplaceOperator(N::NTuple{DIM,Integer}, h::NTuple{DIM,T}) where {T,DIM} = MinusLaplaceOperator{T,DIM}(N, h)
+
 Base.size(L::MinusLaplaceOperator) = L.size
 grid_size(L::MinusLaplaceOperator) = L.grid_size
 grid_step(L::MinusLaplaceOperator) = L.grid_step
@@ -69,7 +71,48 @@ function LinearMaps._unsafe_mul!(v::AbstractVector, L::MinusLaplaceOperator{T,2}
 end
 
 LinearAlgebra.issymmetric(L::MinusLaplaceOperator) = true
-LinearAlgebra.isposdef(L::MinusLaplaceOperator) = true
+
+struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
+        size::NTuple{2,Int}
+        grid_size::NTuple{DIM,Int}
+        grid_step::NTuple{DIM,T}
+        k²::NTuple{DIM,Vector{T}}
+        function MinusLaplaceOperatorFourier{T,DIM}(N::NTuple{DIM,Integer}, h::NTuple{DIM,T}) where {T,DIM}
+                num_cells = prod(N)
+                f(N_, h_) = [(2 / h_ * sin(π * n / N_))^2 for n = 0:(N_-1)]
+                k² = f.(N, h)
+                return new{T,DIM}((num_cells, num_cells), N, h, tuple(k²...))
+        end
+end
+
+MinusLaplaceOperatorFourier(N::NTuple{DIM,Integer}, h::NTuple{DIM,T}) where {T,DIM} = MinusLaplaceOperatorFourier{T,DIM}(N, h)
+
+Base.size(L::MinusLaplaceOperatorFourier) = L.size
+grid_size(L::MinusLaplaceOperatorFourier) = L.grid_size
+grid_step(L::MinusLaplaceOperatorFourier) = L.grid_step
+
+function mul_fourier!(v̂, L::MinusLaplaceOperatorFourier{T,DIM}, n, û) where {T,DIM}
+        k² = zero(T)
+        for (i, n_i) ∈ enumerate(n)
+                k² += L.k²[i][n_i]
+        end
+        v̂ .= k² .* û
+end
+
+function LinearMaps._unsafe_mul!(v::AbstractVecOrMat, L::MinusLaplaceOperatorFourier{T,2}, u::AbstractVecOrMat) where {T}
+        (Nx, Ny) = grid_size(L)
+        u_grid = reshape(u, Nx, Ny)
+        v_grid = reshape(v, Nx, Ny)
+        û_grid = fft(u_grid)
+        v̂_grid = similar(û_grid)
+        for ny ∈ 1:Ny
+                for nx ∈ 1:Nx
+                        mul_fourier!(view(v̂_grid, nx, ny, :), L, (nx, ny), û_grid[nx, ny, :])
+                end
+        end
+        v .= real.(reshape(ifft(v̂_grid), :))
+        return v
+end
 
 Lx = 2.5
 Ly = 5.0
@@ -77,6 +120,7 @@ Nx = 40
 Ny = 80
 
 L = MinusLaplaceOperator{Float64,2}((Nx, Ny), (Lx / Nx, Ly / Ny))
+L₁ = MinusLaplaceOperatorFourier{Float64, 2}((Nx, Ny), (Lx / Nx, Ly / Ny))
 
 # ux = [sin(π * (n + 0.5) / Nx) for n = 0:(Nx-1)]
 # uy = [sin(π * (n + 0.5) / Ny) for n = 0:(Ny-1)]
@@ -90,13 +134,17 @@ L = MinusLaplaceOperator{Float64,2}((Nx, Ny), (Lx / Nx, Ly / Ny))
 
 # @benchmark mul!(v_vec, L, u_vec, α, β)
 
-u_true = rand(Float64, size(L, 2))
-f = L * u_true
+# u_true = rand(Float64, size(L, 2))
+# f = L * u_true
 
-rtol = 1e-10
-atol = 1e-10
-(u, stats) = cg(L, f, atol=atol, rtol=rtol)
+# rtol = 1e-10
+# atol = 1e-10
+# (u, stats) = cg(L, f, atol=atol, rtol=rtol)
 
-v = u - u_true
-r = abs.(v .- mean(v))
-@assert all(isapprox.(r, 0.0, rtol=10rtol, atol=10atol))
+# v = u - u_true
+# r = abs.(v .- mean(v))
+# @assert all(isapprox.(r, 0.0, rtol=10rtol, atol=10atol))
+
+u = rand(Float64, size(L, 2))
+v_exp = L * u
+v_act = L₁ * u
