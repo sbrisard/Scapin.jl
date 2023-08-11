@@ -95,7 +95,7 @@ struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
     k²::NTuple{DIM,Vector{T}}
     function MinusLaplaceOperatorFourier{T,DIM}(
         N::NTuple{DIM,Integer},
-        h::NTuple{DIM,T},
+        h::NTuple{DIM,T}
     ) where {T,DIM}
         num_cells = prod(N)
         f(N_, h_) = [(2 / h_ * sin(π * n / N_))^2 for n = 0:(N_-1)]
@@ -119,7 +119,11 @@ function mul_fourier!(v̂, L::MinusLaplaceOperatorFourier{T,DIM}, n, û) where 
     v̂ .= k² .* û
 end
 
-function LinearMaps._unsafe_mul!(
+function LinearMaps._unsafe_mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u) where {T}
+    return mul1!(v, L, u)
+end
+
+function mul1!(
     v::AbstractVecOrMat,
     L::MinusLaplaceOperatorFourier{T,2},
     u::AbstractVecOrMat,
@@ -138,7 +142,9 @@ function LinearMaps._unsafe_mul!(
     return v
 end
 
-function mul_rfft!(
+
+
+function mul2!(
     v::AbstractVecOrMat,
     L::MinusLaplaceOperatorFourier{T,2},
     u::AbstractVecOrMat,
@@ -148,14 +154,57 @@ function mul_rfft!(
     v_grid = reshape(v, Nx, Ny)
     û_grid = rfft(u_grid)
     v̂_grid = similar(û_grid)
-    for i in eachindex(IndexCartesian(), û_grid)
-        nx = i[1]
-        ny = i[2]
-        mul_fourier!(view(v̂_grid, nx, ny, :), L, (nx, ny), û_grid[nx, ny, :])
+    for n in eachindex(IndexCartesian(), û_grid)
+        mul_fourier!(view(v̂_grid, n, :), L, Tuple(n), û_grid[n, :])
     end
     v .= reshape(irfft(v̂_grid, size(u_grid, 1)), :)
     return v
 end
+
+function mul3!(v, L::MinusLaplaceOperatorFourier{T,2}, u) where {T}
+    N = grid_size(L)
+    (Nx, Ny) = grid_size(L)
+    u_ = Array{complex(T)}(undef, prod(N))
+    u_ .= u
+    u_grid = reshape(u_, Nx, Ny)
+    v_grid = reshape(v, Nx, Ny)
+    w = similar(u_grid)
+    ℱ = plan_fft(w)
+    v̂_n = zeros(complex(T), 1)
+    mul!(w, ℱ, u_grid)
+    for ny ∈ 1:Ny
+        for nx ∈ 1:Nx
+            mul_fourier!(v̂_n, L, (nx, ny), w[nx, ny, :])
+            w[nx, ny] = v̂_n[1]
+        end
+    end
+    ldiv!(u_grid, ℱ, w)
+    v_grid .= real.(u_grid)
+    return v
+end
+
+function mul4!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
+    N = grid_size(L)
+    (Nx, Ny) = grid_size(L)
+    u_grid = reshape(u, Nx, Ny)
+    v_grid = reshape(v, Nx, Ny)
+    cache = reshape(cache, Nx, Ny)
+    cache .= u_grid
+    ℱ = plan_fft!(cache)
+    v̂_n = zeros(complex(T), 1)
+    ℱ * cache
+    for ny ∈ 1:Ny
+        for nx ∈ 1:Nx
+            mul_fourier!(v̂_n, L, (nx, ny), cache[nx, ny, :])
+            cache[nx, ny] = v̂_n[1]
+        end
+    end
+    ℱ \ cache
+    v_grid .= real.(cache)
+    return v
+end
+
+
 
 Lx = 2.5
 Ly = 5.0
@@ -188,8 +237,29 @@ Ny = 80
 # r = abs.(v .- mean(v))
 # @assert all(isapprox.(r, 0.0, rtol=10rtol, atol=10atol))
 
+rtol = 1e-12
+atol = 1e-12
+
 u = rand(Float64, size(ℒ₁, 2))
-v_exp = ℒ₁ * u
-v_act = ℒ₂ * u
-v_act2 = similar(v_act)
-mul_rfft!(v_act2, ℒ₂, u)
+v0 = ℒ₁ * u
+
+v1 = ℒ₂ * u
+@assert all(isapprox.(v0, v1, rtol=rtol, atol=atol))
+
+v2 = similar(v1)
+mul2!(v2, ℒ₂, u)
+@assert all(isapprox.(v0, v2, rtol=rtol, atol=atol))
+
+v3 = similar(u)
+mul3!(v3, ℒ₂, u)
+@assert all(isapprox.(v0, v3, rtol=rtol, atol=atol))
+
+v4 = similar(u)
+cache = Array{ComplexF64}(undef, Nx, Ny)
+mul4!(v4, ℒ₂, u, cache)
+@assert all(isapprox.(v0, v4, rtol=rtol, atol=atol))
+
+@benchmark mul1!(v1, ℒ₂, u)
+@benchmark mul2!(v2, ℒ₂, u)
+@benchmark mul3!(v3, ℒ₂, u)
+@benchmark mul4!(v4, ℒ₂, u, cache)
