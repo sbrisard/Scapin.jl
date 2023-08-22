@@ -204,12 +204,28 @@ function mul4!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
     return v
 end
 
+function mul5!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
+    (Nx, Ny) = grid_size(L)
+    u_grid = reshape(u, Nx, Ny)
+    v_grid = reshape(v, Nx, Ny)
+    ℱ = plan_rfft(u_grid)
+    û_n = zeros(complex(T), 1)
+    v̂_n = zeros(complex(T), 1)
+    mul!(cache, ℱ, u_grid)
+    for n in eachindex(IndexCartesian(), cache)
+        û_n[1] = cache[n]
+        mul_fourier!(v̂_n, L, Tuple(n), û_n)
+        cache[n] = v̂_n[1]
+    end
+    ldiv!(v_grid, ℱ, cache)
+    return v
+end
 
 
 Lx = 2.5
 Ly = 5.0
-Nx = 40
-Ny = 80
+Nx = 80
+Ny = 40
 
 ℒ₁ = MinusLaplaceOperator{Float64,2}((Nx, Ny), (Lx / Nx, Ly / Ny))
 ℒ₂ = MinusLaplaceOperatorFourier{Float64,2}((Nx, Ny), (Lx / Nx, Ly / Ny))
@@ -259,7 +275,15 @@ cache = Array{ComplexF64}(undef, Nx, Ny)
 mul4!(v4, ℒ₂, u, cache)
 @assert all(isapprox.(v0, v4, rtol=rtol, atol=atol))
 
-@benchmark mul1!(v1, ℒ₂, u)
-@benchmark mul2!(v2, ℒ₂, u)
-@benchmark mul3!(v3, ℒ₂, u)
-@benchmark mul4!(v4, ℒ₂, u, cache)
+v5 = similar(u)
+cache5 = rfft(reshape(u, Nx, Ny))
+@show size(cache5)
+mul5!(v5, ℒ₂, u, cache5)
+@assert all(isapprox.(v0, v5, rtol=rtol, atol=atol))
+
+
+# @benchmark mul1!(v1, ℒ₂, u)
+# @benchmark mul2!(v2, ℒ₂, u)
+# @benchmark mul3!(v3, ℒ₂, u)
+# @benchmark mul4!(v4, ℒ₂, u, cache)
+@benchmark mul5!(v5, ℒ₂, u, cache5)
