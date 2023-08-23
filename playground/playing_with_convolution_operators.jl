@@ -5,6 +5,8 @@ using LinearAlgebra
 using LinearMaps
 using Statistics
 
+import FourierTools
+
 abstract type AbstractGridOperator{T,N} <: LinearMap{T} end
 
 grid_size(L::AbstractGridOperator{T,N}, d) where {T,N} =
@@ -95,7 +97,7 @@ struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
     k²::NTuple{DIM,Vector{T}}
     function MinusLaplaceOperatorFourier{T,DIM}(
         N::NTuple{DIM,Integer},
-        h::NTuple{DIM,T}
+        h::NTuple{DIM,T},
     ) where {T,DIM}
         num_cells = prod(N)
         f(N_, h_) = [(2 / h_ * sin(π * n / N_))^2 for n = 0:(N_-1)]
@@ -111,6 +113,11 @@ Base.size(L::MinusLaplaceOperatorFourier) = L.size
 grid_size(L::MinusLaplaceOperatorFourier) = L.grid_size
 grid_step(L::MinusLaplaceOperatorFourier) = L.grid_step
 
+cache_size(L::MinusLaplaceOperatorFourier{T,DIM}) where {T,DIM} =
+    FourierTools.rfft_size(grid_size(L), 1:DIM)
+create_cache(L::MinusLaplaceOperatorFourier{T,DIM}) where {T,DIM} =
+    Array{complex(T)}(undef, cache_size(L))
+
 function mul_fourier!(v̂, L::MinusLaplaceOperatorFourier{T,DIM}, n, û) where {T,DIM}
     k² = zero(T)
     for (i, n_i) ∈ enumerate(n)
@@ -120,94 +127,13 @@ function mul_fourier!(v̂, L::MinusLaplaceOperatorFourier{T,DIM}, n, û) where 
 end
 
 function LinearMaps._unsafe_mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u) where {T}
-    return mul1!(v, L, u)
+    return __mul!(v, L, u, create_cache(L))
 end
 
-function mul1!(
-    v::AbstractVecOrMat,
-    L::MinusLaplaceOperatorFourier{T,2},
-    u::AbstractVecOrMat,
-) where {T}
-    (Nx, Ny) = grid_size(L)
-    u_grid = reshape(u, Nx, Ny)
-    v_grid = reshape(v, Nx, Ny)
-    û_grid = fft(u_grid)
-    v̂_grid = similar(û_grid)
-    for ny ∈ 1:Ny
-        for nx ∈ 1:Nx
-            mul_fourier!(view(v̂_grid, nx, ny, :), L, (nx, ny), û_grid[nx, ny, :])
-        end
-    end
-    v .= real.(reshape(ifft(v̂_grid), :))
-    return v
-end
-
-
-
-function mul2!(
-    v::AbstractVecOrMat,
-    L::MinusLaplaceOperatorFourier{T,2},
-    u::AbstractVecOrMat,
-) where {T}
-    (Nx, Ny) = grid_size(L)
-    u_grid = reshape(u, Nx, Ny)
-    v_grid = reshape(v, Nx, Ny)
-    û_grid = rfft(u_grid)
-    v̂_grid = similar(û_grid)
-    for n in eachindex(IndexCartesian(), û_grid)
-        mul_fourier!(view(v̂_grid, n, :), L, Tuple(n), û_grid[n, :])
-    end
-    v .= reshape(irfft(v̂_grid, size(u_grid, 1)), :)
-    return v
-end
-
-function mul3!(v, L::MinusLaplaceOperatorFourier{T,2}, u) where {T}
+function __mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
     N = grid_size(L)
-    (Nx, Ny) = grid_size(L)
-    u_ = Array{complex(T)}(undef, prod(N))
-    u_ .= u
-    u_grid = reshape(u_, Nx, Ny)
-    v_grid = reshape(v, Nx, Ny)
-    w = similar(u_grid)
-    ℱ = plan_fft(w)
-    v̂_n = zeros(complex(T), 1)
-    mul!(w, ℱ, u_grid)
-    for ny ∈ 1:Ny
-        for nx ∈ 1:Nx
-            mul_fourier!(v̂_n, L, (nx, ny), w[nx, ny, :])
-            w[nx, ny] = v̂_n[1]
-        end
-    end
-    ldiv!(u_grid, ℱ, w)
-    v_grid .= real.(u_grid)
-    return v
-end
-
-function mul4!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
-    N = grid_size(L)
-    (Nx, Ny) = grid_size(L)
-    u_grid = reshape(u, Nx, Ny)
-    v_grid = reshape(v, Nx, Ny)
-    cache = reshape(cache, Nx, Ny)
-    cache .= u_grid
-    ℱ = plan_fft!(cache)
-    v̂_n = zeros(complex(T), 1)
-    ℱ * cache
-    for ny ∈ 1:Ny
-        for nx ∈ 1:Nx
-            mul_fourier!(v̂_n, L, (nx, ny), cache[nx, ny, :])
-            cache[nx, ny] = v̂_n[1]
-        end
-    end
-    ℱ \ cache
-    v_grid .= real.(cache)
-    return v
-end
-
-function mul5!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
-    (Nx, Ny) = grid_size(L)
-    u_grid = reshape(u, Nx, Ny)
-    v_grid = reshape(v, Nx, Ny)
+    u_grid = reshape(u, N)
+    v_grid = reshape(v, N)
     ℱ = plan_rfft(u_grid)
     û_n = zeros(complex(T), 1)
     v̂_n = zeros(complex(T), 1)
@@ -260,30 +186,7 @@ u = rand(Float64, size(ℒ₁, 2))
 v0 = ℒ₁ * u
 
 v1 = ℒ₂ * u
-@assert all(isapprox.(v0, v1, rtol=rtol, atol=atol))
+@assert all(isapprox.(v0, v1, rtol = rtol, atol = atol))
 
-v2 = similar(v1)
-mul2!(v2, ℒ₂, u)
-@assert all(isapprox.(v0, v2, rtol=rtol, atol=atol))
-
-v3 = similar(u)
-mul3!(v3, ℒ₂, u)
-@assert all(isapprox.(v0, v3, rtol=rtol, atol=atol))
-
-v4 = similar(u)
-cache = Array{ComplexF64}(undef, Nx, Ny)
-mul4!(v4, ℒ₂, u, cache)
-@assert all(isapprox.(v0, v4, rtol=rtol, atol=atol))
-
-v5 = similar(u)
-cache5 = rfft(reshape(u, Nx, Ny))
-@show size(cache5)
-mul5!(v5, ℒ₂, u, cache5)
-@assert all(isapprox.(v0, v5, rtol=rtol, atol=atol))
-
-
-# @benchmark mul1!(v1, ℒ₂, u)
-# @benchmark mul2!(v2, ℒ₂, u)
-# @benchmark mul3!(v3, ℒ₂, u)
-# @benchmark mul4!(v4, ℒ₂, u, cache)
-@benchmark mul5!(v5, ℒ₂, u, cache5)
+cache = create_cache(ℒ₂)
+@benchmark __mul!(v1, ℒ₂, u, cache)
