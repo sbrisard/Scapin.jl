@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
+FourierTools = "b18b359b-aebc-45ac-a139-9c0ccbb2871e"
 ImageTransformations = "02fcd773-0e25-5acc-982a-7f6622650795"
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 Krylov = "ba0b0d4f-ebba-5204-a429-3ac8c609bfb7"
