@@ -95,6 +95,7 @@ struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
     grid_size::NTuple{DIM,Int}
     grid_step::NTuple{DIM,T}
     k²::NTuple{DIM,Vector{T}}
+    cache::Array{Complex{T},DIM}
     function MinusLaplaceOperatorFourier{T,DIM}(
         N::NTuple{DIM,Integer},
         h::NTuple{DIM,T},
@@ -102,7 +103,8 @@ struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
         num_cells = prod(N)
         f(N_, h_) = [(2 / h_ * sin(π * n / N_))^2 for n = 0:(N_-1)]
         k² = f.(N, h)
-        return new{T,DIM}((num_cells, num_cells), N, h, tuple(k²...))
+        cache = Array{complex(T)}(undef, FourierTools.rfft_size(N, 1:DIM))
+        return new{T,DIM}((num_cells, num_cells), N, h, tuple(k²...), cache)
     end
 end
 
@@ -127,10 +129,7 @@ function mul_fourier!(v̂, L::MinusLaplaceOperatorFourier{T,DIM}, n, û) where 
 end
 
 function LinearMaps._unsafe_mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u) where {T}
-    return __mul!(v, L, u, create_cache(L))
-end
-
-function __mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
+    cache = isnothing(L.cache) ? create_cache(L) : L.cache
     N = grid_size(L)
     u_grid = reshape(u, N)
     v_grid = reshape(v, N)
@@ -146,7 +145,6 @@ function __mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u, cache) where {T}
     ldiv!(v_grid, ℱ, cache)
     return v
 end
-
 
 Lx = 2.5
 Ly = 5.0
@@ -188,5 +186,6 @@ v0 = ℒ₁ * u
 v1 = ℒ₂ * u
 @assert all(isapprox.(v0, v1, rtol = rtol, atol = atol))
 
-cache = create_cache(ℒ₂)
-@benchmark __mul!(v1, ℒ₂, u, cache)
+# cache = create_cache(ℒ₂)
+# @benchmark __mul!(v1, ℒ₂, u, cache)
+@benchmark ℒ₂ * u
