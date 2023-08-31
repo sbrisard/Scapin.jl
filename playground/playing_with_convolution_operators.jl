@@ -33,6 +33,7 @@ MinusLaplaceOperator(N::NTuple{DIM,Integer}, h::NTuple{DIM,T}) where {T,DIM} =
 Base.size(L::MinusLaplaceOperator) = L.size
 grid_size(L::MinusLaplaceOperator) = L.grid_size
 grid_step(L::MinusLaplaceOperator) = L.grid_step
+depth(L::MinusLaplaceOperator) = 1
 
 function LinearMaps._unsafe_mul!(
     v::AbstractVecOrMat,
@@ -41,8 +42,8 @@ function LinearMaps._unsafe_mul!(
 ) where {T}
     (Nx, Ny) = grid_size(L)
     (hx², hy²) = grid_step(L) .^ 2
-    u_arr = reshape(u, Nx, Ny)
-    v_arr = reshape(v, Nx, Ny)
+    u_arr = reshape(u, depth(L), Nx, Ny)
+    v_arr = reshape(v, size(u_arr))
 
     for j₀ ∈ 1:Ny
         j₋₁ = j₀ == 1 ? Ny : j₀ - 1
@@ -50,9 +51,9 @@ function LinearMaps._unsafe_mul!(
         for i₀ ∈ 1:Nx
             i₋₁ = i₀ == 1 ? Nx : i₀ - 1
             i₊₁ = i₀ == Nx ? 1 : i₀ + 1
-            v_arr[i₀, j₀] = -(
-                (u_arr[i₊₁, j₀] - 2 * u_arr[i₀, j₀] + u_arr[i₋₁, j₀]) / hx² +
-                (u_arr[i₀, j₊₁] - 2 * u_arr[i₀, j₀] + u_arr[i₀, j₋₁]) / hy²
+            v_arr[1, i₀, j₀] = -(
+                (u_arr[1, i₊₁, j₀] - 2 * u_arr[1, i₀, j₀] + u_arr[1, i₋₁, j₀]) / hx² +
+                (u_arr[1, i₀, j₊₁] - 2 * u_arr[1, i₀, j₀] + u_arr[1, i₀, j₋₁]) / hy²
             )
         end
     end
@@ -70,8 +71,8 @@ function LinearMaps._unsafe_mul!(
 ) where {T}
     (Nx, Ny) = grid_size(L)
     (hx², hy²) = grid_step(L) .^ 2
-    u_arr = reshape(u, Nx, Ny)
-    v_arr = reshape(v, Nx, Ny)
+    u_arr = reshape(u, depth(L), Nx, Ny)
+    v_arr = reshape(v, size(u_arr))
 
     for j₀ ∈ 1:Ny
         j₋₁ = j₀ == 1 ? Ny : j₀ - 1
@@ -79,10 +80,10 @@ function LinearMaps._unsafe_mul!(
         for i₀ ∈ 1:Nx
             i₋₁ = i₀ == 1 ? Nx : i₀ - 1
             i₊₁ = i₀ == Nx ? 1 : i₀ + 1
-            δ²_yy_u = (u_arr[i₀, j₊₁] - 2 * u_arr[i₀, j₀] + u_arr[i₀, j₋₁]) / hy²
-            δ²_xx_u = (u_arr[i₊₁, j₀] - 2 * u_arr[i₀, j₀] + u_arr[i₋₁, j₀]) / hx²
+            δ²_yy_u = (u_arr[1, i₀, j₊₁] - 2 * u_arr[1, i₀, j₀] + u_arr[1, i₀, j₋₁]) / hy²
+            δ²_xx_u = (u_arr[1, i₊₁, j₀] - 2 * u_arr[1, i₀, j₀] + u_arr[1, i₋₁, j₀]) / hx²
             Δu = δ²_xx_u + δ²_yy_u
-            v_arr[i₀, j₀] = α * (-Δu) + β * v_arr[i₀, j₀]
+            v_arr[1, i₀, j₀] = α * (-Δu) + β * v_arr[1, i₀, j₀]
         end
     end
     return v
@@ -114,6 +115,7 @@ MinusLaplaceOperatorFourier(N::NTuple{DIM,Integer}, h::NTuple{DIM,T}) where {T,D
 Base.size(L::MinusLaplaceOperatorFourier) = L.size
 grid_size(L::MinusLaplaceOperatorFourier) = L.grid_size
 grid_step(L::MinusLaplaceOperatorFourier) = L.grid_step
+depth(::MinusLaplaceOperatorFourier) = 1
 
 cache_size(L::MinusLaplaceOperatorFourier{T,DIM}) where {T,DIM} =
     FourierTools.rfft_size(grid_size(L), 1:DIM)
@@ -131,18 +133,18 @@ end
 function LinearMaps._unsafe_mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u) where {T}
     cache = isnothing(L.cache) ? create_cache(L) : L.cache
     N = grid_size(L)
-    u_grid = reshape(u, N)
-    v_grid = reshape(v, N)
-    ℱ = plan_rfft(u_grid)
+    u_grid = reshape(u, depth(L), N...)
+    v_grid = reshape(v, size(u_grid))
+    ℱ = plan_rfft(u_grid[1, :, :])
     û_n = zeros(complex(T), 1)
     v̂_n = zeros(complex(T), 1)
-    mul!(cache, ℱ, u_grid)
+    mul!(cache, ℱ, u_grid[1, :, :])
     for n in eachindex(IndexCartesian(), cache)
         û_n[1] = cache[n]
         mul_fourier!(v̂_n, L, Tuple(n), û_n)
         cache[n] = v̂_n[1]
     end
-    ldiv!(v_grid, ℱ, cache)
+    ldiv!(view(v_grid, 1, :, :), ℱ, cache)
     return v
 end
 
