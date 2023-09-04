@@ -96,7 +96,7 @@ struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
     grid_size::NTuple{DIM,Int}
     grid_step::NTuple{DIM,T}
     k²::NTuple{DIM,Vector{T}}
-    cache::Array{Complex{T},DIM}
+    cache::Array{Complex{T},DIM + 1}
     function MinusLaplaceOperatorFourier{T,DIM}(
         N::NTuple{DIM,Integer},
         h::NTuple{DIM,T},
@@ -104,7 +104,7 @@ struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
         num_cells = prod(N)
         f(N_, h_) = [(2 / h_ * sin(π * n / N_))^2 for n = 0:(N_-1)]
         k² = f.(N, h)
-        cache = Array{complex(T)}(undef, FourierTools.rfft_size(N, 1:DIM))
+        cache = Array{complex(T)}(undef, (1, FourierTools.rfft_size(N, 1:DIM)...))
         return new{T,DIM}((num_cells, num_cells), N, h, tuple(k²...), cache)
     end
 end
@@ -118,7 +118,7 @@ grid_step(L::MinusLaplaceOperatorFourier) = L.grid_step
 depth(::MinusLaplaceOperatorFourier) = 1
 
 cache_size(L::MinusLaplaceOperatorFourier{T,DIM}) where {T,DIM} =
-    FourierTools.rfft_size(grid_size(L), 1:DIM)
+    (depth(L), FourierTools.rfft_size(grid_size(L), 1:DIM)...)
 create_cache(L::MinusLaplaceOperatorFourier{T,DIM}) where {T,DIM} =
     Array{complex(T)}(undef, cache_size(L))
 
@@ -135,16 +135,21 @@ function LinearMaps._unsafe_mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u) wher
     N = grid_size(L)
     u_grid = reshape(u, depth(L), N...)
     v_grid = reshape(v, size(u_grid))
-    ℱ = plan_rfft(u_grid[1, :, :])
+    ℱ = plan_rfft(view(u_grid, 1, :, :))
     û_n = zeros(complex(T), 1)
     v̂_n = zeros(complex(T), 1)
-    mul!(cache, ℱ, u_grid[1, :, :])
-    for n in eachindex(IndexCartesian(), cache)
-        û_n[1] = cache[n]
-        mul_fourier!(v̂_n, L, Tuple(n), û_n)
-        cache[n] = v̂_n[1]
+    for i in 1:depth(L)
+        u_i = view(u_grid, i, :, :)
+        v_i = view(v_grid, i, :, :)
+
+        mul!(cache, ℱ, u_i)
+        for n in eachindex(IndexCartesian(), cache)
+            û_n[1] = cache[n]
+            mul_fourier!(v̂_n, L, Tuple(n), û_n)
+            cache[n] = v̂_n[1]
+        end
+        ldiv!(v_i, ℱ, cache)
     end
-    ldiv!(view(v_grid, 1, :, :), ℱ, cache)
     return v
 end
 
