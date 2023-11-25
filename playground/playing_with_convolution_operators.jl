@@ -91,26 +91,26 @@ end
 
 LinearAlgebra.issymmetric(L::MinusLaplaceOperator) = true
 
-struct MinusLaplaceOperatorFourier{T,DIM} <: AbstractGridOperator{T,DIM}
+struct MinusLaplaceOperatorFourier{T,DIM,DIM_PLUS_ONE} <: AbstractGridOperator{T,DIM}
     size::NTuple{2,Int}
     grid_size::NTuple{DIM,Int}
     grid_step::NTuple{DIM,T}
     k²::NTuple{DIM,Vector{T}}
-    cache::Array{Complex{T},DIM + 1}
-    function MinusLaplaceOperatorFourier{T,DIM}(
+    cache::Array{Complex{T},DIM_PLUS_ONE}
+    function MinusLaplaceOperatorFourier{T,DIM,DIM_PLUS_ONE}(
         N::NTuple{DIM,Integer},
         h::NTuple{DIM,T},
-    ) where {T,DIM}
+    ) where {T,DIM,DIM_PLUS_ONE}
         num_cells = prod(N)
         f(N_, h_) = [(2 / h_ * sin(π * n / N_))^2 for n = 0:(N_-1)]
         k² = f.(N, h)
-        cache = Array{complex(T)}(undef, (1, FourierTools.rfft_size(N, 1:DIM)...))
-        return new{T,DIM}((num_cells, num_cells), N, h, tuple(k²...), cache)
+        cache = Array{complex(T)}(undef, 1, FourierTools.rfft_size(N, 1:DIM)...)
+        return new{T,DIM,DIM_PLUS_ONE}((num_cells, num_cells), N, h, tuple(k²...), cache)
     end
 end
 
 MinusLaplaceOperatorFourier(N::NTuple{DIM,Integer}, h::NTuple{DIM,T}) where {T,DIM} =
-    MinusLaplaceOperatorFourier{T,DIM}(N, h)
+    MinusLaplaceOperatorFourier{T,DIM,DIM + 1}(N, h)
 
 Base.size(L::MinusLaplaceOperatorFourier) = L.size
 grid_size(L::MinusLaplaceOperatorFourier) = L.grid_size
@@ -131,7 +131,7 @@ function mul_fourier!(v̂, L::MinusLaplaceOperatorFourier{T,DIM}, n, û) where 
 end
 
 function LinearMaps._unsafe_mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u) where {T}
-    cache = isnothing(L.cache) ? create_cache(L) : L.cache
+    w = isnothing(L.cache) ? create_cache(L) : L.cache
     N = grid_size(L)
     u_grid = reshape(u, depth(L), N...)
     v_grid = reshape(v, size(u_grid))
@@ -140,15 +140,18 @@ function LinearMaps._unsafe_mul!(v, L::MinusLaplaceOperatorFourier{T,2}, u) wher
     v̂_n = zeros(complex(T), 1)
     for i in 1:depth(L)
         u_i = view(u_grid, i, :, :)
+        w_i = view(w, i, :, :)
+        mul!(w_i, ℱ, u_i)
+    end
+    for n in eachindex(IndexCartesian(), w[1, :, :])
+        û_n .= view(w, :, n)
+        mul_fourier!(v̂_n, L, Tuple(n), û_n)
+        w[:, n] .= v̂_n
+    end
+    for i in 1:depth(L)
         v_i = view(v_grid, i, :, :)
-
-        mul!(cache, ℱ, u_i)
-        for n in eachindex(IndexCartesian(), cache)
-            û_n[1] = cache[n]
-            mul_fourier!(v̂_n, L, Tuple(n), û_n)
-            cache[n] = v̂_n[1]
-        end
-        ldiv!(v_i, ℱ, cache)
+        w_i = view(w, i, :, :)
+        ldiv!(v_i, ℱ, w_i)
     end
     return v
 end
@@ -159,7 +162,7 @@ Nx = 80
 Ny = 40
 
 ℒ₁ = MinusLaplaceOperator{Float64,2}((Nx, Ny), (Lx / Nx, Ly / Ny))
-ℒ₂ = MinusLaplaceOperatorFourier{Float64,2}((Nx, Ny), (Lx / Nx, Ly / Ny))
+ℒ₂ = MinusLaplaceOperatorFourier((Nx, Ny), (Lx / Nx, Ly / Ny))
 
 # ux = [sin(π * (n + 0.5) / Nx) for n = 0:(Nx-1)]
 # uy = [sin(π * (n + 0.5) / Ny) for n = 0:(Ny-1)]
@@ -191,7 +194,7 @@ u = rand(Float64, size(ℒ₁, 2))
 v0 = ℒ₁ * u
 
 v1 = ℒ₂ * u
-@assert all(isapprox.(v0, v1, rtol = rtol, atol = atol))
+@assert all(isapprox.(v0, v1, rtol=rtol, atol=atol))
 
 # cache = create_cache(ℒ₂)
 # @benchmark __mul!(v1, ℒ₂, u, cache)
